@@ -656,16 +656,17 @@ def estimator_console(request):
 
     projects_qs = ProjectRFQ.objects.all().select_related("assigned_estimator").order_by("-id")
     estimators_qs = Estimator.objects.all().order_by("name")
-
-    projects_list = [p.to_dict() for p in projects_qs]
     estimators_list = [e.to_dict() for e in estimators_qs]
 
-    # Authorized projects (approved by MD) matching Next.js EstimatorDashboard.tsx
-    authorized = [p for p in projects_list if p["status"] in ["Approved for Bidding", "Estimator Assigned", "Under BOQ Estimation", "Survey Required", "Survey In Progress", "Bid Submitted", "Won / Active Project"] or p["mdStatus"] == "Approved for Bidding"]
-    active_bids = [p for p in authorized if p["status"] in ["Approved for Bidding", "Estimator Assigned", "Under BOQ Estimation", "Survey Required", "Survey In Progress"]]
-    submitted_bids = [p for p in authorized if p["status"] in ["Bid Submitted", "Won / Active Project"]]
+    pipeline_ctx = _get_pipeline_context(projects_qs)
+    projects_list = pipeline_ctx["projects"]
 
-    total_pricing_value = sum(p.get("estimatedValue", 0) for p in active_bids)
+    # Authorized projects (approved by MD) matching Next.js EstimatorDashboard.tsx
+    authorized = [p for p in projects_list if p["status"] in ["Approved for Bidding", "Estimator Assigned", "Under BOQ Estimation", "Survey Required", "Survey In Progress", "Bid Submitted", "Won / Active Project"] or p.get("mdStatus") == "Approved for Bidding"]
+    active_bids = [p for p in authorized if p["status"] in ["Approved for Bidding", "Estimator Assigned", "Under BOQ Estimation", "Survey Required", "Survey In Progress"]]
+    submitted_bids = [p for p in authorized if p["status"] in ["Bid Submitted", "Won / Active Project", "Under Negotiation"]]
+
+    total_pricing_value = sum(float(p.get("estimatedValue") or 0) for p in active_bids)
     selected_estimator_id = request.GET.get("estimator_id") or request.GET.get("estimator") or ""
 
     context = {
@@ -680,6 +681,9 @@ def estimator_console(request):
         },
         "projects_json": json.dumps(projects_list),
         "estimators_json": json.dumps(estimators_list),
+        "pipeline_stats": pipeline_ctx["pipeline_stats"],
+        "total_award_val_m": pipeline_ctx["total_award_val_m"],
+        "total_projects": pipeline_ctx["total_projects"],
     }
 
     response = render(request, "core/estimator_dashboard.html", context)

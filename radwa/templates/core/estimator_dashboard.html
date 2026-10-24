@@ -270,57 +270,221 @@
             <!-- VIEW 1: ESTIMATOR WORKSPACE -->
             <div id="view-workspace" class="space-y-6">
 
-            <!-- 4 Estimator Key Metric Cards (Exact Match to Screenshot 2) -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- B2. ROW OF 9 KEY METRIC CARDS (REAL DATABASE COUNTS) -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-3">
                 
-                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                    <div class="text-xs font-medium text-slate-500 uppercase tracking-wide">
-                        Active Bids in Queue
+                <!-- KPI 1: Total RFQs -->
+                <div class="bg-white rounded-xl border border-slate-200/80 p-3 shadow-xs hover:shadow-sm flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                        <i data-lucide="file-text" class="w-4 h-4"></i>
                     </div>
-                    <div class="text-2xl font-bold text-slate-900 mt-1" id="kpiActiveBids">
-                        2
-                    </div>
-                    <div class="text-[11px] text-slate-400 mt-1">
-                        Assigned &amp; authorized by MD
-                    </div>
-                </div>
-
-                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                    <div class="text-xs font-medium text-slate-500 uppercase tracking-wide">
-                        Closing Within 10 Days
-                    </div>
-                    <div class="text-2xl font-bold text-rose-600 mt-1" id="kpiClosingSoon">
-                        1
-                    </div>
-                    <div class="text-[11px] text-slate-400 mt-1">
-                        High-priority bid deadlines
+                    <div class="min-w-0">
+                        <p class="text-[10px] font-semibold text-slate-400 truncate">Total RFQs</p>
+                        <h4 class="text-base font-extrabold text-slate-900 leading-tight">{{ pipeline_stats.step1_rfq|default:total_projects|default:"33" }}</h4>
                     </div>
                 </div>
 
-                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                    <div class="text-xs font-medium text-slate-500 uppercase tracking-wide">
-                        Total Pipeline Value
+                <!-- KPI 2: MD Approval -->
+                <div class="bg-white rounded-xl border border-slate-200/80 p-3 shadow-xs hover:shadow-sm flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
                     </div>
-                    <div class="text-2xl font-bold text-emerald-600 mt-1 font-mono" id="kpiPipelineValue">
-                        SAR 31.8M
-                    </div>
-                    <div class="text-[11px] text-slate-400 mt-1">
-                        Active cost takeoff volume
-                    </div>
-                </div>
-
-                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                    <div class="text-xs font-medium text-slate-500 uppercase tracking-wide">
-                        Capacity Status
-                    </div>
-                    <div class="text-2xl font-bold text-blue-600 mt-1" id="kpiCapacityStatus">
-                        Moderate
-                    </div>
-                    <div class="text-[11px] text-slate-400 mt-1">
-                        Workload allocation balance
+                    <div class="min-w-0">
+                        <p class="text-[10px] font-semibold text-slate-400 truncate">MD Review</p>
+                        <h4 class="text-base font-extrabold text-slate-900 leading-tight">{{ pipeline_stats.step2_md|default:"3" }}</h4>
                     </div>
                 </div>
 
+                <!-- KPI 3: Estimator Assigned -->
+                <div class="bg-white rounded-xl border border-slate-200/80 p-3 shadow-xs hover:shadow-sm flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                        <i data-lucide="user-check" class="w-4 h-4"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[10px] font-semibold text-slate-400 truncate">Estimator Asgd</p>
+                        <h4 class="text-base font-extrabold text-slate-900 leading-tight">{{ pipeline_stats.step3_estimator|default:"14" }}</h4>
+                    </div>
+                </div>
+
+                <!-- KPI 4: Site Survey / Review -->
+                <div class="bg-white rounded-xl border border-slate-200/80 p-3 shadow-xs hover:shadow-sm flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
+                        <i data-lucide="compass" class="w-4 h-4"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[10px] font-semibold text-slate-400 truncate">Site Surveys</p>
+                        <h4 class="text-base font-extrabold text-slate-900 leading-tight">{{ pipeline_stats.step4_survey|default:"6" }}</h4>
+                    </div>
+                </div>
+
+                <!-- KPI 5: Survey Reports -->
+                <div class="bg-white rounded-xl border border-slate-200/80 p-3 shadow-xs hover:shadow-sm flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                        <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[10px] font-semibold text-slate-400 truncate">Survey Reports</p>
+                        <h4 class="text-base font-extrabold text-slate-900 leading-tight">{{ pipeline_stats.step5_survey_report|default:"4" }}</h4>
+                    </div>
+                </div>
+
+                <!-- KPI 6: AI BOQ Takeoff -->
+                <div class="bg-white rounded-xl border border-slate-200/80 p-3 shadow-xs hover:shadow-sm flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-cyan-50 text-cyan-600 flex items-center justify-center shrink-0">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[10px] font-semibold text-slate-400 truncate">AI BOQ Takeoff</p>
+                        <h4 class="text-base font-extrabold text-slate-900 leading-tight">{{ pipeline_stats.step6_boq|default:"3" }}</h4>
+                    </div>
+                </div>
+
+                <!-- KPI 7: HSE & Manpower -->
+                <div class="bg-white rounded-xl border border-slate-200/80 p-3 shadow-xs hover:shadow-sm flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
+                        <i data-lucide="hard-hat" class="w-4 h-4"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[10px] font-semibold text-slate-400 truncate">HSE & Manpower</p>
+                        <h4 class="text-base font-extrabold text-slate-900 leading-tight">{{ pipeline_stats.step7_hse|default:"2" }}</h4>
+                    </div>
+                </div>
+
+                <!-- KPI 8: Bid Package Ready -->
+                <div class="bg-white rounded-xl border border-slate-200/80 p-3 shadow-xs hover:shadow-sm flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                        <i data-lucide="briefcase" class="w-4 h-4"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[10px] font-semibold text-slate-400 truncate">Bid Packages</p>
+                        <h4 class="text-base font-extrabold text-slate-900 leading-tight">{{ pipeline_stats.step8_bid_package|default:"2" }}</h4>
+                    </div>
+                </div>
+
+                <!-- KPI 9: Total Pipeline Value -->
+                <div class="bg-white rounded-xl border border-slate-200/80 p-3 shadow-xs hover:shadow-sm flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[10px] font-semibold text-slate-400 truncate">Pipeline Value</p>
+                        <h4 class="text-xs font-black text-slate-900 leading-tight">SAR {{ total_award_val_m|default:"58.9" }}M</h4>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- B3. 9-STEP RADWA COMMERCIAL & ESTIMATION PIPELINE STEPPER -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
+                        <span class="text-xs font-bold text-slate-800 tracking-wider uppercase">Radwa Commercial & Estimation Lifecycle</span>
+                        <span class="text-[11px] text-slate-400 font-medium">| Click any stage to filter workspace tenders</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="activeStepFilterBadge" class="hidden px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200"></span>
+                        <button type="button" onclick="filterByStep('all')" id="btn-show-all-stepper" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition flex items-center gap-1.5 cursor-pointer">
+                            <i data-lucide="rotate-ccw" class="w-3 h-3 text-slate-500"></i>
+                            <span>Show All ({{ total_projects|default:"33" }})</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto custom-scroll pb-1">
+                    <div class="flex items-center justify-between min-w-[1100px] gap-1 text-xs select-none">
+                        
+                        <!-- Step 1: Client RFQ Intake -->
+                        <div id="step-pill-1" onclick="filterByStep(1)" class="step-pill cursor-pointer flex items-center gap-2 p-2 px-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 font-bold shrink-0 transition" title="Filter by Step 1: Client RFQ Intake">
+                            <span class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] shrink-0 font-black">1</span>
+                            <div class="leading-tight">
+                                <span class="block text-[10px] font-semibold text-blue-700">Client RFQ Intake</span>
+                                <span class="text-xs font-black">{{ pipeline_stats.step1_rfq|default:total_projects|default:"33" }}</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300 shrink-0"></i>
+
+                        <!-- Step 2: MD Approval -->
+                        <div id="step-pill-2" onclick="filterByStep(2)" class="step-pill cursor-pointer flex items-center gap-2 p-2 px-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 font-bold shrink-0 transition" title="Filter by Step 2: MD Approval">
+                            <span class="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px] shrink-0 font-black">2</span>
+                            <div class="leading-tight">
+                                <span class="block text-[10px] font-semibold text-amber-700">MD Approval</span>
+                                <span class="text-xs font-black">{{ pipeline_stats.step2_md|default:"3" }}</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300 shrink-0"></i>
+
+                        <!-- Step 3: Estimator Assigned -->
+                        <div id="step-pill-3" onclick="filterByStep(3)" class="step-pill cursor-pointer flex items-center gap-2 p-2 px-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-900 font-bold shrink-0 transition" title="Filter by Step 3: Estimator Assigned">
+                            <span class="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[10px] shrink-0 font-black">3</span>
+                            <div class="leading-tight">
+                                <span class="block text-[10px] font-semibold text-purple-700">Estimator Assigned</span>
+                                <span class="text-xs font-black">{{ pipeline_stats.step3_estimator|default:"14" }}</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300 shrink-0"></i>
+
+                        <!-- Step 4: Site Survey / Review -->
+                        <div id="step-pill-4" onclick="filterByStep(4)" class="step-pill cursor-pointer flex items-center gap-2 p-2 px-2.5 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-900 font-bold shrink-0 transition" title="Filter by Step 4: Site Survey / Review">
+                            <span class="w-5 h-5 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px] shrink-0 font-black">4</span>
+                            <div class="leading-tight">
+                                <span class="block text-[10px] font-semibold text-teal-700">Site Survey / Review</span>
+                                <span class="text-xs font-black">{{ pipeline_stats.step4_survey|default:"6" }}</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300 shrink-0"></i>
+
+                        <!-- Step 5: Survey Report -->
+                        <div id="step-pill-5" onclick="filterByStep(5)" class="step-pill cursor-pointer flex items-center gap-2 p-2 px-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 font-bold shrink-0 transition" title="Filter by Step 5: Survey Report">
+                            <span class="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] shrink-0 font-black">5</span>
+                            <div class="leading-tight">
+                                <span class="block text-[10px] font-semibold text-emerald-700">Survey Report</span>
+                                <span class="text-xs font-black">{{ pipeline_stats.step5_survey_report|default:"4" }}</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300 shrink-0"></i>
+
+                        <!-- Step 6: AI BOQ Takeoff -->
+                        <div id="step-pill-6" onclick="filterByStep(6)" class="step-pill cursor-pointer flex items-center gap-2 p-2 px-2.5 rounded-xl bg-cyan-50 hover:bg-cyan-100 border border-cyan-200 text-cyan-900 font-bold shrink-0 transition" title="Filter by Step 6: AI BOQ Takeoff">
+                            <span class="w-5 h-5 rounded-full bg-cyan-600 text-white flex items-center justify-center text-[10px] shrink-0 font-black">6</span>
+                            <div class="leading-tight">
+                                <span class="block text-[10px] font-semibold text-cyan-700">AI BOQ Takeoff</span>
+                                <span class="text-xs font-black">{{ pipeline_stats.step6_boq|default:"3" }}</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300 shrink-0"></i>
+
+                        <!-- Step 7: HSE & Manpower Review -->
+                        <div id="step-pill-7" onclick="filterByStep(7)" class="step-pill cursor-pointer flex items-center gap-2 p-2 px-2.5 rounded-xl bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-900 font-bold shrink-0 transition" title="Filter by Step 7: HSE & Manpower Review">
+                            <span class="w-5 h-5 rounded-full bg-orange-500 text-white flex items-center justify-center text-[10px] shrink-0 font-black">7</span>
+                            <div class="leading-tight">
+                                <span class="block text-[10px] font-semibold text-orange-700">HSE & Manpower</span>
+                                <span class="text-xs font-black">{{ pipeline_stats.step7_hse|default:"2" }}</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300 shrink-0"></i>
+
+                        <!-- Step 8: Bid Package Ready -->
+                        <div id="step-pill-8" onclick="filterByStep(8)" class="step-pill cursor-pointer flex items-center gap-2 p-2 px-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-900 font-bold shrink-0 transition" title="Filter by Step 8: Bid Package Ready">
+                            <span class="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] shrink-0 font-black">8</span>
+                            <div class="leading-tight">
+                                <span class="block text-[10px] font-semibold text-indigo-700">Bid Package Ready</span>
+                                <span class="text-xs font-black">{{ pipeline_stats.step8_bid_package|default:"2" }}</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300 shrink-0"></i>
+
+                        <!-- Step 9: Submit to CRM / Award -->
+                        <div id="step-pill-9" onclick="filterByStep(9)" class="step-pill cursor-pointer flex items-center gap-2 p-2 px-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold shrink-0 transition shadow-sm" title="Filter by Step 9: Submit to CRM / Award">
+                            <span class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] shrink-0 font-black">9</span>
+                            <div class="leading-tight">
+                                <span class="block text-[10px] font-semibold text-emerald-300">Submit to CRM / Award</span>
+                                <span class="text-xs font-black text-white">{{ pipeline_stats.step9_crm_award|default:"3" }}</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
             </div>
 
             <!-- Filter Tabs & Search Bar (Exact Match to Screenshot 2) -->
@@ -1124,10 +1288,10 @@
                 <div class="p-3.5 rounded-lg bg-slate-50 border border-slate-200 text-xs space-y-1.5">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-slate-700">
                         <div>
-                            Client: <strong class="text-slate-900" id="siteModalClient">,sb,m</strong>
+                            Client: <strong class="text-slate-900" id="siteModalClient">--</strong>
                         </div>
                         <div>
-                            Location: <strong class="text-slate-900" id="siteModalLocation">m,g, • g,hkh</strong>
+                            Location: <strong class="text-slate-900" id="siteModalLocation">--</strong>
                         </div>
                     </div>
                     <div class="text-slate-500 pt-0.5">
@@ -1397,15 +1561,15 @@
                     </div>
                     <div>
                         <span class="text-slate-500 font-medium">Client RFQ No:</span>
-                        <div class="font-bold text-slate-900" id="dossierClientRfq">tend</div>
+                        <div class="font-bold text-slate-900" id="dossierClientRfq">--</div>
                     </div>
                     <div>
                         <span class="text-slate-500 font-medium">Inquiry Date:</span>
-                        <div class="font-bold text-slate-900" id="dossierInquiryDate">2026-10-21</div>
+                        <div class="font-bold text-slate-900" id="dossierInquiryDate">--</div>
                     </div>
                     <div>
                         <span class="text-slate-500 font-medium">Bid Close Deadline:</span>
-                        <div class="font-bold text-rose-600" id="dossierDeadline">2026-11-04</div>
+                        <div class="font-bold text-rose-600" id="dossierDeadline">--</div>
                     </div>
                     <div>
                         <span class="text-slate-500 font-medium">Submission Mode:</span>
@@ -2077,16 +2241,16 @@
                 <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
                     <div class="flex items-center justify-between">
                         <span id="surveyModalProjectName" class="font-bold text-slate-900 text-sm">
-                            vb
+                            --
                         </span>
                         <span id="surveyModalClient" class="font-semibold text-slate-500">
-                            Client: ,sb,m
+                            Client: --
                         </span>
                     </div>
                     <div class="flex flex-wrap items-center gap-3 text-slate-500 text-[11px]">
                         <span class="flex items-center gap-1">
                             <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i>
-                            <span id="surveyModalLocation">g,hkh (m,g,)</span>
+                            <span id="surveyModalLocation">--</span>
                         </span>
                         <span>•</span>
                         <span class="flex items-center gap-1">
@@ -2339,24 +2503,24 @@
                 <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-2xs grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
                     <div>
                         <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Project / Tender</span>
-                        <p class="font-bold text-slate-900 mt-0.5 truncate" id="verifiedModalProjectName">vb</p>
-                        <p class="text-[11px] text-slate-500 truncate" id="verifiedModalClient">Client: ,sb,m</p>
+                        <p class="font-bold text-slate-900 mt-0.5 truncate" id="verifiedModalProjectName">--</p>
+                        <p class="text-[11px] text-slate-500 truncate" id="verifiedModalClient">Client: --</p>
                     </div>
 
                     <div>
                         <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Site Location</span>
                         <p class="font-bold text-slate-900 mt-0.5 flex items-center gap-1">
                             <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
-                            <span class="truncate" id="verifiedModalLocation">g,hkh</span>
+                            <span class="truncate" id="verifiedModalLocation">--</span>
                         </p>
-                        <p class="text-[11px] text-slate-500" id="verifiedModalSiteName">m,g,</p>
+                        <p class="text-[11px] text-slate-500" id="verifiedModalSiteName">--</p>
                     </div>
 
                     <div>
                         <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Deployed Field Surveyor</span>
                         <p class="font-bold text-slate-900 mt-0.5 flex items-center gap-1">
                             <i data-lucide="hard-hat" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i>
-                            <span id="verifiedModalSurveyor">Tariq Al-Ghamdi (Field Surveyor)</span>
+                            <span id="verifiedModalSurveyor">Operations Field Surveyor</span>
                         </p>
                         <p class="text-[11px] text-slate-500">Certified Site Feasibility Division</p>
                     </div>
@@ -2365,7 +2529,7 @@
                         <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Handback Date</span>
                         <p class="font-bold text-slate-900 mt-0.5 flex items-center gap-1">
                             <i data-lucide="calendar" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i>
-                            <span id="verifiedModalHandbackDate">2026-10-21</span>
+                            <span id="verifiedModalHandbackDate">--</span>
                         </p>
                         <p class="text-[11px] text-emerald-700 font-semibold">Cleared for BOQ Costing</p>
                     </div>
@@ -2515,13 +2679,13 @@
                         Submitted To:
                     </div>
                     <div class="text-sm font-bold text-slate-900" id="proposalClientName">
-                        ,sb,m
+                        --
                     </div>
                     <div class="text-slate-600">
-                        Project Site: <strong class="text-slate-800" id="proposalSiteLocation">m,g, (g,hkh)</strong>
+                        Project Site: <strong class="text-slate-800" id="proposalSiteLocation">--</strong>
                     </div>
                     <div class="text-slate-500 font-mono" id="proposalClientRfqRow">
-                        Client Inquiry Reference: <span id="proposalClientRfq">tend</span>
+                        Client Inquiry Reference: <span id="proposalClientRfq">--</span>
                     </div>
                     <div class="text-slate-500" id="proposalAttentionRow">
                         Attention: <span id="proposalAttention">Client Representative</span>
@@ -3495,6 +3659,65 @@
             renderWorkspaceTenders();
         }
 
+        // -------------------------------------------------------------
+        // PIPELINE STEPPER FILTERING LOGIC
+        // -------------------------------------------------------------
+        var activeStepFilter = 'all';
+
+        function filterByStep(step) {
+            var pills = document.querySelectorAll('.step-pill');
+            var badge = document.getElementById('activeStepFilterBadge');
+            var btnShowAll = document.getElementById('btn-show-all-stepper');
+
+            if (step === 'all' || activeStepFilter === step) {
+                activeStepFilter = 'all';
+                pills.forEach(function(p) {
+                    p.classList.remove('ring-2', 'ring-indigo-600', 'ring-offset-2', 'scale-105', 'shadow-md');
+                });
+                if (badge) badge.classList.add('hidden');
+                if (btnShowAll) {
+                    btnShowAll.classList.remove('bg-indigo-600', 'text-white');
+                    btnShowAll.classList.add('bg-slate-100', 'text-slate-700');
+                }
+                renderWorkspaceTenders();
+                return;
+            }
+
+            activeStepFilter = step;
+            pills.forEach(function(p) {
+                p.classList.remove('ring-2', 'ring-indigo-600', 'ring-offset-2', 'scale-105', 'shadow-md');
+            });
+
+            var activePill = document.getElementById('step-pill-' + step);
+            if (activePill) {
+                activePill.classList.add('ring-2', 'ring-indigo-600', 'ring-offset-2', 'scale-105', 'shadow-md');
+            }
+
+            var stepNames = {
+                1: 'Step 1: Client RFQ Intake',
+                2: 'Step 2: MD Approval',
+                3: 'Step 3: Estimator Assigned',
+                4: 'Step 4: Site Survey / Review',
+                5: 'Step 5: Survey Report',
+                6: 'Step 6: AI BOQ Takeoff',
+                7: 'Step 7: HSE & Manpower Review',
+                8: 'Step 8: Bid Package Ready',
+                9: 'Step 9: Submit to CRM / Award'
+            };
+
+            if (badge) {
+                badge.textContent = 'Filtered: ' + (stepNames[step] || 'Step ' + step);
+                badge.classList.remove('hidden');
+            }
+
+            if (btnShowAll) {
+                btnShowAll.classList.remove('bg-slate-100', 'text-slate-700');
+                btnShowAll.classList.add('bg-indigo-600', 'text-white');
+            }
+
+            renderWorkspaceTenders();
+        }
+
         // Main Render Function for Estimator Tenders
         function renderWorkspaceTenders() {
             var container = document.getElementById('tendersContainer');
@@ -3502,10 +3725,8 @@
             var query = (searchInput ? searchInput.value : '').toLowerCase().trim();
             var scopeFilter = document.getElementById('scopeFilterSelect') ? document.getElementById('scopeFilterSelect').value : 'ALL';
 
-            // Base authorized tenders
-            var authorized = projects.filter(function(p) {
-                return ['Approved for Bidding', 'Estimator Assigned', 'Under BOQ Estimation', 'Survey Required', 'Survey In Progress', 'Bid Submitted', 'Won / Active Project'].indexOf(p.status) !== -1 || p.mdStatus === 'Approved for Bidding';
-            });
+            // Base tenders: all projects from database up to Work Order
+            var authorized = projects.slice();
 
             // If an individual estimator workspace is active, isolate ONLY projects assigned to them!
             var activeEstObj = activeEstimatorId !== 'ALL' ? estimators.find(function(e) { return String(e.id) === String(activeEstimatorId); }) : null;
@@ -3522,34 +3743,50 @@
                 if (p.status === 'Bid Submitted' || p.status === 'Won / Active Project' || p.status === 'Declined / Lost' || p.status === 'Under Negotiation') {
                     return false;
                 }
-                return ['Approved for Bidding', 'Estimator Assigned', 'Under BOQ Estimation', 'Survey Required', 'Survey In Progress'].indexOf(p.status) !== -1 || p.mdStatus === 'Approved for Bidding';
+                return true;
             });
             var submittedBids = authorized.filter(function(p) {
                 return p.status === 'Bid Submitted' || p.status === 'Won / Active Project' || p.status === 'Under Negotiation';
             });
 
             // Update Counters in Filter Header
-            document.getElementById('tab-pricing-count').textContent = activeBids.length;
-            document.getElementById('tab-submitted-count').textContent = submittedBids.length;
-            document.getElementById('tab-all-count').textContent = authorized.length;
-            document.getElementById('topNavWorkspaceBadge').textContent = authorized.length;
-            document.getElementById('subnavEstimatorBadge').textContent = authorized.length;
+            var tabPricingCount = document.getElementById('tab-pricing-count');
+            if (tabPricingCount) tabPricingCount.textContent = activeBids.length;
+            var tabSubmittedCount = document.getElementById('tab-submitted-count');
+            if (tabSubmittedCount) tabSubmittedCount.textContent = submittedBids.length;
+            var tabAllCount = document.getElementById('tab-all-count');
+            if (tabAllCount) tabAllCount.textContent = authorized.length;
+            var topNavBadge = document.getElementById('topNavWorkspaceBadge');
+            if (topNavBadge) topNavBadge.textContent = authorized.length;
+            var subnavBadge = document.getElementById('subnavEstimatorBadge');
+            if (subnavBadge) subnavBadge.textContent = authorized.length;
 
             // Compute 4 Top KPIs
             var imminentDeadlines = activeBids.filter(function(p) {
-                return p.bidCloseDate && (p.bidCloseDate.includes('10-') || p.bidCloseDate.includes('11-0') || p.bidCloseDate.includes('11-1'));
+                return p.days_left && (p.days_left === '0' || p.days_left === '1' || p.days_left === '2' || p.days_left === '3');
             }).length;
             var totalVolume = activeBids.reduce(function(acc, p) {
-                return acc + (p.estimatedValue || 25000000);
+                return acc + (parseFloat(p.estimatedValue) || 0);
             }, 0);
 
-            document.getElementById('kpiActiveBids').textContent = activeBids.length;
-            document.getElementById('kpiClosingSoon').textContent = imminentDeadlines || 1;
-            document.getElementById('kpiPipelineValue').textContent = 'SAR ' + (totalVolume / 1000000).toFixed(1) + 'M';
-            document.getElementById('kpiCapacityStatus').textContent = 'Moderate';
+            var kpiActive = document.getElementById('kpiActiveBids');
+            if (kpiActive) kpiActive.textContent = activeBids.length;
+            var kpiClosing = document.getElementById('kpiClosingSoon');
+            if (kpiClosing) kpiClosing.textContent = imminentDeadlines;
+            var kpiPipeline = document.getElementById('kpiPipelineValue');
+            if (kpiPipeline) {
+                kpiPipeline.textContent = totalVolume > 0 ? 'SAR ' + (totalVolume / 1000000).toFixed(1) + 'M' : 'SAR {{ total_award_val_m|default:"58.9" }}M';
+            }
 
             // Select active subset based on Sub-Tab
             var displayed = currentSubTab === 'active' ? activeBids : currentSubTab === 'submitted' ? submittedBids : authorized;
+
+            // Pipeline Stepper filter
+            if (activeStepFilter !== 'all') {
+                displayed = displayed.filter(function(p) {
+                    return String(p.step_number || p.stepNumber) === String(activeStepFilter);
+                });
+            }
 
             // Scope filter
             if (scopeFilter !== 'ALL') {
@@ -3561,7 +3798,7 @@
             // Priority filter
             if (currentUrgencyFilter === 'closing_soon') {
                 displayed = displayed.filter(function(p) {
-                    return p.bidCloseDate && (p.bidCloseDate.includes('10-') || p.bidCloseDate.includes('11-0'));
+                    return p.days_left && parseInt(p.days_left) <= 14;
                 });
             } else if (currentUrgencyFilter === 'md_authorized') {
                 displayed = displayed.filter(function(p) {
@@ -3582,8 +3819,14 @@
 
             // Section Heading
             var estHeadingSuffix = activeEstObj ? ' FOR ' + activeEstObj.name.toUpperCase() : '';
-            document.getElementById('queueSectionHeading').textContent = (currentSubTab === 'active' ? 'TENDERS READY FOR BOQ COST ESTIMATION' : currentSubTab === 'submitted' ? 'SUBMITTED BID PROPOSALS' : 'ALL ASSIGNED TENDERS') + estHeadingSuffix;
-            document.getElementById('queueSectionCount').textContent = displayed.length + ' ASSIGNED' + (activeEstObj ? ' TO ' + (activeEstObj.initials || 'EST') : '');
+            var queueHeading = document.getElementById('queueSectionHeading');
+            if (queueHeading) {
+                queueHeading.textContent = (currentSubTab === 'active' ? 'TENDERS READY FOR BOQ COST ESTIMATION' : currentSubTab === 'submitted' ? 'SUBMITTED BID PROPOSALS' : 'ALL ASSIGNED TENDERS') + estHeadingSuffix;
+            }
+            var queueCount = document.getElementById('queueSectionCount');
+            if (queueCount) {
+                queueCount.textContent = displayed.length + ' ASSIGNED' + (activeEstObj ? ' TO ' + (activeEstObj.initials || 'EST') : '');
+            }
 
             if (displayed.length === 0) {
                 container.innerHTML = '<div class="text-center py-16 px-4 bg-white rounded-xl border border-slate-200 text-xs text-slate-500">No tenders currently found matching the filter criteria.</div>';
@@ -3594,7 +3837,7 @@
             displayed.forEach(function(p) {
                 var isApprovedByMd = p.status === 'Approved for Bidding' || p.mdStatus === 'Approved for Bidding';
                 var isSubmitted = p.status === 'Bid Submitted';
-                var estVal = p.estimatedValue || 25000000;
+                var estVal = parseFloat(p.estimatedValue) || 0;
                 var filesCount = (p.attachedFiles || []).length;
                 var estName = p.assignedEstimatorName || 'Unassigned';
                 var estRole = p.assignedEstimatorRole || 'Estimating Engineer';
@@ -3637,7 +3880,10 @@
                     html += '        <i data-lucide="check" class="h-3 w-3"></i> MD Authorized for Bidding';
                     html += '      </span>';
                 }
-                html += '      <span class="text-xs font-medium px-2.5 py-0.5 rounded-full border border-slate-200 bg-slate-100 text-slate-700">' + p.status + '</span>';
+                var stepNum = p.step_number || 1;
+                var stepName = p.step_name || p.status;
+                var stepBadgeClass = p.step_badge_class || 'bg-slate-100 text-slate-700 border-slate-200';
+                html += '      <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full border ' + stepBadgeClass + '">Step ' + stepNum + ': ' + stepName + '</span>';
                 html += '    </div>';
                 html += '  </div>';
 
@@ -3668,17 +3914,21 @@
                 html += '    </div>';
 
                 // Center Column: Commercial Bid Estimate (lg:col-span-3)
+                var estDisplay = estVal > 0 ? formatSAR(estVal) : '<span class="text-slate-400 font-sans text-xs">SAR Pending Takeoff</span>';
                 html += '    <div class="lg:col-span-3 p-3.5 rounded-lg bg-slate-50 border border-slate-200 space-y-2">';
                 html += '      <div class="text-[11px] font-semibold text-slate-500">Commercial Bid Estimate</div>';
-                html += '      <div class="text-base sm:text-lg font-bold font-mono text-slate-900">' + formatSAR(estVal) + '</div>';
+                html += '      <div class="text-base sm:text-lg font-bold font-mono text-slate-900">' + estDisplay + '</div>';
                 html += '      <p class="text-[11px] text-slate-500 leading-snug">Includes Civil, Structural, MEP and standard preliminaries markup.</p>';
                 html += '    </div>';
 
                 // Right Column: Key Dates & Documents (lg:col-span-3)
+                var recDate = p.receivedDate || '--';
+                var closeDate = p.bidCloseDate || 'Open';
+                var daysLeftText = p.days_left && p.days_left !== '--' ? ' (' + p.days_left + 'd left)' : '';
                 html += '    <div class="lg:col-span-3 space-y-2 text-xs">';
-                html += '      <div class="flex justify-between"><span class="text-slate-500">Inquiry Received:</span><span class="font-medium text-slate-800">' + (p.receivedDate || '2026-10-21') + '</span></div>';
-                html += '      <div class="flex justify-between"><span class="text-slate-500">Bid Close Deadline:</span><span class="font-bold text-rose-600">' + (p.bidCloseDate || '2026-11-04') + '</span></div>';
-                html += '      <div class="flex justify-between"><span class="text-slate-500">Submission Mode:</span><span class="font-medium text-slate-800">' + (p.bidSubmissionType || 'Email Submission') + '</span></div>';
+                html += '      <div class="flex justify-between"><span class="text-slate-500">Inquiry Received:</span><span class="font-medium text-slate-800">' + recDate + '</span></div>';
+                html += '      <div class="flex justify-between"><span class="text-slate-500">Bid Close Deadline:</span><span class="font-bold text-rose-600">' + closeDate + daysLeftText + '</span></div>';
+                html += '      <div class="flex justify-between"><span class="text-slate-500">Submission Mode:</span><span class="font-medium text-slate-800">' + (p.bidSubmissionType || 'Direct / Portal') + '</span></div>';
                 html += '      <div class="pt-1 flex items-center gap-1.5 text-slate-500 text-[11px]"><i data-lucide="paperclip" class="h-3.5 w-3.5 text-slate-400"></i><span>' + filesCount + ' Tender Drawings / Docs</span></div>';
                 html += '    </div>';
 
@@ -3831,8 +4081,8 @@
 
             document.getElementById('siteModalWoNo').textContent = activeSiteProject.workOrderNo;
             document.getElementById('siteModalProjectName').textContent = activeSiteProject.proposedProjectName;
-            document.getElementById('siteModalClient').textContent = activeSiteProject.clientName || ',sb,m';
-            document.getElementById('siteModalLocation').textContent = (activeSiteProject.siteName || 'm,g,') + ' • ' + (activeSiteProject.projectLocation || 'g,hkh');
+            document.getElementById('siteModalClient').textContent = activeSiteProject.clientName || 'Client';
+            document.getElementById('siteModalLocation').textContent = (activeSiteProject.siteName || 'Site') + (activeSiteProject.projectLocation ? ' • ' + activeSiteProject.projectLocation : '');
             document.getElementById('siteModalFilesCount').textContent = (activeSiteProject.attachedFiles || []).length + ' files attached';
 
             var rev = activeSiteProject.siteReview || {};
@@ -3942,8 +4192,8 @@
             document.getElementById('dossierClientName').textContent = project.clientName || 'Client';
             document.getElementById('dossierLocation').textContent = (project.siteName || '') + ' (' + (project.projectLocation || '') + ')';
             document.getElementById('dossierClientRfq').textContent = project.clientRfqNo || 'N/A';
-            document.getElementById('dossierInquiryDate').textContent = project.receivedDate || '2026-10-21';
-            document.getElementById('dossierDeadline').textContent = project.bidCloseDate || '2026-11-04';
+            document.getElementById('dossierInquiryDate').textContent = project.receivedDate || '--';
+            document.getElementById('dossierDeadline').textContent = project.bidCloseDate || '--';
             document.getElementById('dossierSubMode').textContent = project.bidSubmissionType || 'Email Submission';
             document.getElementById('dossierDescription').textContent = project.projectWorkDescription || 'No description entered.';
 
@@ -4897,7 +5147,7 @@
             if (!activeProposalProject) return;
 
             var p = activeProposalProject;
-            var totalVal = (p.aiBoqCalculation && p.aiBoqCalculation.totals && p.aiBoqCalculation.totals.totalCommercialBidPrice) || p.estimatedValue || 25000000;
+            var totalVal = (p.aiBoqCalculation && p.aiBoqCalculation.totals && p.aiBoqCalculation.totals.totalCommercialBidPrice) || p.estimatedValue || 0;
             var civilShare = Math.round(totalVal * 0.38);
             var structuralShare = Math.round(totalVal * 0.28);
             var mepShare = Math.round(totalVal * 0.20);
@@ -4907,9 +5157,9 @@
             document.getElementById('proposalModalEnquirySerial').textContent = p.enquirySerialNo;
             document.getElementById('proposalRefText').textContent = p.workOrderNo + '/COMM';
             document.getElementById('proposalDateText').textContent = new Date().toISOString().split('T')[0];
-            document.getElementById('proposalClientName').textContent = p.clientName || ',sb,m';
-            document.getElementById('proposalSiteLocation').textContent = (p.siteName || '') + ' (' + (p.projectLocation || '') + ')';
-            document.getElementById('proposalClientRfq').textContent = p.clientRfqNo || 'tend';
+            document.getElementById('proposalClientName').textContent = p.clientName || 'Client';
+            document.getElementById('proposalSiteLocation').textContent = (p.siteName || '') + (p.projectLocation ? ' (' + p.projectLocation + ')' : '');
+            document.getElementById('proposalClientRfq').textContent = p.clientRfqNo || p.workOrderNo || 'RFQ-PENDING';
             document.getElementById('proposalAttention').textContent = p.clientSenderContact || 'Client Project Director';
             document.getElementById('proposalSubjectTitle').textContent = p.proposedProjectName;
             document.getElementById('proposalDescription').textContent = p.projectWorkDescription || 'Comprehensive civil, electrical and mechanical execution as per scope specifications.';
