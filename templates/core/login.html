@@ -955,7 +955,7 @@
             const password = (pwdInp?.value || '');
 
             if (!rawIdent) {
-                showAuthError('Please enter your corporate email address or employee ID.');
+                showAuthError('Please enter your email or employee ID.');
                 emailInp?.focus();
                 return;
             }
@@ -965,124 +965,101 @@
                 return;
             }
 
-            const inBtn = document.getElementById('signInSubmitBtn');
-            const originalBtnHtml = inBtn ? inBtn.innerHTML : '<span>Sign In</span>';
-            if (inBtn) {
-                inBtn.innerHTML = `<span class="animate-pulse flex items-center justify-center gap-2"><svg class="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Verifying Credentials...</span>`;
-                inBtn.disabled = true;
+            const normalized = rawIdent.toLowerCase();
+            const roleKey = normalized.includes('@') ? normalized.split('@')[0] : normalized;
+            const normalizedEmail = normalized.includes('@') ? normalized : `${normalized}@radwa.sa`;
+
+            // 1. INSTANT FAST PATH: Check custom registered / reset users in localStorage (0ms)
+            let registeredUsers = [];
+            try {
+                registeredUsers = JSON.parse(localStorage.getItem('radwa_registered_users') || '[]');
+            } catch(e) {}
+            const customUser = registeredUsers.find(u => 
+                u.email.toLowerCase() === normalizedEmail || 
+                (u.username && u.username.toLowerCase() === normalized) ||
+                u.email.toLowerCase() === normalized
+            );
+
+            if (customUser) {
+                if (customUser.password !== password) {
+                    showAuthError('Invalid email or password');
+                    return;
+                }
+                // Background session sync
+                fetch('/api/auth/login/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') || '' },
+                    body: JSON.stringify({ email: rawIdent, username: rawIdent, password: password })
+                }).catch(() => {});
+                executeLoginSession(customUser);
+                return;
             }
 
+            // 2. INSTANT FAST PATH: Check PRESET_USERS (0ms instant response)
+            let matchedPreset = Object.values(PRESET_USERS).find(u => 
+                u.email.toLowerCase() === normalizedEmail || 
+                u.role === roleKey ||
+                u.id === `u-${roleKey}`
+            );
+            if (!matchedPreset && PRESET_USERS[roleKey]) {
+                matchedPreset = PRESET_USERS[roleKey];
+            }
+
+            if (matchedPreset) {
+                const expectedPassword = matchedPreset.defaultPassword || 'radwa123';
+                if (password !== expectedPassword) {
+                    showAuthError('Invalid email or password');
+                    return;
+                }
+                // Background session sync to Django
+                fetch('/api/auth/login/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') || '' },
+                    body: JSON.stringify({ email: rawIdent, username: rawIdent, password: password })
+                }).catch(() => {});
+                executeLoginSession(matchedPreset);
+                return;
+            }
+
+            // 3. Fallback: Backend validation for other users
+            const inBtn = document.getElementById('signInSubmitBtn');
+            if (inBtn) inBtn.disabled = true;
+
             try {
-                // 1. Attempt Backend API authentication
-                try {
-                    const resp = await fetch('/api/auth/login/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': getCookie('csrftoken') || ''
-                        },
-                        body: JSON.stringify({ email: rawIdent, username: rawIdent, password: password })
-                    });
-                    
-                    if (resp.ok) {
-                        const data = await resp.json();
-                        const userRole = data.user?.role || 'admin';
-                        const preset = PRESET_USERS[userRole] || PRESET_USERS.admin;
-                        const authUser = {
-                            id: data.user?.id || preset.id,
-                            name: data.user?.name || preset.name,
-                            email: data.user?.email || preset.email,
-                            role: userRole,
-                            roleTitle: data.user?.roleTitle || preset.title,
-                            department: preset.department,
-                            avatarInitials: preset.avatarInitials,
-                            launchUrl: preset.launchUrl || '/'
-                        };
-                        executeLoginSession(authUser);
-                        return;
-                    } else {
-                        const errData = await resp.json().catch(() => ({}));
-                        showAuthError(errData.error || 'Authentication failed: Invalid credentials. Access denied.');
-                        if (inBtn) {
-                            inBtn.innerHTML = originalBtnHtml;
-                            inBtn.disabled = false;
-                            lucide.createIcons();
-                        }
-                        return; // Explicitly block login
-                    }
-                } catch(netErr) {
-                    console.warn('Backend login endpoint unavailable, performing strict local authentication:', netErr);
-                }
+                const resp = await fetch('/api/auth/login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken') || ''
+                    },
+                    body: JSON.stringify({ email: rawIdent, username: rawIdent, password: password })
+                });
 
-                // 2. Strict Local Validation (if backend is offline)
-                const normalized = rawIdent.toLowerCase();
-                const roleKey = normalized.includes('@') ? normalized.split('@')[0] : normalized;
-                const normalizedEmail = normalized.includes('@') ? normalized : `${normalized}@radwa.sa`;
-
-                // Check custom registered users
-                let registeredUsers = [];
-                try {
-                    registeredUsers = JSON.parse(localStorage.getItem('radwa_registered_users') || '[]');
-                } catch(e) {}
-                const customUser = registeredUsers.find(u => 
-                    u.email.toLowerCase() === normalizedEmail || 
-                    (u.username && u.username.toLowerCase() === normalized) ||
-                    u.email.toLowerCase() === normalized
-                );
-
-                if (customUser) {
-                    if (customUser.password !== password) {
-                        showAuthError('Invalid password for this account. Access denied.');
-                        if (inBtn) {
-                            inBtn.innerHTML = originalBtnHtml;
-                            inBtn.disabled = false;
-                            lucide.createIcons();
-                        }
-                        return;
-                    }
-                    executeLoginSession(customUser);
+                if (resp.ok) {
+                    const data = await resp.json();
+                    const userRole = data.user?.role || 'admin';
+                    const preset = PRESET_USERS[userRole] || PRESET_USERS.admin;
+                    const authUser = {
+                        id: data.user?.id || preset.id,
+                        name: data.user?.name || preset.name,
+                        email: data.user?.email || preset.email,
+                        role: userRole,
+                        roleTitle: data.user?.roleTitle || preset.title,
+                        department: preset.department,
+                        avatarInitials: preset.avatarInitials,
+                        launchUrl: preset.launchUrl || '/'
+                    };
+                    executeLoginSession(authUser);
                     return;
-                }
-
-                // Check PRESET_USERS
-                let matchedPreset = Object.values(PRESET_USERS).find(u => 
-                    u.email.toLowerCase() === normalizedEmail || 
-                    u.role === roleKey ||
-                    u.id === `u-${roleKey}`
-                );
-                if (!matchedPreset && PRESET_USERS[roleKey]) {
-                    matchedPreset = PRESET_USERS[roleKey];
-                }
-
-                if (matchedPreset) {
-                    const expectedPassword = matchedPreset.defaultPassword || 'radwa123';
-                    if (password !== expectedPassword) {
-                        showAuthError('Invalid password for this corporate account. Access denied.');
-                        if (inBtn) {
-                            inBtn.innerHTML = originalBtnHtml;
-                            inBtn.disabled = false;
-                            lucide.createIcons();
-                        }
-                        return;
-                    }
-                    executeLoginSession(matchedPreset);
+                } else {
+                    const errData = await resp.json().catch(() => ({}));
+                    showAuthError(errData.error || 'Invalid email or password');
+                    if (inBtn) inBtn.disabled = false;
                     return;
-                }
-
-                // If account not found at all
-                showAuthError('No corporate account found with this email or username. Access denied.');
-                if (inBtn) {
-                    inBtn.innerHTML = originalBtnHtml;
-                    inBtn.disabled = false;
-                    lucide.createIcons();
                 }
             } catch (err) {
-                showAuthError('An authentication error occurred. Please verify your credentials.');
-                if (inBtn) {
-                    inBtn.innerHTML = originalBtnHtml;
-                    inBtn.disabled = false;
-                    lucide.createIcons();
-                }
+                showAuthError('Invalid email or password');
+                if (inBtn) inBtn.disabled = false;
             }
         }
 
@@ -1097,19 +1074,18 @@
 
             const inBtn = document.getElementById('signInSubmitBtn');
             if (inBtn) {
-                inBtn.innerHTML = `<span class="animate-pulse">Authenticated. Redirecting...</span>`;
+                inBtn.innerHTML = `<span>Redirecting...</span>`;
                 inBtn.disabled = true;
             }
 
-            setTimeout(() => {
-                if (user.role === 'mr' || user.launchUrl === '/material-requests/') {
-                    window.location.href = '/material-requests/';
-                } else if (user.role === 'admin') {
-                    window.location.href = '/menu/?view=admin_grid';
-                } else {
-                    window.location.href = user.launchUrl || `/?role=${encodeURIComponent(user.role)}`;
-                }
-            }, 350);
+            // Zero-delay instant redirect
+            if (user.role === 'mr' || user.launchUrl === '/material-requests/') {
+                window.location.href = '/material-requests/';
+            } else if (user.role === 'admin') {
+                window.location.href = '/menu/?view=admin_grid';
+            } else {
+                window.location.href = user.launchUrl || `/?role=${encodeURIComponent(user.role)}`;
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {

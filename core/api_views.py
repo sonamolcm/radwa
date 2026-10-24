@@ -124,37 +124,27 @@ def auth_login(request):
         resolved_email = f"{raw_ident}@radwa.sa"
         resolved_username = raw_ident
 
-    # Check against database user
-    user = authenticate(request, username=resolved_username, password=password)
-    if not user:
-        user = authenticate(request, username=resolved_email, password=password)
-    if not user:
-        # Check by email or username lookup in database
-        user_obj = User.objects.filter(
-            Q(email__iexact=resolved_email) | Q(username__iexact=resolved_username) | Q(username__iexact=resolved_email)
-        ).first()
-        if user_obj:
-            user = authenticate(request, username=user_obj.username, password=password)
+    # Fast single-query user lookup for instant response
+    user_obj = User.objects.filter(
+        Q(username__iexact=resolved_username) | Q(email__iexact=resolved_email) | Q(username__iexact=resolved_email)
+    ).first()
 
-    # Check against corporate role mapping presets
-    if not user and resolved_email in ROLE_MAPPINGS:
-        if password == "radwa123":
-            user_obj = User.objects.filter(
-                Q(email__iexact=resolved_email) | Q(username__iexact=resolved_username) | Q(username__iexact=resolved_email)
-            ).first()
-            if not user_obj:
-                user_obj = User.objects.create_user(
-                    username=resolved_username,
-                    email=resolved_email,
-                    password="radwa123",
-                    first_name=ROLE_MAPPINGS[resolved_email]["name"]
-                )
-            else:
-                user_obj.set_password("radwa123")
-                user_obj.save()
-            user = user_obj
+    user = None
+    if user_obj and user_obj.check_password(password):
+        user = user_obj
+    elif resolved_email in ROLE_MAPPINGS and password == "radwa123":
+        if not user_obj:
+            user_obj = User.objects.create_user(
+                username=resolved_username,
+                email=resolved_email,
+                password="radwa123",
+                first_name=ROLE_MAPPINGS[resolved_email]["name"]
+            )
         else:
-            return JsonResponse({"error": "Invalid email or password"}, status=401)
+            if not user_obj.check_password("radwa123"):
+                user_obj.set_password("radwa123")
+                user_obj.save(update_fields=["password"])
+        user = user_obj
 
     if not user:
         return JsonResponse({"error": "Invalid email or password"}, status=401)
