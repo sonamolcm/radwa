@@ -62,30 +62,16 @@
     <!-- Light Top Odoo Navigation Header -->
     <header class="sticky top-0 z-30 w-full px-3 sm:px-8 py-3 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-2xs flex items-center justify-between gap-2 sm:gap-4">
         
-        <!-- Left: Brand Identity with Odoo 4-square App Launcher Icon -->
-        <a href="/" class="flex items-center gap-2 sm:gap-3.5 group shrink-0">
-            <div class="w-9 h-9 rounded-xl bg-slate-900 text-white p-1.5 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
-                <div class="grid grid-cols-2 gap-0.5 w-full h-full">
-                    <div class="bg-white rounded-xs"></div>
-                    <div class="bg-cyan-400 rounded-xs"></div>
-                    <div class="bg-cyan-400 rounded-xs"></div>
-                    <div class="bg-white rounded-xs"></div>
-                </div>
-            </div>
-
-            <div>
-                <div class="flex items-center gap-2">
-                    <span class="font-extrabold text-sm sm:text-base tracking-tight text-slate-900 uppercase">
-                        RADWA ERP
-                    </span>
-                    <span class="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 hidden sm:inline-block">
-                        Main Menu
-                    </span>
-                </div>
-                <p class="text-[11px] text-slate-500 hidden sm:block">
-                    Radwa Gulf Engineering & Construction • Enterprise Applications
-                </p>
-            </div>
+        <!-- Left: Brand Identity with Official Logo -->
+        <a href="/" class="flex items-center gap-2.5 sm:gap-3.5 group shrink-0">
+            <img 
+                src="/static/images/radwa_gulf_logo.png" 
+                alt="Radwa Gulf - Engineering and Construction" 
+                class="h-8 sm:h-9 w-auto object-contain group-hover:opacity-90 transition-opacity"
+            />
+            <span class="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 hidden sm:inline-block">
+                Main Menu
+            </span>
         </a>
 
         <!-- Center: Live App Search Bar (visible when logged in) -->
