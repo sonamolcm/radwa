@@ -26,6 +26,10 @@ urlpatterns = [
     # Radwa ERP Authentication (Standard & v1)
     path("api/auth/login/", api_views.auth_login, name="api-auth-login"),
     path("api/v1/auth/login/", api_views.auth_login, name="api-v1-auth-login"),
+    path("api/auth/forgot-password/", api_views.auth_forgot_password, name="api-auth-forgot-password"),
+    path("api/v1/auth/forgot-password/", api_views.auth_forgot_password, name="api-v1-auth-forgot-password"),
+    path("api/auth/reset-password/", api_views.auth_reset_password, name="api-auth-reset-password"),
+    path("api/v1/auth/reset-password/", api_views.auth_reset_password, name="api-v1-auth-reset-password"),
 
     # Client Directory API
     path("api/clients/", api_views.clients_list_create, name="api-clients-list-create"),

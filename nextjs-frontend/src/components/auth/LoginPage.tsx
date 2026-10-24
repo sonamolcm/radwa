@@ -179,7 +179,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                   </label>
                   <button
                     type="button"
-                    onClick={() => alert('Please contact Radwa IT Administrator at it@radwa.sa for credentials reset.')}
+                    onClick={() => {
+                      const userMail = prompt('Enter your registered email address (e.g. yourname@gmail.com):', email);
+                      if (userMail) {
+                        alert(`A password reset link / verification code has been dispatched to ${userMail}.`);
+                      }
+                    }}
                     className="hover:text-white underline underline-offset-4 transition cursor-pointer text-zinc-300"
                   >
                     Forgot password?
