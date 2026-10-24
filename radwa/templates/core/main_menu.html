@@ -1424,9 +1424,9 @@
             if (!currentRole) return;
             const user = PRESET_USERS[currentRole] || PRESET_USERS.admin;
             
-            // Filter apps: Admin sees all 11 apps; non-admin sees ONLY their role's app
+            // Filter apps: Admin sees all apps; non-admin sees their role's app + Radwa Dashboard
             const visible = ALL_APPS.filter(app => {
-                const isAllowed = (currentRole === 'admin') ? true : (app.id === currentRole);
+                const isAllowed = (currentRole === 'admin') ? true : (app.id === currentRole || app.id === 'radwa-dashboard');
                 const q = searchQuery.toLowerCase().trim();
                 const matches = !q || (
                     app.name.toLowerCase().includes(q) ||
@@ -1436,12 +1436,16 @@
                 return isAllowed && matches;
             });
 
+            if (currentRole !== 'admin') {
+                visible.sort((a, b) => (a.id === currentRole ? -1 : (b.id === currentRole ? 1 : 0)));
+            }
+
             // Update Scope Pill
             const scopePill = document.getElementById('roleScopePillText');
             if (currentRole === 'admin') {
                 scopePill.textContent = `Super Admin Mode — All Enterprise Workspaces Unlocked (${visible.length}/${ALL_APPS.length})`;
             } else {
-                scopePill.textContent = `• Assigned Role Workspace: ${user.name} (${user.roleTitle}) • 1 Portal Accessible`;
+                scopePill.textContent = `• Assigned Role Workspace: ${user.name} (${user.roleTitle}) • ${visible.length} Portals Accessible`;
             }
 
             // Update Subtitle

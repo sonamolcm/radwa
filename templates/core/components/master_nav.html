@@ -17,6 +17,12 @@
                 <span class="hidden sm:inline">Main Menu</span>
             </a>
 
+            <!-- Direct Radwa Dashboard Link -->
+            <a href="/radwa-dashboard/" class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200/80 text-xs font-bold transition shadow-2xs group shrink-0" title="Radwa Executive Operations Dashboard">
+                <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-blue-600"></i>
+                <span class="hidden md:inline">Radwa Dashboard</span>
+            </a>
+
             <div class="flex items-center gap-2 min-w-0">
                 <img 
                     src="/static/images/radwa_gulf_logo.png" 
@@ -496,6 +502,12 @@
             <span class="capitalize">{{ active_module|default:'Workspace' }}</span>
         </a>
         {% endif %}
+        
+        <!-- Direct Radwa Dashboard Tab in Tier 2 -->
+        <a href="/radwa-dashboard/" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs whitespace-nowrap transition shadow-2xs bg-white border border-slate-200/90 text-slate-700 hover:bg-blue-50 hover:text-blue-700 font-semibold ml-auto" title="Launch Executive Radwa Dashboard">
+            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-blue-600"></i>
+            <span>Radwa Dashboard</span>
+        </a>
 
     </nav>
     {% endif %}
