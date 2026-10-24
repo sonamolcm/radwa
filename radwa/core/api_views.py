@@ -150,10 +150,10 @@ def auth_login(request):
                 user_obj.save()
             user = user_obj
         else:
-            return JsonResponse({"error": "Invalid password for this corporate account. Access denied."}, status=401)
+            return JsonResponse({"error": "Invalid email or password"}, status=401)
 
     if not user:
-        return JsonResponse({"error": "Invalid email/username or password. Access denied."}, status=401)
+        return JsonResponse({"error": "Invalid email or password"}, status=401)
 
     # Login to Django session
     try:

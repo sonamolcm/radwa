@@ -1022,7 +1022,7 @@ def login_view(request):
                 return render(request, "core/login.html", {"error": error_msg}, status=401)
 
         if not user:
-            error_msg = "Invalid email/username or password. Access denied."
+            error_msg = "Invalid email or password"
             if is_ajax:
                 return JsonResponse({"error": error_msg}, status=401)
             return render(request, "core/login.html", {"error": error_msg}, status=401)
