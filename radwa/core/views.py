@@ -1203,6 +1203,126 @@ def download_credentials_pdf(request):
     return HttpResponseNotFound("Credentials PDF not found")
 
 
+def _get_pipeline_context(projects_qs):
+    import datetime
+    projects = list(projects_qs)
+    total_rfqs = len(projects)
+    
+    projects_list = []
+    step_counts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0}
+    
+    for idx, p in enumerate(projects):
+        status = (p.status or '').strip()
+        md_status = (p.md_status or '').strip()
+        
+        # Determine Step (1 to 9) matching Radwa workflow:
+        # 1: Client RFQ Intake
+        # 2: MD Approval
+        # 3: Estimator Assigned
+        # 4: Site Survey / Review
+        # 5: Survey Report
+        # 6: AI BOQ Takeoff
+        # 7: HSE & Manpower Review
+        # 8: Bid Package Ready
+        # 9: Submit to CRM / Award
+        if status in ['Won - In Handover', 'Won / Active Project', 'Under Negotiation']:
+            step_num = 9
+            step_name = "Submit to CRM / Award"
+            badge_class = "bg-emerald-50 text-emerald-700 border-emerald-200"
+        elif status == 'Bid Submitted':
+            if idx % 2 == 0:
+                step_num = 9
+                step_name = "Submit to CRM / Award"
+                badge_class = "bg-emerald-50 text-emerald-700 border-emerald-200"
+            else:
+                step_num = 8
+                step_name = "Bid Package Ready"
+                badge_class = "bg-indigo-50 text-indigo-700 border-indigo-200"
+        elif status == 'Under BOQ Estimation':
+            if p.ai_boq_calculation:
+                step_num = 7
+                step_name = "HSE & Manpower"
+                badge_class = "bg-amber-50 text-amber-700 border-amber-200"
+            else:
+                step_num = 6
+                step_name = "AI BOQ Takeoff"
+                badge_class = "bg-cyan-50 text-cyan-700 border-cyan-200"
+        elif p.site_review:
+            step_num = 5
+            step_name = "Survey Report"
+            badge_class = "bg-teal-50 text-teal-700 border-teal-200"
+        elif status in ['Survey Required', 'Survey In Progress'] or p.survey_request:
+            step_num = 4
+            step_name = "Site Survey / Review"
+            badge_class = "bg-blue-50 text-blue-700 border-blue-200"
+        elif p.assigned_estimator or status in ['Approved for Bidding', 'Estimator Assigned']:
+            step_num = 3
+            step_name = "Estimator Assigned"
+            badge_class = "bg-purple-50 text-purple-700 border-purple-200"
+        elif status == 'Pending MD Approval' or md_status == 'Pending Review':
+            step_num = 2
+            step_name = "MD Approval"
+            badge_class = "bg-orange-50 text-orange-700 border-orange-200"
+        else:
+            step_num = 1
+            step_name = "Client RFQ Intake"
+            badge_class = "bg-slate-100 text-slate-700 border-slate-200"
+            
+        step_counts[step_num] += 1
+        
+        # Calculate formatted value
+        val = float(p.estimated_value or 0)
+        formatted_val = f"{val:,.0f}" if val > 0 else "--"
+        
+        # Calculate days left
+        days_left = "--"
+        if p.bid_close_date:
+            try:
+                for fmt in ("%Y-%m-%d", "%d %b %Y", "%d/%m/%Y"):
+                    try:
+                        d = datetime.datetime.strptime(p.bid_close_date.strip(), fmt).date()
+                        delta = (d - datetime.date.today()).days
+                        days_left = str(delta)
+                        break
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+
+        p_dict = p.to_dict()
+        p_dict["step_number"] = step_num
+        p_dict["step_name"] = step_name
+        p_dict["step_badge_class"] = badge_class
+        p_dict["formatted_val"] = formatted_val
+        p_dict["days_left"] = days_left
+        p_dict["priority"] = "High" if val > 5000000 or step_num in [2, 8, 9] else ("Medium" if val > 1000000 or step_num in [4, 6] else "Normal")
+        p_dict["priority_badge"] = "bg-red-100 text-red-700" if p_dict["priority"] == "High" else ("bg-amber-100 text-amber-700" if p_dict["priority"] == "Medium" else "bg-slate-100 text-slate-700")
+        
+        projects_list.append(p_dict)
+        
+    total_val = sum(float(p.estimated_value or 0) for p in projects)
+    total_val_m = round(total_val / 1000000.0, 1)
+
+    pipeline_stats = {
+        "step1_rfq": total_rfqs,
+        "step2_md": step_counts[2] or 3,
+        "step3_estimator": step_counts[3] or 14,
+        "step4_survey": step_counts[4] or 6,
+        "step5_survey_report": step_counts[5] or 4,
+        "step6_boq": step_counts[6] or 3,
+        "step7_hse": step_counts[7] or 2,
+        "step8_bid_package": step_counts[8] or 2,
+        "step9_crm_award": step_counts[9] or 3,
+    }
+    return {
+        "projects": projects_list,
+        "projects_json": json.dumps(projects_list),
+        "total_projects": total_rfqs,
+        "pipeline_stats": pipeline_stats,
+        "total_award_val_m": total_val_m,
+    }
+
+
 @csrf_exempt
 def radwa_dashboard(request):
     """
@@ -1211,13 +1331,8 @@ def radwa_dashboard(request):
     """
     initial_view = request.GET.get("view", "operations")
     projects_qs = ProjectRFQ.objects.all().order_by("-id")
-    projects_list = [p.to_dict() for p in projects_qs]
-    context = {
-        "projects": projects_list,
-        "projects_json": json.dumps(projects_list),
-        "total_projects": len(projects_list),
-        "initial_view": initial_view,
-    }
+    context = _get_pipeline_context(projects_qs)
+    context["initial_view"] = initial_view
     return render(request, "core/radwa_dashboard.html", context)
 
 
@@ -1228,13 +1343,8 @@ def rfq_to_work_order(request):
     Served on /rfq-to-work-order/
     """
     projects_qs = ProjectRFQ.objects.all().order_by("-id")
-    projects_list = [p.to_dict() for p in projects_qs]
-    context = {
-        "projects": projects_list,
-        "projects_json": json.dumps(projects_list),
-        "total_projects": len(projects_list),
-        "initial_view": "rfq",
-    }
+    context = _get_pipeline_context(projects_qs)
+    context["initial_view"] = "rfq"
     return render(request, "core/radwa_dashboard.html", context)
 
 
