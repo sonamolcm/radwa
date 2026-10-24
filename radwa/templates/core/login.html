@@ -120,98 +120,98 @@
                 </button>
             </div>
 
-            <!-- Main Authentication Card (Enlarged Premium Card) -->
-            <div class="w-full max-w-[490px] my-auto py-3">
+            <!-- Main Authentication Card (Enlarged Executive Scale) -->
+            <div class="w-full max-w-[620px] my-auto py-2">
                 
-                <div class="bg-white rounded-[28px] p-7 sm:p-9 shadow-2xl shadow-slate-200/80 border border-slate-100 transition-all">
+                <div class="bg-white rounded-[32px] p-8 sm:p-11 lg:p-12 shadow-2xl shadow-slate-200/80 border border-slate-100 transition-all">
                     
                     <!-- Card Header -->
-                    <div class="mb-5">
-                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
+                    <div class="mb-6 sm:mb-7">
+                        <h2 class="text-3xl sm:text-4xl lg:text-[38px] font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
                             <span>Welcome Back!</span>
-                            <span class="text-2xl sm:text-3xl">👋</span>
+                            <span class="text-3xl sm:text-4xl">👋</span>
                         </h2>
-                        <p class="text-xs sm:text-sm text-slate-500 mt-1 font-normal">
+                        <p class="text-sm sm:text-base lg:text-lg text-slate-500 mt-2 font-normal">
                             Sign in to access your RADWA GULF portal
                         </p>
                     </div>
 
                     <!-- Error Alert Box: Clean, High-Contrast Red Alert -->
-                    <div id="loginErrorMessage" class="hidden mb-4 p-3 rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-red-600 text-white text-xs flex items-center gap-3 shadow-md shadow-red-600/25 border border-red-400/50 transition-all duration-300">
+                    <div id="loginErrorMessage" class="hidden mb-5 p-3.5 sm:p-4 rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-red-600 text-white text-xs sm:text-sm flex items-center gap-3 shadow-md shadow-red-600/25 border border-red-400/50 transition-all duration-300">
                         <div class="w-7 h-7 rounded-lg bg-white/20 border border-white/30 flex items-center justify-center shrink-0">
                             <i data-lucide="alert-triangle" class="w-4 h-4 text-white"></i>
                         </div>
                         <div class="flex-1 text-left">
-                            <span id="loginErrorText" class="font-semibold text-white text-xs tracking-wide">Invalid email or password</span>
+                            <span id="loginErrorText" class="font-semibold text-white text-xs sm:text-sm tracking-wide">Invalid email or password</span>
                         </div>
                     </div>
 
                     <!-- Sign In Form -->
-                    <form onsubmit="handleExecuteSignIn(event)" class="space-y-4">
+                    <form onsubmit="handleExecuteSignIn(event)" class="space-y-4 sm:space-y-5">
                         
                         <!-- Email Field -->
                         <div>
-                            <label class="block text-xs sm:text-[13px] font-semibold text-slate-700 mb-1.5">
+                            <label class="block text-xs sm:text-sm font-bold text-slate-700 mb-2">
                                 Email / Employee ID
                             </label>
                             <div class="relative flex items-center">
-                                <i data-lucide="user" class="w-4.5 h-4.5 text-slate-400 absolute left-3.5 pointer-events-none"></i>
+                                <i data-lucide="user" class="w-5 h-5 text-slate-400 absolute left-4 pointer-events-none"></i>
                                 <input 
                                     type="text" 
                                     id="loginEmailInput" 
                                     placeholder="Enter your email or employee ID" 
                                     required
                                     autocomplete="username"
-                                    class="w-full bg-white border border-slate-200/90 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 focus:outline-none rounded-xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 pl-11 pr-4 py-3 transition shadow-2xs"
+                                    class="w-full bg-white border border-slate-200/90 focus:border-blue-600 focus:ring-4 focus:ring-blue-100 focus:outline-none rounded-2xl text-sm sm:text-base text-slate-900 placeholder-slate-400 pl-12 pr-4 py-3.5 sm:py-4 transition shadow-2xs"
                                 />
                             </div>
                         </div>
 
                         <!-- Password Field -->
                         <div>
-                            <div class="flex items-center justify-between mb-1.5">
-                                <label class="block text-xs sm:text-[13px] font-semibold text-slate-700">
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="block text-xs sm:text-sm font-bold text-slate-700">
                                     Password
                                 </label>
                                 <button 
                                     type="button" 
                                     onclick="handleForgotPassword()"
-                                    class="text-xs text-blue-600 hover:text-blue-700 font-medium transition cursor-pointer"
+                                    class="text-xs sm:text-sm text-blue-600 hover:text-blue-700 font-bold transition cursor-pointer"
                                 >
                                     Forgot Password?
                                 </button>
                             </div>
                             <div class="relative flex items-center">
-                                <i data-lucide="lock" class="w-4.5 h-4.5 text-slate-400 absolute left-3.5 pointer-events-none"></i>
+                                <i data-lucide="lock" class="w-5 h-5 text-slate-400 absolute left-4 pointer-events-none"></i>
                                 <input 
                                     type="password" 
                                     id="loginPasswordInput" 
                                     placeholder="Enter your password" 
                                     required
                                     autocomplete="current-password"
-                                    class="w-full bg-white border border-slate-200/90 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 focus:outline-none rounded-xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 pl-11 pr-11 py-3 transition shadow-2xs"
+                                    class="w-full bg-white border border-slate-200/90 focus:border-blue-600 focus:ring-4 focus:ring-blue-100 focus:outline-none rounded-2xl text-sm sm:text-base text-slate-900 placeholder-slate-400 pl-12 pr-12 py-3.5 sm:py-4 transition shadow-2xs"
                                 />
                                 <button 
                                     type="button" 
                                     onclick="togglePasswordVisibility('loginPasswordInput', 'pwdToggleIcon')"
-                                    class="absolute right-3.5 text-slate-400 hover:text-slate-600 transition cursor-pointer p-1"
+                                    class="absolute right-4 text-slate-400 hover:text-slate-600 transition cursor-pointer p-1"
                                     title="Toggle Password"
                                 >
-                                    <i data-lucide="eye" id="pwdToggleIcon" class="w-4.5 h-4.5"></i>
+                                    <i data-lucide="eye" id="pwdToggleIcon" class="w-5 h-5"></i>
                                 </button>
                             </div>
                         </div>
 
                         <!-- Remember Me Checkbox -->
-                        <div class="flex items-center text-xs text-slate-600 pt-0.5">
-                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                        <div class="flex items-center text-xs sm:text-sm text-slate-600 pt-0.5">
+                            <label class="flex items-center gap-2.5 cursor-pointer select-none">
                                 <input 
                                     type="checkbox" 
                                     id="rememberMeCheckbox" 
                                     checked 
-                                    class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                    class="w-4.5 h-4.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                                 />
-                                <span class="font-medium text-slate-600 text-xs">Remember me</span>
+                                <span class="font-medium text-slate-600 text-xs sm:text-sm">Remember me</span>
                             </label>
                         </div>
 
@@ -219,10 +219,10 @@
                         <button 
                             type="submit" 
                             id="signInSubmitBtn"
-                            class="w-full py-3 sm:py-3.5 px-6 rounded-xl bg-[#0e43b8] hover:bg-[#0a3597] text-white font-bold text-xs sm:text-sm tracking-wide transition duration-200 shadow-md shadow-blue-700/20 cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] mt-2.5"
+                            class="w-full py-4 px-8 rounded-2xl bg-[#0e43b8] hover:bg-[#0a3597] text-white font-extrabold text-base sm:text-lg tracking-wide transition duration-200 shadow-lg shadow-blue-700/25 cursor-pointer flex items-center justify-center gap-2.5 active:scale-[0.99] mt-3"
                         >
                             <span>Sign In</span>
-                            <i data-lucide="arrow-right" class="w-4.5 h-4.5"></i>
+                            <i data-lucide="arrow-right" class="w-5 h-5"></i>
                         </button>
                     </form>
 
