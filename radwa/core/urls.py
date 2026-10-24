@@ -5,10 +5,9 @@ from . import api_views
 app_name = "core"
 
 urlpatterns = [
-    # Template views: Odoo Main Menu Launcher, Authentication, and 11 Enterprise Modules
-    path("", views.main_menu, name="main-menu"),
-    path("menu/", views.main_menu, name="menu"),
+    path("", views.login_view, name="login-root"),
     path("login/", views.login_view, name="login"),
+    path("menu/", views.main_menu, name="menu"),
     path("crm/", views.home, name="home"),
     path("crm-desk/", views.home, name="home-crm"),
     path("crm/register/", views.crm_register_view, name="crm-register"),

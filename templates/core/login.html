@@ -99,12 +99,12 @@
             <!-- Top Content Container -->
             <div class="relative z-10 p-8 sm:p-12 lg:p-14 xl:p-16 flex-1 flex flex-col justify-start">
                 
-                <!-- Brand Logo: Newly Uploaded Official Radwa Gulf Emblem -->
+                <!-- Brand Logo: Exact 3D Metallic Radwa Gulf Emblem from Reference Design -->
                 <div class="flex items-center">
                     <img 
-                        src="{% static 'images/radwa_gulf_logo.png' %}" 
+                        src="{% static 'images/radwa_3d_logo.png' %}" 
                         alt="Radwa Gulf - Engineering and Construction" 
-                        class="h-14 sm:h-16 lg:h-18 w-auto object-contain drop-shadow-2xl"
+                        class="h-24 sm:h-28 lg:h-32 w-auto object-contain drop-shadow-2xl"
                     />
                 </div>
 
@@ -173,12 +173,12 @@
             <div class="relative w-full h-72 sm:h-80 lg:h-96 mt-6 z-10 overflow-hidden">
                 <!-- Fade-in Gradient over top of image -->
                 <div class="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#071638] via-[#071638]/70 to-transparent z-10 pointer-events-none"></div>
-                <!-- Hero Construction Image -->
+                <!-- Hero Construction Image from Reference Mockup -->
                 <img 
-                    src="/static/images/construction_hero.jpg" 
+                    src="/static/images/construction_site_ref.png" 
                     alt="Radwa Gulf Construction Project"
-                    class="w-full h-full object-cover object-bottom filter brightness-95 contrast-105"
-                    onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1541888946425-d0fbb18615f8?q=80&w=1600&auto=format&fit=crop';"
+                    class="w-full h-full object-cover object-bottom filter brightness-100 contrast-105"
+                    onerror="this.onerror=null; this.src='/static/images/construction_hero.jpg';"
                 />
             </div>
 
@@ -341,53 +341,13 @@
                     &copy; 2026 Radwa Gulf Engineering and Construction. All rights reserved.
                 </p>
 
-                <!-- 4 ISO Certification Badges in Clean Line Icons -->
-                <div class="flex items-center justify-center gap-4 sm:gap-8 flex-wrap border-t border-slate-200/80 pt-4 text-slate-600">
-                    
-                    <!-- ISO 9001 -->
-                    <div class="flex items-center gap-2 text-left">
-                        <div class="w-7 h-7 rounded-full border border-slate-300 flex items-center justify-center shrink-0 text-slate-700 text-[10px] font-bold">
-                            ISO
-                        </div>
-                        <div class="text-[10px] leading-tight">
-                            <div class="font-bold text-slate-800">ISO 9001</div>
-                            <div class="text-slate-400 text-[9px]">Quality Management</div>
-                        </div>
-                    </div>
-
-                    <!-- ISO 14001 -->
-                    <div class="flex items-center gap-2 text-left">
-                        <div class="w-7 h-7 rounded-full border border-emerald-400 flex items-center justify-center shrink-0 text-emerald-600">
-                            <i data-lucide="leaf" class="w-3.5 h-3.5"></i>
-                        </div>
-                        <div class="text-[10px] leading-tight">
-                            <div class="font-bold text-slate-800">ISO 14001</div>
-                            <div class="text-slate-400 text-[9px]">Environmental Management</div>
-                        </div>
-                    </div>
-
-                    <!-- ISO 45001 -->
-                    <div class="flex items-center gap-2 text-left">
-                        <div class="w-7 h-7 rounded-full border border-amber-400 flex items-center justify-center shrink-0 text-amber-600">
-                            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-                        </div>
-                        <div class="text-[10px] leading-tight">
-                            <div class="font-bold text-slate-800">ISO 45001</div>
-                            <div class="text-slate-400 text-[9px]">Occupational Health & Safety</div>
-                        </div>
-                    </div>
-
-                    <!-- ISO 2015 QMS -->
-                    <div class="flex items-center gap-2 text-left">
-                        <div class="w-7 h-7 rounded-full border border-blue-400 flex items-center justify-center shrink-0 text-blue-600">
-                            <i data-lucide="award" class="w-3.5 h-3.5"></i>
-                        </div>
-                        <div class="text-[10px] leading-tight">
-                            <div class="font-bold text-slate-800">ISO 2015</div>
-                            <div class="text-slate-400 text-[9px]">QMS Certified</div>
-                        </div>
-                    </div>
-
+                <!-- 4 ISO Certification Badges Card from Reference Design -->
+                <div class="bg-white rounded-2xl py-2.5 px-4 sm:px-6 shadow-xs border border-slate-200/80 inline-block max-w-full">
+                    <img 
+                        src="{% static 'images/iso_badges_ref.png' %}" 
+                        alt="ISO 9001 Quality, ISO 14001 Environmental, ISO 45001 Health & Safety, ISO 2015 QMS Certified"
+                        class="h-8 sm:h-10 w-auto object-contain mx-auto"
+                    />
                 </div>
 
             </div>
