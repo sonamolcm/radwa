@@ -1,13 +1,20 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv
-from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load environment variables from .env
-load_dotenv(BASE_DIR / ".env")
+try:
+    from dotenv import load_dotenv
+    load_dotenv(BASE_DIR / ".env")
+except ImportError:
+    pass
+
+try:
+    from corsheaders.defaults import default_headers
+except ImportError:
+    default_headers = ()
 
 SECRET_KEY = os.getenv(
     "SECRET_KEY",
