@@ -507,10 +507,11 @@
                                 id="formBloodGroup"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 font-bold text-rose-700 focus:ring-1 focus:ring-rose-500"
                             >
+                                <option value="" selected disabled>Select Blood Group</option>
                                 <option value="A+">A+</option>
                                 <option value="B+">B+</option>
                                 <option value="AB+">AB+</option>
-                                <option value="O+" selected>O+</option>
+                                <option value="O+">O+</option>
                                 <option value="A-">A-</option>
                                 <option value="B-">B-</option>
                                 <option value="AB-">AB-</option>
@@ -524,7 +525,6 @@
                                 type="text"
                                 id="formNationality"
                                 required
-                                value="Saudi Arabia"
                                 placeholder="e.g. Saudi Arabia, India, Egypt"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
                             />
@@ -535,7 +535,6 @@
                             <input
                                 type="text"
                                 id="formReligion"
-                                value="Muslim"
                                 placeholder="e.g. Muslim, Christian"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
                             />
@@ -546,7 +545,6 @@
                             <input
                                 type="date"
                                 id="formDateOfBirth"
-                                value="1992-05-18"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
                             />
                         </div>
@@ -575,8 +573,7 @@
                             <input
                                 type="text"
                                 id="formDeparturePort"
-                                value="King Khalid International Airport (RUH)"
-                                placeholder="e.g. King Khalid Int Airport"
+                                placeholder="e.g. King Khalid Int Airport (RUH)"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
                             />
                         </div>
@@ -670,7 +667,6 @@
                                 type="text"
                                 id="formAssignedWorkOrder"
                                 required
-                                value="wo# 1234"
                                 placeholder="e.g. wo# 1234"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono font-bold text-indigo-700"
                             />
@@ -682,8 +678,9 @@
                                 id="formRecruitmentType"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
                             >
+                                <option value="" disabled selected>Select Recruitment Type</option>
                                 <option value="employee transer">employee transer</option>
-                                <option value="new recruited" selected>new recruited</option>
+                                <option value="new recruited">new recruited</option>
                                 <option value="local hire">local hire</option>
                             </select>
                         </div>
@@ -725,8 +722,7 @@
                             <input
                                 type="text"
                                 id="formLocalMobNo"
-                                value="+966 5"
-                                placeholder="+966 50 ..."
+                                placeholder="e.g. +966 50 123 4567"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono text-slate-800"
                             />
                         </div>
@@ -746,8 +742,7 @@
                             <input
                                 type="text"
                                 id="formEmergencyContactTele"
-                                value="+966 5"
-                                placeholder="+966 50 ..."
+                                placeholder="e.g. +966 50 987 6543"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono text-slate-800"
                             />
                         </div>
@@ -757,8 +752,7 @@
                             <input
                                 type="text"
                                 id="formEducation"
-                                value="B.Sc Engineering"
-                                placeholder="e.g. B.Tech Civil, Diploma"
+                                placeholder="e.g. B.Tech Civil, Diploma, B.Sc"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
                             />
                         </div>
@@ -768,7 +762,7 @@
                             <input
                                 type="number"
                                 id="formExperienceYears"
-                                value="5"
+                                placeholder="e.g. 5"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800 font-bold"
                             />
                         </div>
@@ -951,7 +945,7 @@
                                 type="number"
                                 id="formBasicSalary"
                                 required
-                                value="4500"
+                                placeholder="e.g. 4500"
                                 oninput="calcAddFormGross()"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono font-bold text-emerald-700 bg-emerald-50/30"
                             />
@@ -962,7 +956,7 @@
                             <input
                                 type="number"
                                 id="formDutyHours"
-                                value="8"
+                                placeholder="e.g. 8"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
                             />
                         </div>
@@ -973,7 +967,7 @@
                                 type="number"
                                 step="0.1"
                                 id="formOtRate"
-                                value="1.5"
+                                placeholder="e.g. 1.5"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-rose-600 font-bold"
                             />
                         </div>
@@ -983,7 +977,7 @@
                             <input
                                 type="number"
                                 id="formFoodAllowance"
-                                value="300"
+                                placeholder="e.g. 300"
                                 oninput="calcAddFormGross()"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800 font-mono"
                             />
@@ -994,7 +988,7 @@
                             <input
                                 type="number"
                                 id="formOtAllowance"
-                                value="0"
+                                placeholder="e.g. 0"
                                 oninput="calcAddFormGross()"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800 font-mono"
                             />
@@ -1005,7 +999,7 @@
                             <input
                                 type="number"
                                 id="formTeleAllowance"
-                                value="100"
+                                placeholder="e.g. 100"
                                 oninput="calcAddFormGross()"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800 font-mono"
                             />
@@ -1016,7 +1010,7 @@
                             <input
                                 type="number"
                                 id="formHouseAllowance"
-                                value="1000"
+                                placeholder="e.g. 1000"
                                 oninput="calcAddFormGross()"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800 font-mono"
                             />
@@ -1027,7 +1021,7 @@
                             <input
                                 type="number"
                                 id="formVehicleAllowance"
-                                value="0"
+                                placeholder="e.g. 0"
                                 oninput="calcAddFormGross()"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800 font-mono"
                             />
@@ -1038,7 +1032,7 @@
                             <input
                                 type="number"
                                 id="formOtherAllowance"
-                                value="0"
+                                placeholder="e.g. 0"
                                 oninput="calcAddFormGross()"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800 font-mono"
                             />
@@ -1048,7 +1042,7 @@
                             <div>
                                 <div class="text-[10px] text-slate-400 uppercase font-semibold">Total Monthly Gross Package</div>
                                 <div id="formTotalGrossDisplay" class="text-sm font-bold font-mono text-emerald-400">
-                                    SAR 5,900
+                                    SAR 0
                                 </div>
                             </div>
                             <i data-lucide="dollar-sign" class="w-5 h-5 text-emerald-400"></i>
@@ -1071,8 +1065,7 @@
                             <input
                                 type="text"
                                 id="formLeaveContractPeriod"
-                                value="1 Year"
-                                placeholder="e.g. 1 Year, 2 year"
+                                placeholder="e.g. 1 Year, 2 Years"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
                             />
                         </div>
@@ -1082,7 +1075,7 @@
                             <input
                                 type="number"
                                 id="formYearlyLeaveDays"
-                                value="21"
+                                placeholder="e.g. 21"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800 font-bold"
                             />
                         </div>
@@ -1093,9 +1086,10 @@
                                 id="formCoverallSize"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 font-bold text-slate-800"
                             >
+                                <option value="" disabled selected>Select Size</option>
                                 <option value="S">S</option>
                                 <option value="M">M</option>
-                                <option value="L" selected>L</option>
+                                <option value="L">L</option>
                                 <option value="XL">XL</option>
                                 <option value="XXL">XXL</option>
                                 <option value="XXXL">XXXL</option>
@@ -1107,7 +1101,7 @@
                             <input
                                 type="number"
                                 id="formShoeSize"
-                                value="42"
+                                placeholder="e.g. 42"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800 font-bold"
                             />
                         </div>
@@ -3171,17 +3165,33 @@
         }
 
         function openAddEmployeeModal() {
-            const nextEmplNo = `10${employees.length + 1}`;
-            document.getElementById('formEmplNo').value = nextEmplNo;
-            document.getElementById('formName').value = '';
-            document.getElementById('formTradeDesignation').value = '';
-            document.getElementById('formPassportNo').value = `P${Math.floor(10000000 + Math.random() * 90000000)}`;
-            document.getElementById('formIqamaNo').value = `2${Math.floor(100000000 + Math.random() * 900000000)}`;
-            document.getElementById('formAgentName').value = '';
-            document.getElementById('formReferredByName').value = '';
-            document.getElementById('formEmergencyContactAddress').value = 'Riyadh, Kingdom of Saudi Arabia';
-            document.getElementById('formDateOfJoin').value = new Date().toISOString().slice(0, 10);
-            document.getElementById('formDateOfArrival').value = new Date().toISOString().slice(0, 10);
+            const form = document.getElementById('addEmployeeForm');
+            if (form) form.reset();
+
+            // Clear all text inputs, number inputs, and date pickers so everything is completely blank
+            const fieldIds = [
+                'formEmplNo', 'formName', 'formTradeDesignation', 'formNationality', 'formReligion',
+                'formDateOfBirth', 'formDateOfJoin', 'formDateOfArrival', 'formDeparturePort',
+                'formPassportNo', 'formIqamaNo', 'formAssignedWorkOrder', 'formAgentName',
+                'formReferredByName', 'formLocalMobNo', 'formEmergencyContactAddress',
+                'formEmergencyContactTele', 'formEducation', 'formExperienceYears',
+                'formBasicSalary', 'formDutyHours', 'formOtRate', 'formFoodAllowance',
+                'formOtAllowance', 'formTeleAllowance', 'formHouseAllowance',
+                'formVehicleAllowance', 'formOtherAllowance', 'formLeaveContractPeriod',
+                'formYearlyLeaveDays', 'formShoeSize'
+            ];
+            fieldIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+
+            // Reset select dropdowns to initial blank placeholder options
+            const selectIds = ['formBloodGroup', 'formSponsor', 'formMainCategory', 'formExpensesCategory', 'formRecruitmentType', 'formCoverallSize'];
+            selectIds.forEach(id => {
+                const sel = document.getElementById(id);
+                if (sel) sel.selectedIndex = 0;
+            });
+
             clearPhotoUpload();
             clearCvUpload();
             calcAddFormGross();
@@ -3196,6 +3206,8 @@
             const modal = document.getElementById('addEmployeeModal');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
+            const form = document.getElementById('addEmployeeForm');
+            if (form) form.reset();
             clearPhotoUpload();
             clearCvUpload();
         }
@@ -3239,27 +3251,27 @@
                 cvFileName: cvFileName,
                 cvFileData: cvFileData,
                 cvFileSize: cvFileSize,
-                sponsor: document.getElementById('formSponsor').value,
-                mainCategory: document.getElementById('formMainCategory').value,
+                sponsor: document.getElementById('formSponsor').value || 'Radwa',
+                mainCategory: document.getElementById('formMainCategory').value || 'Project operation team (POT)',
                 tradeDesignation: trade,
-                expensesCategory: document.getElementById('formExpensesCategory').value,
-                nationality: document.getElementById('formNationality').value,
-                religion: document.getElementById('formReligion').value,
-                dateOfBirth: document.getElementById('formDateOfBirth').value,
-                dateOfArrival: document.getElementById('formDateOfArrival').value,
-                departurePort: document.getElementById('formDeparturePort').value,
-                dateOfJoin: document.getElementById('formDateOfJoin').value,
-                passportNo: document.getElementById('formPassportNo').value,
-                iqamaNo: document.getElementById('formIqamaNo').value,
-                assignedWorkOrder: document.getElementById('formAssignedWorkOrder').value,
-                recruitmentType: document.getElementById('formRecruitmentType').value,
-                agentName: document.getElementById('formAgentName').value || undefined,
-                referredByName: document.getElementById('formReferredByName').value || undefined,
-                localMobNo: document.getElementById('formLocalMobNo').value,
-                bloodGroup: document.getElementById('formBloodGroup').value,
-                emergencyContactAddress: document.getElementById('formEmergencyContactAddress').value || 'Riyadh, KSA',
-                emergencyContactTele: document.getElementById('formEmergencyContactTele').value,
-                education: document.getElementById('formEducation').value,
+                expensesCategory: document.getElementById('formExpensesCategory').value || 'Project direct cost',
+                nationality: document.getElementById('formNationality').value.trim() || 'Saudi Arabia',
+                religion: document.getElementById('formReligion').value.trim() || 'Muslim',
+                dateOfBirth: document.getElementById('formDateOfBirth').value || '-',
+                dateOfArrival: document.getElementById('formDateOfArrival').value || document.getElementById('formDateOfJoin').value || '-',
+                departurePort: document.getElementById('formDeparturePort').value.trim() || '-',
+                dateOfJoin: document.getElementById('formDateOfJoin').value || new Date().toISOString().slice(0, 10),
+                passportNo: document.getElementById('formPassportNo').value.trim() || '-',
+                iqamaNo: document.getElementById('formIqamaNo').value.trim() || '-',
+                assignedWorkOrder: document.getElementById('formAssignedWorkOrder').value.trim() || 'wo# 1234',
+                recruitmentType: document.getElementById('formRecruitmentType').value || 'new recruited',
+                agentName: document.getElementById('formAgentName').value.trim() || undefined,
+                referredByName: document.getElementById('formReferredByName').value.trim() || undefined,
+                localMobNo: document.getElementById('formLocalMobNo').value.trim() || '-',
+                bloodGroup: document.getElementById('formBloodGroup').value || 'O+',
+                emergencyContactAddress: document.getElementById('formEmergencyContactAddress').value.trim() || 'Riyadh, KSA',
+                emergencyContactTele: document.getElementById('formEmergencyContactTele').value.trim() || '-',
+                education: document.getElementById('formEducation').value.trim() || '-',
                 experienceYears: Number(document.getElementById('formExperienceYears').value) || 0,
                 basicSalary: basicSalary,
                 dutyHours: Number(document.getElementById('formDutyHours').value) || 8,
