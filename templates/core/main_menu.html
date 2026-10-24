@@ -613,8 +613,32 @@
             totalProjects: Number("{{ total_projects|default:11 }}")
         };
 
-        // All 11 Applications matching OdooMainMenu.tsx & screenshot
+        // All Applications matching OdooMainMenu.tsx & screenshot
         const ALL_APPS = [
+            {
+                id: 'radwa-dashboard',
+                name: 'Radwa Dashboard',
+                subtitle: 'Operations & Engineering Cockpit',
+                description: 'Executive project performance dashboard tracking progress metrics, DWRs, ETM manpower, PRs, and safety compliance.',
+                allowedRoles: ['admin', 'crm', 'md', 'estimator', 'operations', 'surveyor', 'qaqc', 'hse', 'hr', 'inv', 'mr'],
+                badge: 'NEW COCKPIT',
+                badgeColor: 'bg-blue-600 text-white font-bold',
+                accentLine: 'from-blue-600 via-indigo-600 to-amber-500',
+                ambientGlow: 'bg-blue-600',
+                tag: 'EXECUTIVE OPERATIONS',
+                kpiMetric: '58.40% Overall Progress • 1,236 Manpower',
+                cardBorder: 'hover:border-blue-600 hover:ring-2 hover:ring-blue-600/20',
+                launchUrl: '/radwa-dashboard/',
+                renderIcon: () => `
+                    <svg viewBox="0 0 56 56" class="w-14 h-14 sm:w-16 sm:h-16" fill="none">
+                      <rect width="56" height="56" rx="18" fill="#0B1736" />
+                      <path d="M15 20C15 17.7909 16.7909 16 19 16H23C25.2091 16 27 17.7909 27 20V26C27 28.2091 25.2091 30 23 30H19C16.7909 30 15 28.2091 15 26V20Z" fill="#2563EB" />
+                      <path d="M29 20C29 17.7909 30.7909 16 33 16H37C39.2091 16 41 17.7909 41 20V22C41 24.2091 39.2091 26 37 26H33C30.7909 26 29 24.2091 29 22V20Z" fill="#10B981" />
+                      <path d="M29 30C29 27.7909 30.7909 26 33 26H37C39.2091 26 41 27.7909 41 30V36C41 38.2091 39.2091 40 37 40H33C30.7909 40 29 38.2091 29 36V30Z" fill="#F59E0B" />
+                      <path d="M15 34C15 31.7909 16.7909 30 19 30H23C25.2091 30 27 31.7909 27 34V38C27 40.2091 25.2091 42 23 42H19C16.7909 42 15 40.2091 15 38V34Z" fill="#8B5CF6" />
+                    </svg>
+                `
+            },
             {
                 id: 'crm',
                 name: 'CRM Admin Portal',

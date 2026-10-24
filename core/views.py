@@ -1205,3 +1205,20 @@ def download_credentials_pdf(request):
     return HttpResponseNotFound("Credentials PDF not found")
 
 
+@csrf_exempt
+def radwa_dashboard(request):
+    """
+    Radwa Executive Operations Dashboard matching the official operations cockpit design.
+    Served on /radwa-dashboard/ and /dashboard/
+    """
+    projects_qs = ProjectRFQ.objects.all().order_by("-id")
+    projects_list = [p.to_dict() for p in projects_qs]
+    context = {
+        "projects": projects_list,
+        "projects_json": json.dumps(projects_list),
+        "total_projects": len(projects_list),
+    }
+    return render(request, "core/radwa_dashboard.html", context)
+
+
+

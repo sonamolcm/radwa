@@ -1,0 +1,1293 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radwa Dashboard | Radwa Gulf Engineering & Construction</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Plus Jakarta Sans', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            },
+            colors: {
+              navy: {
+                950: '#070D1E',
+                900: '#0B1736',
+                850: '#0F1E44',
+                800: '#142758',
+                700: '#1C3574'
+              },
+              brand: {
+                blue: '#2563EB',
+                hover: '#1D4ED8',
+                teal: '#0D9488',
+                orange: '#F97316',
+                green: '#10B981',
+                purple: '#8B5CF6',
+                amber: '#F59E0B'
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #F8FAFC;
+        color: #0F172A;
+      }
+      ::-webkit-scrollbar { width: 5px; height: 5px; }
+      ::-webkit-scrollbar-track { background: #0B1736; }
+      ::-webkit-scrollbar-thumb { background: #1E3A8A; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #2563EB; }
+      
+      .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+      .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+      .sidebar-scroll::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 4px; }
+
+      .card-shadow {
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+      }
+      .card-hover {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .card-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+      }
+    </style>
+</head>
+<body class="bg-[#F8FAFC] text-slate-800 antialiased min-h-screen flex">
+
+    <!-- ================================================================= -->
+    <!-- LEFT DARK SIDEBAR -->
+    <!-- ================================================================= -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-[#0B1736] text-slate-300 flex flex-col transition-transform duration-300 -translate-x-full lg:translate-x-0 border-r border-[#15254D] select-none">
+        
+        <!-- Sidebar Brand / Logo Header -->
+        <div class="h-20 px-5 flex items-center gap-3 border-b border-[#15254D] shrink-0 bg-[#08122B]">
+            <a href="{% url 'core:menu' %}" class="flex items-center gap-3 group">
+                <!-- Radwa RTC Brand Icon -->
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-amber-500 p-0.5 shadow-md group-hover:scale-105 transition-transform shrink-0 flex items-center justify-center">
+                    <div class="w-full h-full bg-[#0B1736] rounded-[10px] flex items-center justify-center font-black tracking-wider text-white text-base">
+                        <span class="text-amber-400">R</span><span class="text-blue-400">T</span><span class="text-white">C</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-white font-black tracking-wide text-sm">RADWA GULF</span>
+                    </div>
+                    <span class="text-[9px] font-bold tracking-wider text-slate-400 uppercase block -mt-0.5">Engineering & Construction</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Sidebar Navigation List -->
+        <nav class="flex-1 overflow-y-auto px-3.5 py-4 space-y-1 sidebar-scroll text-[13px] font-medium">
+            
+            <!-- 1. Dashboard (Active Pill) -->
+            <a href="{% url 'core:radwa-dashboard' %}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg bg-[#2563EB] text-white font-semibold shadow-sm transition">
+                <i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0 text-white"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <!-- 2. Daily Work Report -->
+            <a href="#" onclick="openQuickActionModal('Daily Work Report'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
+                <i data-lucide="file-text" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-blue-400 transition"></i>
+                <span>Daily Work Report</span>
+            </a>
+
+            <!-- 3. Daily Attendance (DMR) -->
+            <a href="#" onclick="openQuickActionModal('Daily Attendance (DMR)'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
+                <i data-lucide="users" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-teal-400 transition"></i>
+                <span>Daily Attendance (DMR)</span>
+            </a>
+
+            <!-- 4. Weekly Report -->
+            <a href="#" onclick="openQuickActionModal('Weekly Report'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
+                <i data-lucide="calendar" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-blue-400 transition"></i>
+                <span>Weekly Report</span>
+            </a>
+
+            <!-- 5. Monthly Report -->
+            <a href="#" onclick="openQuickActionModal('Monthly Report'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
+                <i data-lucide="bar-chart-3" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-purple-400 transition"></i>
+                <span>Monthly Report</span>
+            </a>
+
+            <!-- 6. Planning Update -->
+            <a href="#" onclick="openQuickActionModal('Planning Update'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
+                <i data-lucide="percent" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-amber-400 transition"></i>
+                <span>Planning Update</span>
+            </a>
+
+            <!-- 7. Forecast Update -->
+            <a href="#" onclick="openQuickActionModal('Forecast Update'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
+                <i data-lucide="trending-up" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-emerald-400 transition"></i>
+                <span>Forecast Update</span>
+            </a>
+
+            <!-- 8. Purchase Request (PR) -->
+            <a href="#" onclick="openQuickActionModal('Purchase Request (PR)'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
+                <i data-lucide="shopping-cart" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-orange-400 transition"></i>
+                <span>Purchase Request (PR)</span>
+            </a>
+
+            <!-- 9. ETM (Equipment, Tools & Manpower) -->
+            <a href="#" onclick="openQuickActionModal('ETM Requests'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
+                <i data-lucide="boxes" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-purple-400 transition"></i>
+                <span>ETM (Equipment, Tools & Manpower)</span>
+            </a>
+
+            <!-- 10. Site Advance -->
+            <a href="#" onclick="openQuickActionModal('Site Advance'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
+                <i data-lucide="circle-dollar-sign" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-emerald-400 transition"></i>
+                <span>Site Advance</span>
+            </a>
+
+            <!-- 11. Equipment Checklist -->
+            <a href="#" onclick="openQuickActionModal('Equipment Checklist'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
+                <i data-lucide="clipboard-check" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-cyan-400 transition"></i>
+                <span>Equipment Checklist</span>
+            </a>
+
+            <!-- 12. Machinery Checklist -->
+            <a href="#" onclick="openQuickActionModal('Machinery Checklist'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
+                <i data-lucide="truck" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-yellow-400 transition"></i>
+                <span>Machinery Checklist</span>
+            </a>
+
+            <!-- 13. Tools Checklist -->
+            <a href="#" onclick="openQuickActionModal('Tools Checklist'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
+                <i data-lucide="wrench" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-indigo-400 transition"></i>
+                <span>Tools Checklist</span>
+            </a>
+
+            <!-- 14. Certification Tracker -->
+            <a href="#" onclick="openQuickActionModal('Certification Tracker'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
+                <i data-lucide="award" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-rose-400 transition"></i>
+                <span>Certification Tracker</span>
+            </a>
+
+            <!-- 15. Task Management -->
+            <a href="#" onclick="openQuickActionModal('Task Management'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
+                <i data-lucide="check-square" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-blue-400 transition"></i>
+                <span>Task Management</span>
+            </a>
+
+            <!-- 16. Approvals -->
+            <a href="#" onclick="openQuickActionModal('Approvals'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
+                <i data-lucide="check-circle-2" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-emerald-400 transition"></i>
+                <span>Approvals</span>
+            </a>
+
+            <!-- 17. Reports -->
+            <a href="#" onclick="openQuickActionModal('Reports'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
+                <i data-lucide="pie-chart" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-violet-400 transition"></i>
+                <span>Reports</span>
+            </a>
+
+            <!-- 18. Notifications -->
+            <a href="#" onclick="toggleNotificationDrawer(); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
+                <i data-lucide="bell" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-amber-400 transition"></i>
+                <span>Notifications</span>
+            </a>
+
+            <!-- 19. Back to Main ERP Menu -->
+            <div class="pt-2 border-t border-[#15254D]">
+                <a href="{% url 'core:menu' %}" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 transition font-semibold">
+                    <i data-lucide="grid" class="w-4 h-4 shrink-0"></i>
+                    <span>Main ERP Menu</span>
+                </a>
+            </div>
+
+        </nav>
+
+        <!-- Sidebar Bottom Footer -->
+        <div class="p-3.5 border-t border-[#15254D] space-y-3 bg-[#08122B] shrink-0">
+            <!-- Need Help Box -->
+            <div class="p-3 rounded-xl bg-[#0F1E44] border border-[#1A2E63] flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full bg-blue-600/20 text-blue-400 flex items-center justify-center shrink-0">
+                    <i data-lucide="headphones" class="w-4 h-4"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <h5 class="text-xs font-bold text-white leading-tight">Need Help?</h5>
+                    <p class="text-[11px] text-slate-400 truncate">Contact support</p>
+                </div>
+            </div>
+
+            <!-- User Profile Box -->
+            <div class="flex items-center justify-between p-2 rounded-xl hover:bg-white/5 transition cursor-pointer">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="relative w-9 h-9 rounded-full overflow-hidden bg-slate-700 ring-2 ring-blue-500/30 shrink-0">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" alt="Akshai A.T" class="w-full h-full object-cover">
+                        <div class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[#0B1736]"></div>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-xs font-bold text-white truncate">Akshai A.T</p>
+                        <p class="text-[10px] text-slate-400 truncate">Project Manager</p>
+                    </div>
+                </div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 shrink-0"></i>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- Sidebar Backdrop for Mobile -->
+    <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-xs hidden lg:hidden"></div>
+
+    <!-- ================================================================= -->
+    <!-- MAIN CONTENT AREA -->
+    <!-- ================================================================= -->
+    <div class="flex-1 lg:pl-64 flex flex-col min-h-screen min-w-0">
+        
+        <!-- TOP APP BAR / HEADER -->
+        <header class="sticky top-0 z-20 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-8 flex items-center justify-between gap-4">
+            
+            <div class="flex items-center gap-3 flex-1 max-w-xl">
+                <!-- Mobile Hamburger Toggle -->
+                <button type="button" onclick="toggleSidebar()" class="p-2 -ml-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition lg:hidden" aria-label="Toggle Sidebar">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+
+                <!-- Search Input -->
+                <div class="relative w-full max-w-md">
+                    <input 
+                        type="text" 
+                        placeholder="Search by Project, Module, Report..." 
+                        class="w-full pl-3.5 pr-10 py-2 rounded-xl text-xs bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition"
+                    >
+                    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                </div>
+            </div>
+
+            <!-- Right Header Icons & Profile -->
+            <div class="flex items-center gap-3 sm:gap-4 shrink-0">
+                <!-- Notifications Bell -->
+                <button type="button" onclick="toggleNotificationDrawer()" class="relative p-2 rounded-full text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition" title="Notifications">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                    <span class="absolute top-1 right-1 w-4 h-4 rounded-full bg-red-500 text-white font-bold text-[9px] flex items-center justify-center ring-2 ring-white">12</span>
+                </button>
+
+                <!-- Messages Envelope -->
+                <button type="button" onclick="showToast('You have 7 unread field messages.');" class="relative p-2 rounded-full text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition" title="Messages">
+                    <i data-lucide="mail" class="w-5 h-5"></i>
+                    <span class="absolute top-1 right-1 w-4 h-4 rounded-full bg-red-500 text-white font-bold text-[9px] flex items-center justify-center ring-2 ring-white">7</span>
+                </button>
+
+                <!-- Separator -->
+                <div class="h-6 w-px bg-slate-200 hidden sm:block"></div>
+
+                <!-- User Profile Pill -->
+                <a href="{% url 'core:menu' %}" class="flex items-center gap-2.5 pl-1 group" title="Return to ERP Hub">
+                    <div class="w-8 h-8 rounded-full overflow-hidden bg-slate-200 ring-2 ring-blue-500/20 shrink-0">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" alt="Akshai A.T" class="w-full h-full object-cover">
+                    </div>
+                    <div class="hidden sm:block text-left">
+                        <p class="text-xs font-bold text-slate-900 leading-tight group-hover:text-blue-600 transition">Akshai A.T</p>
+                        <p class="text-[10px] text-slate-500 font-medium">Project Manager</p>
+                    </div>
+                </a>
+            </div>
+
+        </header>
+
+        <!-- DASHBOARD BODY CONTENT -->
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl w-full mx-auto">
+            
+            <!-- ------------------------------------------------------------- -->
+            <!-- 1. GREETING & DATE / ACTION HEADER -->
+            <!-- ------------------------------------------------------------- -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                        <span>Good Morning, Akshai!</span>
+                        <span class="text-xl">👋</span>
+                    </h1>
+                    <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+                        Here's what's happening with your projects today.
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-2.5 flex-wrap">
+                    <!-- Date Pill -->
+                    <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-semibold shadow-2xs">
+                        <i data-lucide="calendar" class="w-4 h-4 text-slate-500"></i>
+                        <span>24 May 2024, Friday</span>
+                        <i data-lucide="file-text" class="w-3.5 h-3.5 text-slate-400 ml-1"></i>
+                    </div>
+
+                    <!-- Quick Create Dropdown Button -->
+                    <div class="relative inline-block text-left">
+                        <button 
+                            type="button" 
+                            onclick="toggleQuickCreateDropdown()"
+                            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition"
+                        >
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span>Quick Create</span>
+                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 ml-0.5"></i>
+                        </button>
+
+                        <!-- Quick Create Menu Dropdown -->
+                        <div id="quickCreateDropdown" class="hidden absolute right-0 mt-2 w-56 rounded-xl bg-white border border-slate-200 shadow-xl z-30 py-1.5 text-xs font-semibold text-slate-700">
+                            <a href="#" onclick="openQuickActionModal('Daily Work Report'); return false;" class="flex items-center gap-2.5 px-3.5 py-2 hover:bg-slate-50 hover:text-blue-600 transition">
+                                <i data-lucide="file-text" class="w-4 h-4 text-blue-600"></i>
+                                <span>New Daily Work Report</span>
+                            </a>
+                            <a href="#" onclick="openQuickActionModal('Purchase Request (PR)'); return false;" class="flex items-center gap-2.5 px-3.5 py-2 hover:bg-slate-50 hover:text-orange-600 transition">
+                                <i data-lucide="shopping-cart" class="w-4 h-4 text-orange-500"></i>
+                                <span>New Purchase Request (PR)</span>
+                            </a>
+                            <a href="#" onclick="openQuickActionModal('ETM Requests'); return false;" class="flex items-center gap-2.5 px-3.5 py-2 hover:bg-slate-50 hover:text-purple-600 transition">
+                                <i data-lucide="boxes" class="w-4 h-4 text-purple-600"></i>
+                                <span>New ETM Request</span>
+                            </a>
+                            <a href="#" onclick="openQuickActionModal('Site Advance'); return false;" class="flex items-center gap-2.5 px-3.5 py-2 hover:bg-slate-50 hover:text-emerald-600 transition">
+                                <i data-lucide="circle-dollar-sign" class="w-4 h-4 text-emerald-600"></i>
+                                <span>Request Site Advance</span>
+                            </a>
+                            <div class="h-px bg-slate-100 my-1"></div>
+                            <a href="#" onclick="openQuickActionModal('Task Management'); return false;" class="flex items-center gap-2.5 px-3.5 py-2 hover:bg-slate-50 hover:text-blue-600 transition">
+                                <i data-lucide="check-square" class="w-4 h-4 text-slate-600"></i>
+                                <span>Assign New Task</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ------------------------------------------------------------- -->
+            <!-- 2. TOP 5 KPI SUMMARY CARDS -->
+            <!-- ------------------------------------------------------------- -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                
+                <!-- Card 1: Overall Progress -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 p-4 card-shadow card-hover flex flex-col justify-between">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500">Overall Progress</p>
+                            <h3 class="text-2xl font-black text-slate-900 mt-1">58.40%</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                            <i data-lucide="briefcase" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
+                        <span>Planned: 60.00%</span>
+                        <span class="text-red-500 font-bold">-1.60%</span>
+                    </div>
+                </div>
+
+                <!-- Card 2: Manpower On Site -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 p-4 card-shadow card-hover flex flex-col justify-between">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500">Manpower On Site</p>
+                            <h3 class="text-2xl font-black text-slate-900 mt-1">1,236</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-teal-600 text-white flex items-center justify-center shadow-xs">
+                            <i data-lucide="users" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-[11px] font-medium text-slate-400">
+                        Average / Month
+                    </div>
+                </div>
+
+                <!-- Card 3: Pending PR -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 p-4 card-shadow card-hover flex flex-col justify-between">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500">Pending PR</p>
+                            <h3 class="text-2xl font-black text-slate-900 mt-1">27</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-xs">
+                            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-[11px] font-medium text-slate-400">
+                        Total Requests
+                    </div>
+                </div>
+
+                <!-- Card 4: Pending ETM -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 p-4 card-shadow card-hover flex flex-col justify-between">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500">Pending ETM</p>
+                            <h3 class="text-2xl font-black text-slate-900 mt-1">12</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-xs">
+                            <i data-lucide="wrench" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-[11px] font-medium text-slate-400">
+                        Total Requests
+                    </div>
+                </div>
+
+                <!-- Card 5: Site Advance Balance -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 p-4 card-shadow card-hover flex flex-col justify-between">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500">Site Advance Balance</p>
+                            <h3 class="text-2xl font-black text-slate-900 mt-1">SAR 65,000</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                            <i data-lucide="dollar-sign" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-[11px] font-medium text-slate-400">
+                        Available Balance
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ------------------------------------------------------------- -->
+            <!-- 3. MIDDLE GRID (PROGRESS LINE CHART, TODAY'S SUMMARY, RECENT ACTIVITY) -->
+            <!-- ------------------------------------------------------------- -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                
+                <!-- 3.1 Progress Overview Chart (span 5) -->
+                <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-sm font-bold text-slate-900">Progress Overview</h4>
+                        <button type="button" onclick="openDetailsModal('Progress Overview', 'Comprehensive planned vs actual performance breakdown for active EPC site lines.')" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">View Details</button>
+                    </div>
+
+                    <!-- Custom Chart Legend -->
+                    <div class="flex items-center gap-4 text-[11px] font-semibold mb-3">
+                        <div class="flex items-center gap-1.5 text-slate-600">
+                            <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                            <span>Planned Progress (%)</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-slate-600">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                            <span>Actual Progress (%)</span>
+                        </div>
+                    </div>
+
+                    <!-- Chart Container -->
+                    <div class="relative h-56 w-full">
+                        <canvas id="progressOverviewChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 3.2 Today's Summary (span 3.5) -->
+                <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="text-sm font-bold text-slate-900">Today's Summary</h4>
+                        <button type="button" onclick="openDetailsModal('Today Summary', 'Daily operations log aggregation for work reports, labor turnout, and pending inspections.')" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">View All</button>
+                    </div>
+
+                    <div class="space-y-3.5 divide-y divide-slate-100 text-xs">
+                        
+                        <!-- Item 1: DWR -->
+                        <div class="pt-2 first:pt-0 flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2.5 text-slate-700">
+                                <i data-lucide="file-text" class="w-4 h-4 text-blue-600 shrink-0"></i>
+                                <span class="font-medium">Daily Work Report</span>
+                            </div>
+                            <span class="font-bold text-slate-900 text-[11px] bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">3 submitted</span>
+                        </div>
+
+                        <!-- Item 2: DMR -->
+                        <div class="pt-2 flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2.5 text-slate-700">
+                                <i data-lucide="users" class="w-4 h-4 text-teal-600 shrink-0"></i>
+                                <span class="font-medium">Daily Attendance (DMR)</span>
+                            </div>
+                            <span class="font-bold text-slate-900 text-[11px] bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">1,120 present</span>
+                        </div>
+
+                        <!-- Item 3: Safety Observations -->
+                        <div class="pt-2 flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2.5 text-slate-700">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-amber-500 shrink-0"></i>
+                                <span class="font-medium">Safety Observations</span>
+                            </div>
+                            <span class="font-bold text-slate-900 text-[11px] bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">5 reported</span>
+                        </div>
+
+                        <!-- Item 4: Equipment Inspections -->
+                        <div class="pt-2 flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2.5 text-slate-700">
+                                <i data-lucide="wrench" class="w-4 h-4 text-purple-600 shrink-0"></i>
+                                <span class="font-medium">Equipment Inspections</span>
+                            </div>
+                            <span class="font-bold text-slate-900 text-[11px] bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">8 pending</span>
+                        </div>
+
+                        <!-- Item 5: Certification Expiring Soon -->
+                        <div class="pt-2 flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2.5 text-slate-700">
+                                <i data-lucide="shield-alert" class="w-4 h-4 text-amber-600 shrink-0"></i>
+                                <span class="font-medium">Certification Expiring Soon</span>
+                            </div>
+                            <span class="font-bold text-slate-900 text-[11px] bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">24 items</span>
+                        </div>
+
+                        <!-- Item 6: Tasks Due Today -->
+                        <div class="pt-2 flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2.5 text-slate-700">
+                                <i data-lucide="clipboard-list" class="w-4 h-4 text-orange-500 shrink-0"></i>
+                                <span class="font-medium">Tasks Due Today</span>
+                            </div>
+                            <span class="font-bold text-slate-900 text-[11px] bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">6 tasks</span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- 3.3 Recent Activity (span 3.5) -->
+                <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="text-sm font-bold text-slate-900">Recent Activity</h4>
+                        <button type="button" onclick="openDetailsModal('Activity Log', 'Real-time timeline of approvals, submittals, and site advance verifications.')" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">View All</button>
+                    </div>
+
+                    <div class="space-y-3.5 text-xs">
+                        
+                        <!-- Activity 1 -->
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex items-start gap-2.5">
+                                <div class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-slate-900 leading-snug">PR-2024-0056 approved</p>
+                                    <p class="text-[11px] text-slate-500">by Akshai A.T</p>
+                                </div>
+                            </div>
+                            <span class="text-[11px] text-slate-400 font-medium shrink-0">10 min ago</span>
+                        </div>
+
+                        <!-- Activity 2 -->
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex items-start gap-2.5">
+                                <div class="w-6 h-6 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-slate-900 leading-snug">ETM-2024-0030 pending</p>
+                                    <p class="text-[11px] text-slate-500">for approval</p>
+                                </div>
+                            </div>
+                            <span class="text-[11px] text-slate-400 font-medium shrink-0">25 min ago</span>
+                        </div>
+
+                        <!-- Activity 3 -->
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex items-start gap-2.5">
+                                <div class="w-6 h-6 rounded-full bg-teal-600 text-white font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">
+                                    B
+                                </div>
+                                <div>
+                                    <p class="font-bold text-slate-900 leading-snug">DWR for 23/05/2024 submitted</p>
+                                    <p class="text-[11px] text-slate-500">by Shambu N.</p>
+                                </div>
+                            </div>
+                            <span class="text-[11px] text-slate-400 font-medium shrink-0">1 hour ago</span>
+                        </div>
+
+                        <!-- Activity 4 -->
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex items-start gap-2.5">
+                                <div class="w-6 h-6 rounded-full bg-purple-600 text-white font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">
+                                    S
+                                </div>
+                                <div>
+                                    <p class="font-bold text-slate-900 leading-snug">Site Advance request submitted</p>
+                                    <p class="text-[11px] text-slate-500">by Hari Krishnan</p>
+                                </div>
+                            </div>
+                            <span class="text-[11px] text-slate-400 font-medium shrink-0">2 hours ago</span>
+                        </div>
+
+                        <!-- Activity 5 -->
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex items-start gap-2.5">
+                                <div class="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-slate-900 leading-snug">Welding machine certificate</p>
+                                    <p class="text-[11px] text-slate-500">expiring in 7 days</p>
+                                </div>
+                            </div>
+                            <span class="text-[11px] text-slate-400 font-medium shrink-0">3 hours ago</span>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ------------------------------------------------------------- -->
+            <!-- 4. LOWER GRID (REQUESTS OVERVIEW, UPCOMING DEADLINES, SAFETY SUMMARY) -->
+            <!-- ------------------------------------------------------------- -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                
+                <!-- 4.1 Requests Overview Donut (span 4) -->
+                <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-sm font-bold text-slate-900">Requests Overview</h4>
+                        <button type="button" onclick="openDetailsModal('Requests Breakdown', 'Status pipeline of purchase, manpower, and civil engineering requests.')" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">View All</button>
+                    </div>
+
+                    <div class="flex items-center justify-between gap-4 py-2">
+                        <!-- Donut Canvas -->
+                        <div class="relative w-36 h-36 shrink-0 flex items-center justify-center">
+                            <canvas id="requestsOverviewChart"></canvas>
+                            <!-- Absolute Center Metric -->
+                            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                <span class="text-xl font-black text-slate-900 leading-none">44</span>
+                                <span class="text-[10px] font-semibold text-slate-400 uppercase mt-0.5">Total</span>
+                            </div>
+                        </div>
+
+                        <!-- Donut Legend Details -->
+                        <div class="space-y-2 text-xs flex-1">
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                                    <span class="font-medium text-slate-700">Submitted</span>
+                                </div>
+                                <span class="font-bold text-slate-900">18 <span class="text-slate-400 font-normal text-[11px]">(40.91%)</span></span>
+                            </div>
+
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                                    <span class="font-medium text-slate-700">Pending</span>
+                                </div>
+                                <span class="font-bold text-slate-900">18 <span class="text-slate-400 font-normal text-[11px]">(40.91%)</span></span>
+                            </div>
+
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                                    <span class="font-medium text-slate-700">Approved</span>
+                                </div>
+                                <span class="font-bold text-slate-900">6 <span class="text-slate-400 font-normal text-[11px]">(13.64%)</span></span>
+                            </div>
+
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                                    <span class="font-medium text-slate-700">Rejected</span>
+                                </div>
+                                <span class="font-bold text-slate-900">2 <span class="text-slate-400 font-normal text-[11px]">(4.54%)</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4.2 Upcoming Deadlines (span 4) -->
+                <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="text-sm font-bold text-slate-900">Upcoming Deadlines</h4>
+                        <button type="button" onclick="openDetailsModal('Upcoming Deadlines', 'Milestone dates for hydrotesting, spool fabrication, and critical path activities.')" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">View All</button>
+                    </div>
+
+                    <div class="space-y-2.5 text-xs">
+                        
+                        <!-- Deadline 1 -->
+                        <div class="flex items-center justify-between gap-3 p-1.5 rounded-lg hover:bg-slate-50 transition">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-10 text-center shrink-0">
+                                    <span class="block text-sm font-black text-slate-800 leading-none">25</span>
+                                    <span class="block text-[9px] font-bold text-slate-400 uppercase">MAY</span>
+                                </div>
+                                <p class="font-semibold text-slate-800 truncate text-[11px]">Hydrotest Line 12"-HT-04</p>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-100 text-red-600 shrink-0">Overdue</span>
+                        </div>
+
+                        <!-- Deadline 2 -->
+                        <div class="flex items-center justify-between gap-3 p-1.5 rounded-lg hover:bg-slate-50 transition">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-10 text-center shrink-0">
+                                    <span class="block text-sm font-black text-slate-800 leading-none">27</span>
+                                    <span class="block text-[9px] font-bold text-slate-400 uppercase">MAY</span>
+                                </div>
+                                <p class="font-semibold text-slate-800 truncate text-[11px]">Complete welding for Spool 32-45</p>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-700 shrink-0">2 days left</span>
+                        </div>
+
+                        <!-- Deadline 3 -->
+                        <div class="flex items-center justify-between gap-3 p-1.5 rounded-lg hover:bg-slate-50 transition">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-10 text-center shrink-0">
+                                    <span class="block text-sm font-black text-slate-800 leading-none">29</span>
+                                    <span class="block text-[9px] font-bold text-slate-400 uppercase">MAY</span>
+                                </div>
+                                <p class="font-semibold text-slate-800 truncate text-[11px]">Install valve block near Decant Pond</p>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-100 text-sky-700 shrink-0">4 days left</span>
+                        </div>
+
+                        <!-- Deadline 4 -->
+                        <div class="flex items-center justify-between gap-3 p-1.5 rounded-lg hover:bg-slate-50 transition">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-10 text-center shrink-0">
+                                    <span class="block text-sm font-black text-slate-800 leading-none">01</span>
+                                    <span class="block text-[9px] font-bold text-slate-400 uppercase">JUN</span>
+                                </div>
+                                <p class="font-semibold text-slate-800 truncate text-[11px]">Scaffolding at HX-02 area</p>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-600 shrink-0">7 days left</span>
+                        </div>
+
+                        <!-- Deadline 5 -->
+                        <div class="flex items-center justify-between gap-3 p-1.5 rounded-lg hover:bg-slate-50 transition">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-10 text-center shrink-0">
+                                    <span class="block text-sm font-black text-slate-800 leading-none">05</span>
+                                    <span class="block text-[9px] font-bold text-slate-400 uppercase">JUN</span>
+                                </div>
+                                <p class="font-semibold text-slate-800 truncate text-[11px]">Painting touch up for supports</p>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-600 shrink-0">11 days left</span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- 4.3 Safety Summary (This Month) (span 4) -->
+                <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-sm font-bold text-slate-900">Safety Summary <span class="text-xs font-normal text-slate-400">(This Month)</span></h4>
+                        <button type="button" onclick="openDetailsModal('Safety Summary Details', 'HSE statistics including observations, near-misses, and 0 Lost Time Injury compliance.')" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">View All</button>
+                    </div>
+
+                    <!-- Shield & Compliance Header -->
+                    <div class="flex items-center gap-3.5 my-2 p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-100">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                            <i data-lucide="shield-check" class="w-7 h-7"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-600">Safety Compliance</p>
+                            <h3 class="text-2xl font-black text-emerald-600 leading-tight">100%</h3>
+                        </div>
+                    </div>
+
+                    <!-- 4 Safety Metric Columns -->
+                    <div class="grid grid-cols-4 gap-2 pt-2 border-t border-slate-100 text-center">
+                        <div>
+                            <div class="flex items-center justify-center text-slate-400 mb-1">
+                                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <span class="block text-sm font-black text-slate-900">45</span>
+                            <span class="block text-[9px] font-medium text-slate-500 mt-0.5">Safety<br>Observations</span>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center justify-center text-amber-500 mb-1">
+                                <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <span class="block text-sm font-black text-slate-900">12</span>
+                            <span class="block text-[9px] font-medium text-slate-500 mt-0.5">Unsafe<br>Acts</span>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center justify-center text-red-500 mb-1">
+                                <i data-lucide="flame" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <span class="block text-sm font-black text-slate-900">5</span>
+                            <span class="block text-[9px] font-medium text-slate-500 mt-0.5">Incidents</span>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center justify-center text-blue-600 mb-1">
+                                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <span class="block text-sm font-black text-slate-900">0</span>
+                            <span class="block text-[9px] font-medium text-slate-500 mt-0.5">Lost Time<br>Injury</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ------------------------------------------------------------- -->
+            <!-- 5. QUICK ACCESS ACTION TILES (10 COLORFUL ICONS) -->
+            <!-- ------------------------------------------------------------- -->
+            <div class="space-y-3 pt-2">
+                <h4 class="text-sm font-bold text-slate-900">Quick Access</h4>
+
+                <div class="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-3">
+                    
+                    <!-- 1. Daily Work Report -->
+                    <button type="button" onclick="openQuickActionModal('Daily Work Report')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
+                        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                            <i data-lucide="file-text" class="w-5 h-5"></i>
+                        </div>
+                        <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Daily Work<br>Report</span>
+                    </button>
+
+                    <!-- 2. Daily Attendance (DMR) -->
+                    <button type="button" onclick="openQuickActionModal('Daily Attendance (DMR)')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                            <i data-lucide="users" class="w-5 h-5"></i>
+                        </div>
+                        <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Daily Attendance<br>(DMR)</span>
+                    </button>
+
+                    <!-- 3. Planning Update -->
+                    <button type="button" onclick="openQuickActionModal('Planning Update')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
+                        <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                            <i data-lucide="percent" class="w-5 h-5"></i>
+                        </div>
+                        <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Planning<br>Update</span>
+                    </button>
+
+                    <!-- 4. Purchase Request (PR) -->
+                    <button type="button" onclick="openQuickActionModal('Purchase Request (PR)')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                        </div>
+                        <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Purchase<br>Request (PR)</span>
+                    </button>
+
+                    <!-- 5. ETM Requests -->
+                    <button type="button" onclick="openQuickActionModal('ETM Requests')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
+                        <div class="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                            <i data-lucide="boxes" class="w-5 h-5"></i>
+                        </div>
+                        <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">ETM<br>Requests</span>
+                    </button>
+
+                    <!-- 6. Site Advance -->
+                    <button type="button" onclick="openQuickActionModal('Site Advance')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
+                        <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                            <i data-lucide="circle-dollar-sign" class="w-5 h-5"></i>
+                        </div>
+                        <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Site<br>Advance</span>
+                    </button>
+
+                    <!-- 7. Tools Checklist -->
+                    <button type="button" onclick="openQuickActionModal('Tools Checklist')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                            <i data-lucide="wrench" class="w-5 h-5"></i>
+                        </div>
+                        <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Tools<br>Checklist</span>
+                    </button>
+
+                    <!-- 8. Certifications -->
+                    <button type="button" onclick="openQuickActionModal('Certification Tracker')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
+                        <div class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                            <i data-lucide="award" class="w-5 h-5"></i>
+                        </div>
+                        <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Certifications</span>
+                    </button>
+
+                    <!-- 9. Task Management -->
+                    <button type="button" onclick="openQuickActionModal('Task Management')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
+                        <div class="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                            <i data-lucide="check-square" class="w-5 h-5"></i>
+                        </div>
+                        <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Task<br>Management</span>
+                    </button>
+
+                    <!-- 10. Reports -->
+                    <button type="button" onclick="openQuickActionModal('Reports')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-700 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                            <i data-lucide="pie-chart" class="w-5 h-5"></i>
+                        </div>
+                        <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Reports</span>
+                    </button>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- INTERACTIVE QUICK ACTION MODAL -->
+    <!-- ================================================================= -->
+    <div id="quickActionModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
+                        <i id="modalActionIcon" data-lucide="layers" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h4 id="modalActionTitle" class="font-bold text-sm">Action Console</h4>
+                        <p class="text-[10px] text-slate-400">Radwa Operations Management</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeQuickActionModal()" class="text-slate-400 hover:text-white p-1 rounded-md transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body Form -->
+            <form onsubmit="handleActionSubmit(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Project Work Order / Reference</label>
+                    <select class="w-full text-xs rounded-xl border border-slate-300 p-2.5 bg-slate-50 font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <option value="WO-2026-0600">WO-2026-0600 - Ras Tanura Pipeline Expansion (Saudi Aramco)</option>
+                        <option value="WO-2026-0841">WO-2026-0841 - Shura Island Utilities & Civil Works (Red Sea)</option>
+                        <option value="WO-2026-0971">WO-2026-0971 - Yanbu Petrochemical Storage Farm (SABIC)</option>
+                        <option value="WO-2026-0003">WO-2026-0003 - NEOM Sector 1 Substation EPC (NEOM)</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Date</label>
+                        <input type="date" value="2024-05-24" class="w-full text-xs rounded-xl border border-slate-300 p-2.5 bg-slate-50 font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Supervisor / Lead</label>
+                        <input type="text" value="Akshai A.T (Project Manager)" readonly class="w-full text-xs rounded-xl border border-slate-200 p-2.5 bg-slate-100 font-semibold text-slate-600 focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label id="modalDetailsLabel" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Description / Notes</label>
+                    <textarea rows="3" placeholder="Enter log updates, quantity values, or remarks..." class="w-full text-xs rounded-xl border border-slate-300 p-2.5 bg-slate-50 font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+                </div>
+
+                <div class="pt-2 flex items-center justify-end gap-3 border-t border-slate-100">
+                    <button type="button" onclick="closeQuickActionModal()" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md transition">
+                        Submit Entry
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- DETAILS DRILLDOWN MODAL -->
+    <!-- ================================================================= -->
+    <div id="detailsDrilldownModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+            <div class="px-6 py-4 bg-[#0B1736] text-white flex items-center justify-between">
+                <h4 id="drilldownTitle" class="font-bold text-sm">Overview Details</h4>
+                <button type="button" onclick="closeDetailsModal()" class="text-slate-400 hover:text-white p-1 rounded-md transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <p id="drilldownDescription" class="text-xs text-slate-600 leading-relaxed font-medium"></p>
+                <div class="p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-900 font-semibold flex items-center gap-2">
+                    <i data-lucide="info" class="w-4 h-4 text-blue-600 shrink-0"></i>
+                    <span>Connected live to Radwa Gulf ERP central project repository.</span>
+                </div>
+                <div class="pt-2 flex justify-end">
+                    <button type="button" onclick="closeDetailsModal()" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- NOTIFICATIONS SLIDE DRAWER -->
+    <!-- ================================================================= -->
+    <div id="notificationDrawer" class="fixed inset-y-0 right-0 z-50 w-80 bg-white shadow-2xl border-l border-slate-200 transition-transform duration-300 translate-x-full flex flex-col">
+        <div class="p-4 bg-[#0B1736] text-white flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i data-lucide="bell" class="w-4 h-4 text-blue-400"></i>
+                <h4 class="font-bold text-sm">Notifications</h4>
+            </div>
+            <button type="button" onclick="toggleNotificationDrawer()" class="text-slate-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4 space-y-3 divide-y divide-slate-100 text-xs">
+            <div class="pt-2 first:pt-0">
+                <p class="font-bold text-slate-900">Hydrotest Line 12"-HT-04</p>
+                <p class="text-slate-500 text-[11px]">Milestone is marked Overdue by QC Lead.</p>
+                <span class="text-[10px] text-red-500 font-semibold">15 mins ago</span>
+            </div>
+            <div class="pt-2">
+                <p class="font-bold text-slate-900">PR-2024-0056 Approved</p>
+                <p class="text-slate-500 text-[11px]">Purchase Order dispatched to supplier.</p>
+                <span class="text-[10px] text-emerald-600 font-semibold">1 hour ago</span>
+            </div>
+            <div class="pt-2">
+                <p class="font-bold text-slate-900">Welding Machine 04</p>
+                <p class="text-slate-500 text-[11px]">Third-party calibration expires in 7 days.</p>
+                <span class="text-[10px] text-amber-600 font-semibold">3 hours ago</span>
+            </div>
+            <div class="pt-2">
+                <p class="font-bold text-slate-900">Site Advance Transfer</p>
+                <p class="text-slate-500 text-[11px]">Finance cleared SAR 65,000 to Yanbu field team.</p>
+                <span class="text-[10px] text-blue-600 font-semibold">Yesterday</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toastNotification" class="fixed bottom-5 right-5 z-50 hidden px-4 py-3 rounded-xl bg-slate-900 text-white text-xs font-semibold shadow-2xl flex items-center gap-2.5 transition">
+        <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+        <span id="toastMessage">Success</span>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- JAVASCRIPT INITIALIZATION & CHARTS -->
+    <!-- ================================================================= -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Mobile Sidebar Toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            const isOpen = !sidebar.classList.contains('-translate-x-full');
+            
+            if (isOpen) {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            } else {
+                sidebar.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+            }
+        }
+
+        // Quick Create Dropdown Toggle
+        function toggleQuickCreateDropdown() {
+            const dropdown = document.getElementById('quickCreateDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        // Close dropdown when clicking outside
+        window.addEventListener('click', function(e) {
+            const btn = e.target.closest('button');
+            const dropdown = document.getElementById('quickCreateDropdown');
+            if (!dropdown.contains(e.target) && (!btn || !btn.innerText.includes('Quick Create'))) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // Quick Action Modal Logic
+        function openQuickActionModal(actionName) {
+            document.getElementById('modalActionTitle').innerText = actionName;
+            document.getElementById('modalDetailsLabel').innerText = actionName + ' Notes / Remarks';
+            document.getElementById('quickActionModal').classList.remove('hidden');
+            const dropdown = document.getElementById('quickCreateDropdown');
+            if (dropdown) dropdown.classList.add('hidden');
+        }
+
+        function closeQuickActionModal() {
+            document.getElementById('quickActionModal').classList.add('hidden');
+        }
+
+        function handleActionSubmit(e) {
+            e.preventDefault();
+            closeQuickActionModal();
+            showToast('Entry successfully registered and synced with Radwa Gulf Central Database!');
+        }
+
+        // Details Modal
+        function openDetailsModal(title, description) {
+            document.getElementById('drilldownTitle').innerText = title;
+            document.getElementById('drilldownDescription').innerText = description;
+            document.getElementById('detailsDrilldownModal').classList.remove('hidden');
+        }
+
+        function closeDetailsModal() {
+            document.getElementById('detailsDrilldownModal').classList.add('hidden');
+        }
+
+        // Notification Drawer Toggle
+        function toggleNotificationDrawer() {
+            const drawer = document.getElementById('notificationDrawer');
+            drawer.classList.toggle('translate-x-full');
+        }
+
+        // Toast Helper
+        function showToast(message) {
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastMessage').innerText = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3500);
+        }
+
+        // -------------------------------------------------------------
+        // CHART 1: PROGRESS OVERVIEW (Dual Line Chart)
+        // -------------------------------------------------------------
+        const ctxProgress = document.getElementById('progressOverviewChart').getContext('2d');
+        
+        // Custom Plugin for Line Chart Data Point Labels
+        const linePointDataLabelPlugin = {
+            id: 'linePointDataLabel',
+            afterDatasetsDraw(chart) {
+                const { ctx } = chart;
+                chart.data.datasets.forEach((dataset, datasetIndex) => {
+                    const meta = chart.getDatasetMeta(datasetIndex);
+                    if (!meta.hidden) {
+                        meta.data.forEach((element, index) => {
+                            const val = dataset.data[index];
+                            ctx.fillStyle = dataset.borderColor;
+                            ctx.font = 'bold 9.5px "Plus Jakarta Sans", sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'bottom';
+                            const yOffset = datasetIndex === 0 ? -7 : 17;
+                            ctx.fillText(val + '%', element.x, element.y + yOffset);
+                        });
+                    }
+                });
+            }
+        };
+
+        new Chart(ctxProgress, {
+            type: 'line',
+            data: {
+                labels: ['Jan 2024', 'Feb 2024', 'Mar 2024', 'Apr 2024', 'May 2024'],
+                datasets: [
+                    {
+                        label: 'Planned Progress (%)',
+                        data: [40, 45, 50, 55, 60],
+                        borderColor: '#2563EB',
+                        backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                        borderWidth: 2.5,
+                        tension: 0.35,
+                        pointBackgroundColor: '#2563EB',
+                        pointBorderColor: '#FFFFFF',
+                        pointBorderWidth: 2,
+                        pointRadius: 4.5,
+                        pointHoverRadius: 6,
+                        fill: false
+                    },
+                    {
+                        label: 'Actual Progress (%)',
+                        data: [28, 35, 45, 52, 58.4],
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                        borderWidth: 2.5,
+                        tension: 0.35,
+                        pointBackgroundColor: '#10B981',
+                        pointBorderColor: '#FFFFFF',
+                        pointBorderWidth: 2,
+                        pointRadius: 4.5,
+                        pointHoverRadius: 6,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0F172A',
+                        padding: 10,
+                        titleFont: { size: 11, weight: 'bold' },
+                        bodyFont: { size: 10 },
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y + '%';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { size: 10, family: '"Plus Jakarta Sans", sans-serif' },
+                            color: '#64748B'
+                        }
+                    },
+                    y: {
+                        min: 0,
+                        max: 100,
+                        ticks: {
+                            stepSize: 25,
+                            callback: function(value) { return value + '%'; },
+                            font: { size: 10, family: '"Plus Jakarta Sans", sans-serif' },
+                            color: '#64748B'
+                        },
+                        grid: {
+                            color: '#F1F5F9',
+                            borderDash: [3, 3]
+                        }
+                    }
+                }
+            },
+            plugins: [linePointDataLabelPlugin]
+        });
+
+        // -------------------------------------------------------------
+        // CHART 2: REQUESTS OVERVIEW (Donut Chart)
+        // -------------------------------------------------------------
+        const ctxRequests = document.getElementById('requestsOverviewChart').getContext('2d');
+        new Chart(ctxRequests, {
+            type: 'doughnut',
+            data: {
+                labels: ['Submitted', 'Pending', 'Approved', 'Rejected'],
+                datasets: [{
+                    data: [18, 18, 6, 2],
+                    backgroundColor: [
+                        '#2563EB', // Blue
+                        '#F59E0B', // Amber/Orange
+                        '#10B981', // Green
+                        '#EF4444'  // Red
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#FFFFFF',
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '72%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0F172A',
+                        padding: 8,
+                        titleFont: { size: 11 },
+                        bodyFont: { size: 10 },
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                const val = context.parsed;
+                                const total = 44;
+                                const pct = ((val / total) * 100).toFixed(2);
+                                return context.label + ': ' + val + ' (' + pct + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

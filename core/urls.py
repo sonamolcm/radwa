@@ -22,6 +22,8 @@ urlpatterns = [
     path("inventory/", views.inventory_portal, name="inventory-portal"),
     path("purchase/", views.purchase_portal, name="purchase-portal"),
     path("download/credentials-pdf/", views.download_credentials_pdf, name="download-credentials-pdf"),
+    path("radwa-dashboard/", views.radwa_dashboard, name="radwa-dashboard"),
+    path("dashboard/", views.radwa_dashboard, name="dashboard"),
 
     # Radwa ERP Authentication (Standard & v1)
     path("api/auth/login/", api_views.auth_login, name="api-auth-login"),
