@@ -1,0 +1,2052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radwa ERP - Purchase & Procurement Projects Directory</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+      .font-mono {
+        font-family: 'JetBrains Mono', monospace;
+      }
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: #f1f5f9; }
+      ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+      ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.2s ease-out forwards;
+      }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-900 antialiased flex flex-col">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Master Navigation Component -->
+    {% include "core/components/master_nav.html" with active_module="purchase" active_label="Purchase & Procurement Directory" %}
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+        <!-- ==================================================================== -->
+        <!-- VIEW 1: PROJECTS PROCUREMENT DIRECTORY (LANDING VIEW)                -->
+        <!-- ==================================================================== -->
+        <div id="view-project-list" class="space-y-6">
+            
+            <!-- Top Banner Card -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-cyan-950 to-slate-900 text-white p-6 sm:p-8 shadow-xl border border-slate-800">
+                <div class="absolute right-0 top-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+                            <span class="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-black uppercase tracking-wider border border-cyan-500/30">
+                                Radwa Procurement & Supply Chain
+                            </span>
+                            <span class="text-xs text-slate-400">•</span>
+                            <span class="text-xs text-slate-300 font-mono">Stage 3: Project Purchase Operations</span>
+                        </div>
+                        <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2.5">
+                            <i data-lucide="shopping-cart" class="w-7 h-7 text-cyan-400"></i>
+                            <span>Purchase & Procurement Projects Directory</span>
+                        </h1>
+                        <p class="text-xs text-slate-300 max-w-2xl mt-1 leading-relaxed">
+                            Select an active project below to view requested shortfall materials, issue official Vendor Purchase Orders (PO), and confirm goods restocked into warehouse inventory.
+                        </p>
+                    </div>
+
+                    <!-- Quick Search Bar -->
+                    <div class="relative w-full md:w-80">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+                        <input
+                            type="text"
+                            id="projectSearchInput"
+                            oninput="handleSearchProjects(this.value)"
+                            placeholder="Filter by WO#, Project, Client..."
+                            class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500 outline-none transition"
+                        />
+                    </div>
+                </div>
+
+                <!-- 4 Executive KPI Metrics Cards -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-white/10 text-xs">
+                    <div class="p-3.5 rounded-2xl bg-white/5 border border-white/5">
+                        <span class="text-slate-400 text-[10px] uppercase font-bold block">Active Projects</span>
+                        <span class="text-xl font-black text-white mt-0.5 block font-mono" id="kpi-projects-count">8 Projects</span>
+                        <span class="text-[10px] text-cyan-300">Procurement Tracked</span>
+                    </div>
+
+                    <div class="p-3.5 rounded-2xl bg-white/5 border border-white/5">
+                        <span class="text-slate-400 text-[10px] uppercase font-bold block">Active Purchase Orders</span>
+                        <span class="text-xl font-black text-cyan-400 mt-0.5 block font-mono" id="kpi-pos-count">1 POs Issued</span>
+                        <span class="text-[10px] text-slate-400">Vendor Commitments</span>
+                    </div>
+
+                    <div class="p-3.5 rounded-2xl bg-white/5 border border-white/5">
+                        <span class="text-slate-400 text-[10px] uppercase font-bold block">Total Committed Budget</span>
+                        <span class="text-xl font-black text-emerald-400 mt-0.5 block font-mono" id="kpi-committed-val">SAR 83,700</span>
+                        <span class="text-[10px] text-emerald-300">Contracted Value</span>
+                    </div>
+
+                    <div class="p-3.5 rounded-2xl bg-white/5 border border-white/5">
+                        <span class="text-slate-400 text-[10px] uppercase font-bold block">GRN Receipts Logged</span>
+                        <span class="text-xl font-black text-amber-300 mt-0.5 block font-mono" id="kpi-grns-count">1 Accepted</span>
+                        <span class="text-[10px] text-amber-200">Restocked into Inventory</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Procurement Cards Grid -->
+            <div id="projectsCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Dynamically injected via JavaScript -->
+            </div>
+        </div>
+
+        <!-- ==================================================================== -->
+        <!-- VIEW 2: PROJECT PURCHASE OPERATIONS DESK (DETAIL VIEW)               -->
+        <!-- ==================================================================== -->
+        <div id="view-project-detail" class="hidden space-y-6">
+            
+            <!-- Back Button & Project Switcher Bar -->
+            <div class="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <button
+                    type="button"
+                    onclick="switchToProjectList()"
+                    class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition flex items-center gap-2 cursor-pointer w-fit"
+                >
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    <span>← Back to All Projects Directory</span>
+                </button>
+
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-slate-400 hidden sm:inline">Active Project:</span>
+                        <span id="detailWoBadge" class="font-mono text-xs font-black px-2.5 py-1 rounded-lg bg-blue-100 text-blue-900 border border-blue-200">
+                            WO-2026-101
+                        </span>
+                        <span id="detailProjectTitleShort" class="text-xs font-bold text-slate-800 truncate max-w-xs hidden md:inline">
+                            Aramco Safaniya Offshore Pipeline
+                        </span>
+                    </div>
+
+                    <a
+                        id="linkInspectInventory"
+                        href="/inventory/"
+                        class="px-3.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+                    >
+                        <i data-lucide="boxes" class="w-3.5 h-3.5 text-emerald-600"></i>
+                        <span>Inspect Inventory Stock</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Project Procurement Summary Banner -->
+            <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    <div>
+                        <div class="flex items-center gap-2.5 mb-1.5 flex-wrap">
+                            <span id="bannerWoBadge" class="font-mono text-xs font-black px-2.5 py-0.5 rounded-lg bg-blue-600 text-white shadow-xs">
+                                WO-2026-101
+                            </span>
+                            <span class="text-xs text-slate-400">•</span>
+                            <span class="text-xs text-slate-600 font-medium">
+                                Client: <strong class="text-slate-900" id="bannerClientName">Saudi Aramco</strong>
+                            </span>
+                        </div>
+
+                        <h2 id="bannerProjectName" class="text-lg sm:text-xl font-black text-slate-900 leading-tight">
+                            Aramco Safaniya Offshore Pipeline Sector 4 Expansion
+                        </h2>
+                    </div>
+
+                    <div class="text-right shrink-0">
+                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">
+                            Shortfall Procurement Budget
+                        </span>
+                        <span id="bannerShortfallBudget" class="text-xl font-black text-emerald-600 font-mono">
+                            SAR 485,000
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Alert Banner: When MR is pending verification (Strict Department Gatekeeper) -->
+                <div id="gatekeeperLockBanner" class="hidden p-4 rounded-3xl bg-amber-500/10 border-2 border-amber-500/40 text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm animate-in fade-in duration-300">
+                    <div class="flex items-start gap-3.5">
+                        <div class="p-2.5 rounded-2xl bg-amber-500 text-slate-950 shrink-0 mt-0.5 shadow-md shadow-amber-500/20">
+                            <i data-lucide="lock" class="w-5 h-5 stroke-[2.5]"></i>
+                        </div>
+                        <div class="space-y-0.5">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold text-[10px] uppercase border border-amber-500/40">
+                                    🔒 GATEKEEPER ACTIVE: PO CREATION LOCKED
+                                </span>
+                                <span class="text-xs text-amber-400 font-mono" id="gatekeeperMrRef">Requisition: MR-2026-0041</span>
+                            </div>
+                            <h4 class="text-sm font-black text-white">
+                                Pending Technical Engineering Verification in Material Requests Hub
+                            </h4>
+                            <p class="text-xs text-slate-300 leading-relaxed max-w-2xl">
+                                This Material Request was generated from Warehouse Inventory but has not yet been verified by the Lead Estimator / Material QA Engineer. In accordance with Radwa ERP governance, official Purchase Orders (PO) cannot be issued until the requisition is verified and authorized in the MR Hub.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 text-xs font-semibold shrink-0 flex items-center gap-2">
+                        <i data-lucide="clock" class="w-4 h-4 text-amber-400"></i>
+                        <span>Awaiting Material Desk Sign-Off</span>
+                    </div>
+                </div>
+
+                <!-- ==================================================================== -->
+                <!-- SECTION 1: INBOUND MATERIAL REQUISITION (ITEMS TO BUY)               -->
+                <!-- ==================================================================== -->
+                <div class="rounded-3xl border border-slate-200 overflow-hidden bg-white shadow-xs">
+                    <div class="p-5 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2.5 flex-wrap">
+                                <span class="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-black uppercase tracking-wider border border-cyan-500/30">
+                                    APPROVED SHORTFALL MATERIAL REQUISITION (MR)
+                                </span>
+                                <span id="sectionMrNumber" class="font-mono text-cyan-300 font-black text-sm">
+                                    MR-2026-0041
+                                </span>
+                                <span id="sectionMrBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border bg-blue-50 text-blue-800 border-blue-200">
+                                    Pending Verification
+                                </span>
+                            </div>
+
+                            <p class="text-xs text-slate-300">
+                                Verified items dispatched from Warehouse Inventory to Procurement. Requisitioned by: <strong class="text-white" id="sectionMrRequester">Farhan Qureshi (Lead Estimator)</strong>
+                            </p>
+                        </div>
+
+                        <!-- Create PO CTA Button Container -->
+                        <div id="sectionMrActionContainer">
+                            <!-- Injected dynamically based on MR status -->
+                        </div>
+                    </div>
+
+                    <!-- Material Items Table -->
+                    <div id="sectionMrTableWrapper" class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 border-b border-slate-200 font-bold uppercase text-[10px] tracking-wider">
+                                    <th class="py-3 px-3 text-center">#</th>
+                                    <th class="py-3 px-4">Item SKU & Technical Specification</th>
+                                    <th class="py-3 px-3">Category</th>
+                                    <th class="py-3 px-2 text-center">Unit</th>
+                                    <th class="py-3 px-3 text-center bg-rose-50 text-rose-900 font-black border-x border-rose-200">
+                                        Shortfall to Purchase (Qty)
+                                    </th>
+                                    <th class="py-3 px-3 text-right">Est. Unit Rate</th>
+                                    <th class="py-3 px-4 text-right">Line Total (SAR)</th>
+                                    <th class="py-3 px-3">Suggested Vendor</th>
+                                    <th class="py-3 px-3 text-center">Procurement Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sectionMrTableBody" class="divide-y divide-slate-200 text-slate-700">
+                                <!-- Injected dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ==================================================================== -->
+                <!-- SECTION 2: VENDOR PURCHASE ORDERS (PO) FOR THIS PROJECT              -->
+                <!-- ==================================================================== -->
+                <div class="space-y-4 pt-4 border-t border-slate-100">
+                    <div class="flex items-center justify-between flex-wrap gap-3">
+                        <div>
+                            <h3 class="text-sm font-black text-slate-900 flex items-center gap-2">
+                                <i data-lucide="shopping-cart" class="w-4 h-4 text-indigo-600"></i>
+                                <span>Vendor Purchase Orders (PO) — <span id="projectPosCountTitle">0 Issued</span></span>
+                            </h3>
+                            <p class="text-[11px] text-slate-500">
+                                Legal procurement contracts issued to suppliers. Once goods arrive, click <strong>"Accept Delivery & Restock to Central Warehouse (GRN)"</strong> to update stock.
+                            </p>
+                        </div>
+
+                        <div id="issueAnotherPoContainer">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+
+                    <div id="projectPosListContainer" class="space-y-4">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+
+                <!-- ==================================================================== -->
+                <!-- SECTION 3: INBOUND GOODS RECEIPTS (GRN) HISTORY FOR THIS PROJECT     -->
+                <!-- ==================================================================== -->
+                <div id="sectionGrnContainer" class="space-y-3 pt-4 border-t border-slate-100 hidden">
+                    <h3 class="text-sm font-black text-slate-900 flex items-center gap-2">
+                        <i data-lucide="truck" class="w-4 h-4 text-emerald-600"></i>
+                        <span>Goods Receipt Notes (GRN) Log — <span id="grnCountTitle">0 Received</span></span>
+                    </h3>
+
+                    <div class="rounded-2xl border border-slate-200 overflow-hidden bg-white shadow-xs">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead class="bg-slate-100 text-slate-700 border-b border-slate-200 font-bold uppercase text-[10px]">
+                                <tr>
+                                    <th class="py-2.5 px-4">GRN Number</th>
+                                    <th class="py-2.5 px-3">Date Received</th>
+                                    <th class="py-2.5 px-4">Received By</th>
+                                    <th class="py-2.5 px-4">Warehouse Location</th>
+                                    <th class="py-2.5 px-3 text-center">QA/QC Audit</th>
+                                </tr>
+                            </thead>
+                            <tbody id="grnTableBody" class="divide-y divide-slate-200 text-slate-700">
+                                <!-- Injected dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ==================================================================== -->
+    <!-- MODAL: CREATE OFFICIAL PURCHASE ORDER (PO)                           -->
+    <!-- ==================================================================== -->
+    <div id="createPoModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-3xl overflow-hidden my-auto max-h-[92vh] flex flex-col">
+            
+            <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800 shrink-0">
+                <div class="flex items-center gap-2.5">
+                    <div class="p-2 rounded-xl bg-cyan-500/20 text-cyan-400">
+                        <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Create Official Purchase Order (PO)</h3>
+                        <p class="text-[11px] text-slate-400">All shortfall items from requisition will be committed into this Purchase Order</p>
+                    </div>
+                </div>
+                <button
+                    type="button"
+                    onclick="closeCreatePoModal()"
+                    class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer transition"
+                >
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="createPoForm" onsubmit="handleConfirmCreatePo(event)" class="p-6 space-y-4 text-xs overflow-y-auto flex-1">
+                
+                <!-- Project & Requisition Info Header -->
+                <div class="p-4 rounded-2xl bg-gradient-to-r from-slate-50 to-indigo-50/40 border border-slate-200 space-y-2">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span id="modalPoMrNumber" class="font-mono text-xs font-black px-2.5 py-0.5 rounded bg-blue-100 text-blue-900 border border-blue-200">
+                                    MR-2026-0041
+                                </span>
+                                <span id="modalPoProjectName" class="font-bold text-slate-900">Project Name</span>
+                            </div>
+                            <div class="text-[11px] text-slate-500 mt-0.5">
+                                Work Order: <strong id="modalPoWorkOrder" class="text-slate-700">WO-2026-101</strong> • Client: <strong id="modalPoClient" class="text-slate-700">Client Name</strong>
+                            </div>
+                        </div>
+
+                        <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black border border-emerald-300 flex items-center gap-1 self-start sm:self-auto">
+                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i>
+                            <span id="modalPoItemsCountBadge">✓ 100% All Requisitioned Products Included</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Items to Purchase Table -->
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <label class="text-slate-700 font-bold text-xs flex items-center gap-1.5">
+                            <i data-lucide="package" class="w-4 h-4 text-cyan-600"></i>
+                            <span id="modalPoItemsLabel">Requisitioned Products Included in this PO:</span>
+                        </label>
+                        <span class="text-[11px] text-slate-500 font-mono">
+                            Total Value: <strong id="modalPoTotalValueLabel" class="text-emerald-700 font-bold">SAR 0</strong>
+                        </span>
+                    </div>
+
+                    <div class="rounded-2xl border border-slate-200 overflow-hidden bg-slate-50">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead class="bg-slate-100 text-slate-700 font-bold text-[10px] uppercase border-b border-slate-200">
+                                <tr>
+                                    <th class="py-2.5 px-3 text-center">#</th>
+                                    <th class="py-2.5 px-3">Product SKU & Name</th>
+                                    <th class="py-2.5 px-2 text-center">Unit</th>
+                                    <th class="py-2.5 px-3 text-center bg-blue-50 text-blue-900 font-black">PO Qty</th>
+                                    <th class="py-2.5 px-3 text-right">Unit Rate (SAR)</th>
+                                    <th class="py-2.5 px-4 text-right">Line Total (SAR)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalPoTableBody" class="divide-y divide-slate-200 text-slate-700 bg-white">
+                                <!-- Injected dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-slate-700 font-semibold mb-1">
+                        Vendor / Supplier Name *
+                    </label>
+                    <input
+                        type="text"
+                        id="formVendorName"
+                        required
+                        placeholder="e.g. Arabian Pipe Company (APC)"
+                        class="w-full px-3 py-2 rounded-xl border border-slate-300 font-bold text-slate-900 text-xs focus:ring-2 focus:ring-cyan-500 outline-none"
+                    />
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-700 font-semibold mb-1">
+                            Expected Delivery Date *
+                        </label>
+                        <input
+                            type="date"
+                            id="formDeliveryDate"
+                            required
+                            class="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono font-bold text-slate-800 text-xs focus:ring-2 focus:ring-cyan-500 outline-none"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-700 font-semibold mb-1">
+                            Payment Terms
+                        </label>
+                        <select
+                            id="formPaymentTerms"
+                            class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800 font-medium text-xs focus:ring-2 focus:ring-cyan-500 outline-none cursor-pointer"
+                        >
+                            <option value="Net 30 Days after GRN Delivery">Net 30 Days after GRN</option>
+                            <option value="Net 60 Days after GRN Delivery">Net 60 Days after GRN</option>
+                            <option value="Letter of Credit (LC)">Letter of Credit (LC)</option>
+                            <option value="Advance Payment 50% / Balance on Delivery">50% Advance / Balance on Delivery</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between text-xs">
+                    <div class="text-emerald-900 font-medium" id="modalPoFooterItemCount">
+                        Total PO Contract Value:
+                    </div>
+                    <div id="modalPoFooterTotalAmount" class="font-mono font-black text-emerald-800 text-base">
+                        SAR 0
+                    </div>
+                </div>
+
+                <div class="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+                    <button
+                        type="button"
+                        onclick="closeCreatePoModal()"
+                        class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50 cursor-pointer"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold transition flex items-center gap-2 shadow-md cursor-pointer"
+                    >
+                        <i data-lucide="check" class="w-4 h-4"></i>
+                        <span>Issue Official Purchase Order</span>
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- JAVASCRIPT STATE ENGINE & LOCALSTORAGE INTERACTION                         -->
+    <!-- ========================================================================= -->
+    <script>
+    // Injected Django projects catalog
+    const DJANGO_PROJECTS = {{ projects_json|safe }};
+
+    // Initial fallback data matching data/mockInventoryData.ts
+    const INITIAL_MATERIAL_REQUESTS = [
+      {
+            "id": "mr-2026-0044",
+            "mrNumber": "MR-2026-0044",
+            "workOrderNo": "WO-2026-0600",
+            "projectId": "WO-2026-0600",
+            "projectName": "Jubail EPC Industrial Complex Phase 2 & Site Infrastructure",
+            "clientName": "SABIC Petrochemicals / Royal Commission",
+            "status": "Pending Verification",
+            "priority": "Critical",
+            "requestedBy": "Fahad Al-Dossary (Warehouse & Materials)",
+            "requestedDate": "2026-10-21",
+            "targetDeliveryDate": "2026-11-15",
+            "totalEstimatedCost": 6245000,
+            "notes": "Technical specifications checked against tender BOQ. Shortfall confirmed unavailable in central yard.",
+            "items": [
+                  {
+                        "id": "mri-600-1",
+                        "itemCode": "01.01",
+                        "name": "Mass excavation in all types of soil including rock breaking and cart away to municipal dumpsite",
+                        "specification": "Civil Works / Aramco SAES-A-114",
+                        "category": "Civil & Concrete",
+                        "requestedQuantity": 38000,
+                        "quantity": 38000,
+                        "unit": "m\u00b3",
+                        "unitCost": 24,
+                        "totalCost": 912000,
+                        "preferredVendor": "Aramco Approved Earthworks Contractor",
+                        "notes": "Shortfall procurement. Required: 38,000 m\u00b3, Allocated from Yard: 0 m\u00b3."
+                  },
+                  {
+                        "id": "mri-600-2",
+                        "itemCode": "MAT-X65-024",
+                        "name": "Reinforced concrete foundation pads & grade beams using Sulfate Resistant Cement (C50/60)",
+                        "specification": "Concrete & Foundations / Aramco 09-SAMSS-097",
+                        "category": "Civil & Concrete",
+                        "requestedQuantity": 5900,
+                        "quantity": 5900,
+                        "unit": "m\u00b3",
+                        "unitCost": 380,
+                        "totalCost": 2242000,
+                        "preferredVendor": "Saudi Readymix Concrete Co.",
+                        "notes": "Shortfall procurement. Required: 6,400 m\u00b3, Allocated from Yard: 500 m\u00b3."
+                  },
+                  {
+                        "id": "mri-600-3",
+                        "itemCode": "MAT-PIP-024",
+                        "name": "Fabrication, blast cleaning (Sa 2.5), epoxy coating and erection of hot rolled structural steel members",
+                        "specification": "Structural Steel / Aramco 12-SAMSS-007",
+                        "category": "Structural Steel & Rebar",
+                        "requestedQuantity": 815,
+                        "quantity": 815,
+                        "unit": "Ton",
+                        "unitCost": 3400,
+                        "totalCost": 2771000,
+                        "preferredVendor": "Saudi Iron & Steel Co. (HADEED)",
+                        "notes": "Shortfall procurement. Required: 820 Ton, Allocated from Yard: 5 Ton."
+                  },
+                  {
+                        "id": "mri-600-4",
+                        "itemCode": "04.01",
+                        "name": "Pre-commissioning, integrated systems loop testing, client witness verification and final punchlist clearing",
+                        "specification": "Testing & Handover / Pre-commissioning",
+                        "category": "Civil & Concrete",
+                        "requestedQuantity": 1,
+                        "quantity": 1,
+                        "unit": "Lump Sum",
+                        "unitCost": 320000,
+                        "totalCost": 320000,
+                        "preferredVendor": "Specialized Commissioning Services Ltd.",
+                        "notes": "Shortfall procurement. Required: 1 Lump Sum, Allocated from Yard: 0."
+                  }
+            ]
+      },
+      {
+            "id": "mr-2026-0041",
+            "mrNumber": "MR-2026-0041",
+            "workOrderNo": "WO-2026-101",
+            "projectId": "WO-2026-101",
+            "projectName": "Aramco Safaniya Offshore Pipeline Sector 4 Expansion",
+            "clientName": "Saudi Aramco",
+            "status": "Verified & Sent to Purchase",
+            "priority": "Critical",
+            "requestedBy": "Farhan Qureshi (Lead Estimator)",
+            "requestedDate": "2026-10-18",
+            "targetDeliveryDate": "2026-11-05",
+            "totalEstimatedCost": 485000,
+            "notes": "Technical specifications checked against tender BOQ & SAES standards. Shortfall confirmed unavailable in central yard.",
+            "items": [
+                  {
+                        "id": "mri-101-1",
+                        "itemCode": "PIP-CS-12-80",
+                        "name": "A333 Gr 6 Seamless Low-Temp Carbon Steel Pipe 12\" SCH 80",
+                        "specification": "Aramco 01-SAMSS-010 / ASME B36.10M",
+                        "category": "Piping & Flanges",
+                        "requestedQuantity": 450,
+                        "quantity": 450,
+                        "unit": "MTR",
+                        "unitCost": 650,
+                        "totalCost": 292500,
+                        "preferredVendor": "Arabian Pipe Company (APC)",
+                        "notes": "Required: 470 MTR, Yard stock allocated: 20 MTR."
+                  },
+                  {
+                        "id": "mri-101-2",
+                        "itemCode": "VAL-BALL-12",
+                        "name": "API 6D Trunnion Ball Valve 12\" Class 600 Full Bore",
+                        "specification": "API 6D / Firesafe ISO 10497",
+                        "category": "Piping & Flanges",
+                        "requestedQuantity": 2,
+                        "quantity": 2,
+                        "unit": "NOS",
+                        "unitCost": 55000,
+                        "totalCost": 110000,
+                        "preferredVendor": "Flowserve Al-Rushaid Co.",
+                        "notes": "Required: 4 NOS, Yard stock allocated: 2 NOS."
+                  },
+                  {
+                        "id": "mri-101-3",
+                        "itemCode": "FST-BLT-B7",
+                        "name": "ASTM A193 Grade B7 Heavy Hex Stud Bolts with 2H Nuts",
+                        "specification": "ASME B18.2.1 / Flange Bolting Package",
+                        "category": "Consumables & Hardware",
+                        "requestedQuantity": 80,
+                        "quantity": 80,
+                        "unit": "Sets",
+                        "unitCost": 18,
+                        "totalCost": 1440,
+                        "preferredVendor": "Eastern Seal & Fasteners Co.",
+                        "notes": "Required: 180 Sets, Yard stock allocated: 100 Sets."
+                  }
+            ]
+      },
+      {
+            "id": "mr-2026-0042",
+            "mrNumber": "MR-2026-0042",
+            "workOrderNo": "WO-2026-102",
+            "projectId": "WO-2026-102",
+            "projectName": "Sabic Jubail Chemical Tank Farm Internal Shell Refurbishment",
+            "clientName": "SABIC Jubail",
+            "status": "PO Issued",
+            "priority": "High",
+            "requestedBy": "Farhan Qureshi (Lead Estimator)",
+            "requestedDate": "2026-10-19",
+            "targetDeliveryDate": "2026-11-12",
+            "totalEstimatedCost": 264000,
+            "notes": "Material requisition validated against SABIC specifications.",
+            "items": [
+                  {
+                        "id": "mri-102-1",
+                        "itemCode": "PLT-SS-316L",
+                        "name": "ASTM A240 Stainless Steel 316L Plate 10mm Thk (2m x 6m)",
+                        "specification": "SABIC Tank Standard / EN 10028-7",
+                        "category": "Structural Steel & Rebar",
+                        "requestedQuantity": 35,
+                        "quantity": 35,
+                        "unit": "SHT",
+                        "unitCost": 4800,
+                        "totalCost": 168000,
+                        "preferredVendor": "Saudi Iron & Steel Co. (HADEED)",
+                        "notes": "Yard stock 0. Full quantity requisitioned."
+                  },
+                  {
+                        "id": "mri-102-2",
+                        "itemCode": "COAT-TANK-EP",
+                        "name": "APCS-1B High Build Solventless Epoxy Internal Tank Lining Coating 20L",
+                        "specification": "Aramco APCS-1B / Chemical Resistant",
+                        "category": "Consumables & Hardware",
+                        "requestedQuantity": 60,
+                        "quantity": 60,
+                        "unit": "Pails",
+                        "unitCost": 220,
+                        "totalCost": 13200,
+                        "preferredVendor": "Jotun Paints KSA",
+                        "notes": "Required: 120 Pails, Allocated: 60 Pails."
+                  }
+            ]
+      },
+      {
+            "id": "mr-2026-0043",
+            "mrNumber": "MR-2026-0043",
+            "workOrderNo": "WO-2026-103",
+            "projectId": "WO-2026-103",
+            "projectName": "Ma'aden Phosphate Slurry Transmission Line Replacement",
+            "clientName": "Ma'aden Mining Co.",
+            "status": "Approved for Procurement",
+            "priority": "High",
+            "requestedBy": "Farhan Qureshi (Lead Estimator)",
+            "requestedDate": "2026-10-20",
+            "targetDeliveryDate": "2026-11-18",
+            "totalEstimatedCost": 412000,
+            "notes": "Heavy slurry transport pipeline materials certified for Maaden phosphate mining operations.",
+            "items": [
+                  {
+                        "id": "mri-103-1",
+                        "itemCode": "PIP-HDPE-16",
+                        "name": "PE100 High-Density Polyethylene Slurry Pipe 16\" SDR 9",
+                        "specification": "ISO 4427 / Heavy Slurry Abrasion Resistant",
+                        "category": "Piping & Flanges",
+                        "requestedQuantity": 300,
+                        "quantity": 300,
+                        "unit": "MTR",
+                        "unitCost": 480,
+                        "totalCost": 144000,
+                        "preferredVendor": "Saudi Plastic Products Co. (SAPPCO)",
+                        "notes": "Required: 600 MTR, Yard stock allocated: 300 MTR."
+                  },
+                  {
+                        "id": "mri-103-2",
+                        "itemCode": "VAL-GATE-16",
+                        "name": "API 6D Slurry Resilient-Seated Knife Gate Valve 16\" Class 150",
+                        "specification": "API 6D / Heavy Phosphate Slurry Service",
+                        "category": "Piping & Flanges",
+                        "requestedQuantity": 4,
+                        "quantity": 4,
+                        "unit": "NOS",
+                        "unitCost": 42000,
+                        "totalCost": 168000,
+                        "preferredVendor": "Flowserve Al-Rushaid Co.",
+                        "notes": "Required: 8 NOS, Yard stock allocated: 4 NOS."
+                  }
+            ]
+      },
+      {
+            "id": "mr-2026-0045",
+            "mrNumber": "MR-2026-0045",
+            "workOrderNo": "WO-2026-0139",
+            "projectId": "WO-2026-0139",
+            "projectName": "380kV Substation Transformer Bays & Firefighting Piping Interconnection",
+            "clientName": "Saudi Electricity Company (SEC)",
+            "status": "Approved for Procurement",
+            "priority": "Critical",
+            "requestedBy": "Faisal Rahman (Estimating Engineer)",
+            "requestedDate": "2026-10-21",
+            "targetDeliveryDate": "2026-11-14",
+            "totalEstimatedCost": 383000,
+            "notes": "SEC substation emergency firefighting system components.",
+            "items": [
+                  {
+                        "id": "mri-139-1",
+                        "itemCode": "CBL-MV-138KV",
+                        "name": "13.8kV 3-Core 240 sqmm Copper Armored High-Voltage Substation Cable",
+                        "specification": "SEC 11-TMSS-01 / Substation Feeder Line",
+                        "category": "Electrical & Instrumentation",
+                        "requestedQuantity": 650,
+                        "quantity": 650,
+                        "unit": "Meters",
+                        "unitCost": 380,
+                        "totalCost": 247000,
+                        "preferredVendor": "Riyadh Cables Group",
+                        "notes": "Required: 950 MTR, Yard stock allocated: 300 MTR."
+                  },
+                  {
+                        "id": "mri-139-2",
+                        "itemCode": "PIP-CS-06-40",
+                        "name": "ASTM A106 Gr. B Hot-Dip Galvanized Firefighting Pipe 6\" SCH 40",
+                        "specification": "ASTM A53 / SAES-B-017 Fire Protection",
+                        "category": "Piping & Flanges",
+                        "requestedQuantity": 180,
+                        "quantity": 180,
+                        "unit": "MTR",
+                        "unitCost": 320,
+                        "totalCost": 57600,
+                        "preferredVendor": "Arabian Pipe Company (APC)",
+                        "notes": "Required: 380 MTR, Yard stock allocated: 200 MTR."
+                  }
+            ]
+      },
+      {
+            "id": "mr-2026-0046",
+            "mrNumber": "MR-2026-0046",
+            "workOrderNo": "WO-2026-0148",
+            "projectId": "WO-2026-0148",
+            "projectName": "Phosphate Slurry Pipeline & Pump Station Foundation",
+            "clientName": "Saudi Arabian Mining Company (MA'ADEN)",
+            "status": "Verified & Sent to Purchase",
+            "priority": "High",
+            "requestedBy": "Fahad Al-Dossary (Warehouse & Materials)",
+            "requestedDate": "2026-10-19",
+            "targetDeliveryDate": "2026-11-10",
+            "totalEstimatedCost": 198000,
+            "notes": "Maaden pump station foundation civil and structural shortfall items.",
+            "items": [
+                  {
+                        "id": "mri-148-1",
+                        "itemCode": "RBR-GR60-25",
+                        "name": "ASTM A615 Grade 60 Deformed Steel Rebar 25mm (12m)",
+                        "specification": "SABIC Hadeed Certified",
+                        "category": "Structural Steel & Rebar",
+                        "requestedQuantity": 25,
+                        "quantity": 25,
+                        "unit": "Tons",
+                        "unitCost": 2650,
+                        "totalCost": 66250,
+                        "preferredVendor": "Saudi Iron & Steel Co. (HADEED)",
+                        "notes": "Required: 45 Tons, Allocated: 20 Tons."
+                  },
+                  {
+                        "id": "mri-148-2",
+                        "itemCode": "MAT-X65-024",
+                        "name": "Reinforced concrete foundation pads & grade beams (C50/60)",
+                        "specification": "Pump Station Deep Foundation / Sulfate Resistant",
+                        "category": "Civil & Concrete",
+                        "requestedQuantity": 350,
+                        "quantity": 350,
+                        "unit": "m\u00b3",
+                        "unitCost": 380,
+                        "totalCost": 133000,
+                        "preferredVendor": "Saudi Readymix Concrete Co.",
+                        "notes": "Required: 850 m\u00b3, Yard allocation: 500 m\u00b3."
+                  }
+            ]
+      },
+      {
+            "id": "mr-2026-0047",
+            "mrNumber": "MR-2026-0047",
+            "workOrderNo": "WO-2026-0841",
+            "projectId": "WO-2026-0841",
+            "projectName": "Haradh Gas Compression Plant Piping & Manifold Tie-In",
+            "clientName": "Saudi Aramco",
+            "status": "Approved for Procurement",
+            "priority": "Critical",
+            "requestedBy": "Farhan Qureshi (Lead Estimator)",
+            "requestedDate": "2026-10-21",
+            "targetDeliveryDate": "2026-11-16",
+            "totalEstimatedCost": 215000,
+            "notes": "Aramco Haradh gas manifold piping and valve shortfall packages.",
+            "items": [
+                  {
+                        "id": "mri-841-1",
+                        "itemCode": "PIP-CS-06-40",
+                        "name": "ASTM A106 Gr. B Seamless Carbon Steel Pipe 6\" SCH 40",
+                        "specification": "ASME B36.10M / Process Gas Expansion",
+                        "category": "Piping & Flanges",
+                        "requestedQuantity": 120,
+                        "quantity": 120,
+                        "unit": "MTR",
+                        "unitCost": 320,
+                        "totalCost": 38400,
+                        "preferredVendor": "Arabian Pipe Company (APC)",
+                        "notes": "Required: 320 MTR, Yard stock allocated: 200 MTR."
+                  },
+                  {
+                        "id": "mri-841-2",
+                        "itemCode": "VAL-BALL-12",
+                        "name": "API 6D Trunnion Ball Valve 6\" Class 300 Full Bore",
+                        "specification": "API 6D / Firesafe ISO 10497",
+                        "category": "Piping & Flanges",
+                        "requestedQuantity": 4,
+                        "quantity": 4,
+                        "unit": "NOS",
+                        "unitCost": 32000,
+                        "totalCost": 128000,
+                        "preferredVendor": "Flowserve Al-Rushaid Co.",
+                        "notes": "Required: 6 NOS, Yard stock allocated: 2 NOS."
+                  }
+            ]
+      }
+];
+
+    const INITIAL_PURCHASE_ORDERS = [
+      {
+            "id": "po-2026-0012",
+            "poNumber": "PO-2026-0012",
+            "mrNumber": "MR-2026-0041",
+            "workOrderNo": "WO-2026-101",
+            "projectName": "Aramco Safaniya Offshore Pipeline Sector 4 Expansion",
+            "vendorName": "Arabian Pipe Company (APC)",
+            "issueDate": "2026-10-19",
+            "expectedDeliveryDate": "2026-11-02",
+            "totalAmount": 402500,
+            "status": "PO Issued",
+            "paymentTerms": "30 Days Net LC",
+            "items": [
+                  {
+                        "id": "poi-101-1",
+                        "itemCode": "PIP-CS-12-80",
+                        "name": "A333 Gr 6 Seamless Low-Temp Carbon Steel Pipe 12\" SCH 80",
+                        "requestedQuantity": 450,
+                        "quantity": 450,
+                        "unit": "MTR",
+                        "unitCost": 650,
+                        "unitPrice": 650,
+                        "totalPrice": 292500
+                  },
+                  {
+                        "id": "poi-101-2",
+                        "itemCode": "VAL-BALL-12",
+                        "name": "API 6D Trunnion Ball Valve 12\" Class 600 Full Bore",
+                        "requestedQuantity": 2,
+                        "quantity": 2,
+                        "unit": "NOS",
+                        "unitCost": 55000,
+                        "unitPrice": 55000,
+                        "totalPrice": 110000
+                  }
+            ]
+      },
+      {
+            "id": "po-2026-0013",
+            "poNumber": "PO-2026-0013",
+            "mrNumber": "MR-2026-0042",
+            "workOrderNo": "WO-2026-102",
+            "projectName": "Sabic Jubail Chemical Tank Farm Internal Shell Refurbishment",
+            "vendorName": "Saudi Iron & Steel Co. (HADEED)",
+            "issueDate": "2026-10-20",
+            "expectedDeliveryDate": "2026-11-08",
+            "totalAmount": 181200,
+            "status": "PO Issued",
+            "paymentTerms": "Advance 20%, Balance on Delivery",
+            "items": [
+                  {
+                        "id": "poi-102-1",
+                        "itemCode": "PLT-SS-316L",
+                        "name": "ASTM A240 Stainless Steel 316L Plate 10mm Thk (2m x 6m)",
+                        "requestedQuantity": 35,
+                        "quantity": 35,
+                        "unit": "SHT",
+                        "unitCost": 4800,
+                        "unitPrice": 4800,
+                        "totalPrice": 168000
+                  },
+                  {
+                        "id": "poi-102-2",
+                        "itemCode": "COAT-TANK-EP",
+                        "name": "APCS-1B High Build Solventless Epoxy Internal Tank Lining Coating 20L",
+                        "requestedQuantity": 60,
+                        "quantity": 60,
+                        "unit": "Pails",
+                        "unitCost": 220,
+                        "unitPrice": 220,
+                        "totalPrice": 13200
+                  }
+            ]
+      },
+      {
+            "id": "po-2026-0014",
+            "poNumber": "PO-2026-0014",
+            "mrNumber": "MR-2026-0043",
+            "workOrderNo": "WO-2026-103",
+            "projectName": "Ma'aden Phosphate Slurry Transmission Line Replacement",
+            "vendorName": "Flowserve Al-Rushaid Co.",
+            "issueDate": "2026-10-21",
+            "expectedDeliveryDate": "2026-11-12",
+            "totalAmount": 312000,
+            "status": "PO Issued",
+            "paymentTerms": "CAD (Cash Against Documents)",
+            "items": [
+                  {
+                        "id": "poi-103-1",
+                        "itemCode": "PIP-HDPE-16",
+                        "name": "PE100 High-Density Polyethylene Slurry Pipe 16\" SDR 9",
+                        "requestedQuantity": 300,
+                        "quantity": 300,
+                        "unit": "MTR",
+                        "unitCost": 480,
+                        "unitPrice": 480,
+                        "totalPrice": 144000
+                  },
+                  {
+                        "id": "poi-103-2",
+                        "itemCode": "VAL-GATE-16",
+                        "name": "API 6D Slurry Resilient-Seated Knife Gate Valve 16\" Class 150",
+                        "requestedQuantity": 4,
+                        "quantity": 4,
+                        "unit": "NOS",
+                        "unitCost": 42000,
+                        "unitPrice": 42000,
+                        "totalPrice": 168000
+                  }
+            ]
+      },
+      {
+            "id": "po-2026-0015",
+            "poNumber": "PO-2026-0015",
+            "mrNumber": "MR-2026-0044",
+            "workOrderNo": "WO-2026-0600",
+            "projectName": "Jubail EPC Industrial Complex Phase 2 & Site Infrastructure",
+            "vendorName": "Saudi Iron & Steel Co. (HADEED)",
+            "issueDate": "2026-10-21",
+            "expectedDeliveryDate": "2026-11-15",
+            "totalAmount": 2771000,
+            "status": "PO Issued",
+            "paymentTerms": "30 Days Net LC",
+            "items": [
+                  {
+                        "id": "poi-600-1",
+                        "itemCode": "MAT-PIP-024",
+                        "name": "Fabrication, blast cleaning (Sa 2.5), epoxy coating structural steel members",
+                        "requestedQuantity": 815,
+                        "quantity": 815,
+                        "unit": "Ton",
+                        "unitCost": 3400,
+                        "unitPrice": 3400,
+                        "totalPrice": 2771000
+                  }
+            ]
+      },
+      {
+            "id": "po-2026-0016",
+            "poNumber": "PO-2026-0016",
+            "mrNumber": "MR-2026-0045",
+            "workOrderNo": "WO-2026-0139",
+            "projectName": "380kV Substation Transformer Bays & Firefighting Piping Interconnection",
+            "vendorName": "Riyadh Cables Group",
+            "issueDate": "2026-10-22",
+            "expectedDeliveryDate": "2026-11-14",
+            "totalAmount": 304600,
+            "status": "PO Issued",
+            "paymentTerms": "Direct Wire Transfer (T/T)",
+            "items": [
+                  {
+                        "id": "poi-139-1",
+                        "itemCode": "CBL-MV-138KV",
+                        "name": "13.8kV 3-Core 240 sqmm Copper Armored High-Voltage Substation Cable",
+                        "requestedQuantity": 650,
+                        "quantity": 650,
+                        "unit": "Meters",
+                        "unitCost": 380,
+                        "unitPrice": 380,
+                        "totalPrice": 247000
+                  },
+                  {
+                        "id": "poi-139-2",
+                        "itemCode": "PIP-CS-06-40",
+                        "name": "ASTM A106 Gr. B Hot-Dip Galvanized Firefighting Pipe 6\" SCH 40",
+                        "requestedQuantity": 180,
+                        "quantity": 180,
+                        "unit": "MTR",
+                        "unitCost": 320,
+                        "unitPrice": 320,
+                        "totalPrice": 57600
+                  }
+            ]
+      },
+      {
+            "id": "po-2026-0017",
+            "poNumber": "PO-2026-0017",
+            "mrNumber": "MR-2026-0047",
+            "workOrderNo": "WO-2026-0841",
+            "projectName": "Haradh Gas Compression Plant Piping & Manifold Tie-In",
+            "vendorName": "Arabian Pipe Company (APC)",
+            "issueDate": "2026-10-22",
+            "expectedDeliveryDate": "2026-11-16",
+            "totalAmount": 166400,
+            "status": "PO Issued",
+            "paymentTerms": "30 Days Net LC",
+            "items": [
+                  {
+                        "id": "poi-841-1",
+                        "itemCode": "PIP-CS-06-40",
+                        "name": "ASTM A106 Gr. B Seamless Carbon Steel Pipe 6\" SCH 40",
+                        "requestedQuantity": 120,
+                        "quantity": 120,
+                        "unit": "MTR",
+                        "unitCost": 320,
+                        "unitPrice": 320,
+                        "totalPrice": 38400
+                  },
+                  {
+                        "id": "poi-841-2",
+                        "itemCode": "VAL-BALL-12",
+                        "name": "API 6D Trunnion Ball Valve 6\" Class 300 Full Bore",
+                        "requestedQuantity": 4,
+                        "quantity": 4,
+                        "unit": "NOS",
+                        "unitCost": 32000,
+                        "unitPrice": 32000,
+                        "totalPrice": 128000
+                  }
+            ]
+      }
+];
+
+    const INITIAL_GOODS_RECEIPTS = [
+      {
+            "id": "grn-2026-0008",
+            "grnNumber": "GRN-2026-0008",
+            "poNumber": "PO-2026-0012",
+            "mrNumber": "MR-2026-0041",
+            "workOrderNo": "WO-2026-101",
+            "projectName": "Aramco Safaniya Offshore Pipeline Sector 4 Expansion",
+            "receivedDate": "2026-10-20",
+            "receivedBy": "Fahad Al-Dossary (Warehouse Lead)",
+            "inspectedBy": "Majed Al-Harbi (QA/QC Inspector)",
+            "warehouseLocation": "Jubail Central Yard - Receiving Bay A3",
+            "qualityStatus": "Passed QA/QC",
+            "notes": "MTC Review passed. Aramco inspection release note attached.",
+            "items": [
+                  {
+                        "itemCode": "PIP-CS-12-80",
+                        "name": "A333 Gr 6 Seamless Low-Temp Carbon Steel Pipe 12\" SCH 80",
+                        "quantityReceived": 450,
+                        "unit": "MTR",
+                        "inspectionStatus": "Passed QA/QC"
+                  }
+            ]
+      },
+      {
+            "id": "grn-2026-0009",
+            "grnNumber": "GRN-2026-0009",
+            "poNumber": "PO-2026-0013",
+            "mrNumber": "MR-2026-0042",
+            "workOrderNo": "WO-2026-102",
+            "projectName": "Sabic Jubail Chemical Tank Farm Internal Shell Refurbishment",
+            "receivedDate": "2026-10-21",
+            "receivedBy": "Sultan Al-Otaibi (Warehouse Receiver)",
+            "inspectedBy": "Tariq Al-Ghamdi (QA/QC Engineer)",
+            "warehouseLocation": "Dammam Yard - Plate Bay 2",
+            "qualityStatus": "Passed QA/QC",
+            "notes": "Positive Material Identification (PMI) verified SS 316L chemical composition.",
+            "items": [
+                  {
+                        "itemCode": "PLT-SS-316L",
+                        "name": "ASTM A240 Stainless Steel 316L Plate 10mm Thk (2m x 6m)",
+                        "quantityReceived": 35,
+                        "unit": "SHT",
+                        "inspectionStatus": "Passed QA/QC"
+                  }
+            ]
+      },
+      {
+            "id": "grn-2026-0010",
+            "grnNumber": "GRN-2026-0010",
+            "poNumber": "PO-2026-0014",
+            "mrNumber": "MR-2026-0043",
+            "workOrderNo": "WO-2026-103",
+            "projectName": "Ma'aden Phosphate Slurry Transmission Line Replacement",
+            "receivedDate": "2026-10-22",
+            "receivedBy": "Fahad Al-Dossary (Warehouse Lead)",
+            "inspectedBy": "Majed Al-Harbi (QA/QC Inspector)",
+            "warehouseLocation": "Dammam Pipe Yard 3",
+            "qualityStatus": "Passed QA/QC",
+            "notes": "Hydrostatic pressure test & dimensional inspection certified.",
+            "items": [
+                  {
+                        "itemCode": "PIP-HDPE-16",
+                        "name": "PE100 High-Density Polyethylene Slurry Pipe 16\" SDR 9",
+                        "quantityReceived": 300,
+                        "unit": "MTR",
+                        "inspectionStatus": "Passed QA/QC"
+                  }
+            ]
+      },
+      {
+            "id": "grn-2026-0011",
+            "grnNumber": "GRN-2026-0011",
+            "poNumber": "PO-2026-0015",
+            "mrNumber": "MR-2026-0044",
+            "workOrderNo": "WO-2026-0600",
+            "projectName": "Jubail EPC Industrial Complex Phase 2 & Site Infrastructure",
+            "receivedDate": "2026-10-22",
+            "receivedBy": "Fahad Al-Dossary (Warehouse Lead)",
+            "inspectedBy": "Ahmed Mansoor (Mechanical QC)",
+            "warehouseLocation": "Dammam Structural Yard - Section B",
+            "qualityStatus": "Passed QA/QC",
+            "notes": "Hadeed hot-rolled structural steel mill test certificates verified.",
+            "items": [
+                  {
+                        "itemCode": "MAT-PIP-024",
+                        "name": "Fabrication, blast cleaning (Sa 2.5), epoxy coating structural steel members",
+                        "quantityReceived": 815,
+                        "unit": "Ton",
+                        "inspectionStatus": "Passed QA/QC"
+                  }
+            ]
+      },
+      {
+            "id": "grn-2026-0012",
+            "grnNumber": "GRN-2026-0012",
+            "poNumber": "PO-2026-0016",
+            "mrNumber": "MR-2026-0045",
+            "workOrderNo": "WO-2026-0139",
+            "projectName": "380kV Substation Transformer Bays & Firefighting Piping Interconnection",
+            "receivedDate": "2026-10-22",
+            "receivedBy": "Sultan Al-Otaibi (Warehouse Receiver)",
+            "inspectedBy": "Bilal Siddiqui (Electrical QC)",
+            "warehouseLocation": "Yanbu Warehouse - Drum Yard A",
+            "qualityStatus": "Passed QA/QC",
+            "notes": "High voltage insulation resistance test passed 100kV testing.",
+            "items": [
+                  {
+                        "itemCode": "CBL-MV-138KV",
+                        "name": "13.8kV 3-Core 240 sqmm Copper Armored High-Voltage Substation Cable",
+                        "quantityReceived": 650,
+                        "unit": "Meters",
+                        "inspectionStatus": "Passed QA/QC"
+                  }
+            ]
+      },
+      {
+            "id": "grn-2026-0013",
+            "grnNumber": "GRN-2026-0013",
+            "poNumber": "PO-2026-0017",
+            "mrNumber": "MR-2026-0047",
+            "workOrderNo": "WO-2026-0841",
+            "projectName": "Haradh Gas Compression Plant Piping & Manifold Tie-In",
+            "receivedDate": "2026-10-23",
+            "receivedBy": "Fahad Al-Dossary (Warehouse Lead)",
+            "inspectedBy": "Majed Al-Harbi (QA/QC Inspector)",
+            "warehouseLocation": "Jubail Central Yard - Rack A-14",
+            "qualityStatus": "Passed QA/QC",
+            "notes": "ASTM A106 Gr B seamless piping wall thickness ultrasound check passed.",
+            "items": [
+                  {
+                        "itemCode": "PIP-CS-06-40",
+                        "name": "ASTM A106 Gr. B Seamless Carbon Steel Pipe 6\" SCH 40",
+                        "quantityReceived": 120,
+                        "unit": "MTR",
+                        "inspectionStatus": "Passed QA/QC"
+                  }
+            ]
+      }
+];
+
+    // LocalStorage Load & Save Helpers
+    function loadStorage(key, defaultVal) {
+        try {
+            const raw = localStorage.getItem(key);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    return parsed;
+                }
+            }
+        } catch (e) {
+            console.error('Error loading ' + key, e);
+        }
+        return defaultVal;
+    }
+
+    function saveStorage(key, val) {
+        try {
+            localStorage.setItem(key, JSON.stringify(val));
+            window.dispatchEvent(new Event('storage'));
+        } catch (e) {
+            console.error('Error saving ' + key, e);
+        }
+    }
+
+    let materialRequests = loadStorage('radwa_material_requests', INITIAL_MATERIAL_REQUESTS);
+    let purchaseOrders = loadStorage('radwa_purchase_orders', INITIAL_PURCHASE_ORDERS);
+    let goodsReceipts = loadStorage('radwa_goods_receipts', INITIAL_GOODS_RECEIPTS);
+
+    let viewMode = 'project_list';
+    let selectedProjectId = null;
+    let searchQuery = '';
+    let selectedMrForPo = null;
+
+    // Toast helper
+    function showToast(msg) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'max-w-sm bg-slate-900 text-white rounded-2xl shadow-2xl p-4 border border-slate-800 flex items-start gap-3 animate-fade-in pointer-events-auto';
+        toast.innerHTML = `
+            <div class="h-6 w-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                <i data-lucide="check-circle-2" class="h-3.5 w-3.5"></i>
+            </div>
+            <div class="text-xs font-semibold leading-relaxed">${msg}</div>
+        `;
+        container.appendChild(toast);
+        lucide.createIcons();
+        setTimeout(() => toast.remove(), 4000);
+    }
+
+    // Consolidated MR finder (Strictly 1 MR per Project)
+    function getProjectMr(proj) {
+        return materialRequests.find(mr => 
+            (mr.workOrderNo && mr.workOrderNo === proj.workOrderNo) || 
+            (mr.projectId && (mr.projectId === proj.id || mr.projectId === proj.workOrderNo))
+        ) || null;
+    }
+
+    // Find Project POs
+    function getProjectPos(proj, mr) {
+        return purchaseOrders.filter(po => 
+            (po.workOrderNo && po.workOrderNo === proj.workOrderNo) ||
+            (mr && po.mrNumber === mr.mrNumber)
+        );
+    }
+
+    // Find Project GRNs
+    function getProjectGrns(proj, mr) {
+        return goodsReceipts.filter(grn => 
+            (grn.workOrderNo && grn.workOrderNo === proj.workOrderNo) ||
+            (mr && grn.mrNumber === mr.mrNumber)
+        );
+    }
+
+    // Status Badge helper
+    function getMrBadgeHtml(status) {
+        switch(status) {
+            case 'Pending Verification':
+                return '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-900 border border-amber-300">Pending Verification</span>';
+            case 'Verified & Sent to Purchase':
+                return '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200">Verified & Sent to Purchase</span>';
+            case 'PO Issued':
+                return '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-800 border border-indigo-200">PO Issued</span>';
+            case 'Goods Received in Inventory (GRN)':
+                return '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 font-black">Goods Received in Inventory (GRN)</span>';
+            default:
+                return `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800 border border-slate-200">${status || 'Draft'}</span>`;
+        }
+    }
+
+    // Render Projects Directory (View 1)
+    function renderProjectsDirectory() {
+        const q = searchQuery.toLowerCase().trim();
+        const filtered = DJANGO_PROJECTS.filter(p => 
+            !q || 
+            (p.workOrderNo && p.workOrderNo.toLowerCase().includes(q)) ||
+            (p.proposedProjectName && p.proposedProjectName.toLowerCase().includes(q)) ||
+            (p.clientName && p.clientName.toLowerCase().includes(q))
+        );
+
+        // Update KPI counters
+        document.getElementById('kpi-projects-count').innerText = `${filtered.length} Projects`;
+        document.getElementById('kpi-pos-count').innerText = `${purchaseOrders.length} POs Issued`;
+        const totalBudget = purchaseOrders.reduce((sum, po) => sum + (Number(po.totalAmount) || 0), 0);
+        document.getElementById('kpi-committed-val').innerText = `SAR ${totalBudget.toLocaleString()}`;
+        document.getElementById('kpi-grns-count').innerText = `${goodsReceipts.length} Accepted`;
+
+        const grid = document.getElementById('projectsCardsGrid');
+        if (filtered.length === 0) {
+            grid.innerHTML = `
+                <div class="col-span-full p-12 text-center bg-white rounded-3xl border border-slate-200 text-slate-400">
+                    <i data-lucide="package" class="w-12 h-12 mx-auto text-slate-300 mb-3"></i>
+                    <h3 class="text-sm font-bold text-slate-800">No Projects Found</h3>
+                    <p class="text-xs text-slate-500 mt-1">Try adjusting your search query.</p>
+                </div>
+            `;
+            lucide.createIcons();
+            return;
+        }
+
+        grid.innerHTML = filtered.map(proj => {
+            const projectMr = getProjectMr(proj);
+            const projectPos = getProjectPos(proj, projectMr);
+            const isFullyRestocked = projectMr && projectMr.status === 'Goods Received in Inventory (GRN)';
+
+            return `
+                <div
+                    onclick="switchToProjectDetail('${proj.id}')"
+                    class="group relative p-5 rounded-3xl bg-white border border-slate-200 hover:border-cyan-500 hover:shadow-xl transition-all duration-200 cursor-pointer flex flex-col justify-between space-y-4"
+                >
+                    <div>
+                        <!-- Top Bar with WO Badge & Status -->
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <span class="font-mono text-xs font-black px-2.5 py-1 rounded-lg bg-blue-100 text-blue-900 border border-blue-200 group-hover:bg-cyan-600 group-hover:text-white transition">
+                                ${proj.workOrderNo}
+                            </span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                ${proj.status || 'Active Execution'}
+                            </span>
+                        </div>
+
+                        <!-- Project Name -->
+                        <h3 class="font-bold text-slate-900 text-sm group-hover:text-cyan-700 transition line-clamp-2 leading-snug">
+                            ${proj.proposedProjectName}
+                        </h3>
+
+                        <!-- Client -->
+                        <div class="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
+                            <i data-lucide="building-2" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
+                            <span class="truncate">${proj.clientName}</span>
+                        </div>
+                    </div>
+
+                    <!-- Procurement Demand State -->
+                    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-2 text-xs">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400 text-[10px] uppercase font-bold">Inbound Shortfalls:</span>
+                            ${isFullyRestocked ? `
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                                    <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-600"></i>
+                                    <span>100% In-Stock • Restocked</span>
+                                </span>
+                            ` : projectMr ? `
+                                ${getMrBadgeHtml(projectMr.status)}
+                            ` : `
+                                <span class="text-slate-400 text-[10px]">No Shortfalls</span>
+                            `}
+                        </div>
+
+                        <div class="flex items-center justify-between font-mono font-bold">
+                            <span class="text-slate-600">
+                                ${projectMr ? `${(projectMr.items || []).length} Required Materials` : '0 Pending Items'}
+                            </span>
+                            <span class="${projectMr ? 'text-emerald-700 font-black' : 'text-slate-400'}">
+                                ${projectMr ? 'SAR ' + (Number(projectMr.totalEstimatedCost) || 0).toLocaleString() : 'SAR 0'}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Strip with PO Count & CTA -->
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-1.5 text-slate-600">
+                            <i data-lucide="shopping-cart" class="w-3.5 h-3.5 text-indigo-500"></i>
+                            <span class="font-bold">${projectPos.length} Purchase Orders</span>
+                        </div>
+
+                        <span class="inline-flex items-center gap-1 text-cyan-600 group-hover:text-cyan-700 font-bold text-xs group-hover:translate-x-1 transition-transform">
+                            <span>Open Purchase Desk</span>
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        lucide.createIcons();
+    }
+
+    // Switch between View 1 and View 2
+    function switchToProjectList() {
+        viewMode = 'project_list';
+        document.getElementById('view-project-list').classList.remove('hidden');
+        document.getElementById('view-project-detail').classList.add('hidden');
+        renderProjectsDirectory();
+    }
+
+    function switchToProjectDetail(projId) {
+        selectedProjectId = projId;
+        viewMode = 'project_detail';
+        document.getElementById('view-project-list').classList.add('hidden');
+        document.getElementById('view-project-detail').classList.remove('hidden');
+        renderProjectDetail();
+    }
+
+    function handleSearchProjects(val) {
+        searchQuery = val;
+        renderProjectsDirectory();
+    }
+
+    // Render Project Detail (View 2)
+    function renderProjectDetail() {
+        const proj = DJANGO_PROJECTS.find(p => p.id == selectedProjectId || p.workOrderNo === selectedProjectId) || DJANGO_PROJECTS[0];
+        if (!proj) return;
+
+        const projectMr = getProjectMr(proj);
+        const projectPos = getProjectPos(proj, projectMr);
+        const projectGrns = getProjectGrns(proj, projectMr);
+
+        // Header and Banners
+        document.getElementById('detailWoBadge').innerText = proj.workOrderNo;
+        document.getElementById('detailProjectTitleShort').innerText = proj.proposedProjectName;
+        document.getElementById('linkInspectInventory').href = `/inventory/?project=${proj.workOrderNo}`;
+
+        document.getElementById('bannerWoBadge').innerText = proj.workOrderNo;
+        document.getElementById('bannerClientName').innerText = proj.clientName;
+        document.getElementById('bannerProjectName').innerText = proj.proposedProjectName;
+        document.getElementById('bannerShortfallBudget').innerText = projectMr ? `SAR ${(Number(projectMr.totalEstimatedCost) || 0).toLocaleString()}` : 'SAR 0';
+
+        // Gatekeeper Lock Banner
+        const lockBanner = document.getElementById('gatekeeperLockBanner');
+        if (projectMr && projectMr.status === 'Pending Verification') {
+            lockBanner.classList.remove('hidden');
+            const mrRefEl = document.getElementById('gatekeeperMrRef');
+            if (mrRefEl) mrRefEl.innerText = `Requisition: ${projectMr.mrNumber}`;
+        } else {
+            lockBanner.classList.add('hidden');
+        }
+
+        // Section 1: Inbound Material Requisition Table
+        document.getElementById('sectionMrNumber').innerText = projectMr ? projectMr.mrNumber : 'NO ACTIVE MR';
+        document.getElementById('sectionMrBadge').innerHTML = projectMr ? getMrBadgeHtml(projectMr.status) : '';
+        document.getElementById('sectionMrRequester').innerText = projectMr ? (projectMr.requestedBy || 'Central Warehouse') : 'None';
+
+        const actionContainer = document.getElementById('sectionMrActionContainer');
+        if (projectMr && projectMr.status === 'Pending Verification') {
+            actionContainer.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <span class="px-4 py-2 rounded-xl bg-slate-800 text-slate-400 border border-slate-700 text-xs font-bold flex items-center gap-2 cursor-not-allowed">
+                        <i data-lucide="lock" class="w-4 h-4 text-amber-400"></i>
+                        <span>PO Locked: Awaiting MR Verification</span>
+                    </span>
+                </div>
+            `;
+        } else if (projectMr && projectMr.status !== 'Goods Received in Inventory (GRN)') {
+            actionContainer.innerHTML = `
+                <button
+                    type="button"
+                    onclick="openCreatePoModal()"
+                    class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black text-xs transition flex items-center gap-2 shadow-lg shadow-emerald-900/30 cursor-pointer"
+                >
+                    <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                    <span>+ Create Official Purchase Order (PO)</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            `;
+        } else if (projectMr && projectMr.status === 'Goods Received in Inventory (GRN)') {
+            actionContainer.innerHTML = `
+                <span class="px-3.5 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-2">
+                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+                    <span>100% Restocked in Yard (GRN Complete)</span>
+                </span>
+            `;
+        } else {
+            actionContainer.innerHTML = '';
+        }
+
+        const tableBody = document.getElementById('sectionMrTableBody');
+        if (projectMr && projectMr.items && projectMr.items.length > 0) {
+            tableBody.innerHTML = projectMr.items.map((item, idx) => {
+                const isRestocked = projectMr.status === 'Goods Received in Inventory (GRN)';
+                const isPoPlaced = projectMr.status === 'PO Issued';
+
+                return `
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="py-3 px-3 text-center font-mono font-bold text-slate-400">${idx + 1}</td>
+                        <td class="py-3 px-4">
+                            <div class="font-mono text-[10px] text-cyan-700 font-black tracking-wide">${item.itemCode || 'SKU-TBD'}</div>
+                            <div class="font-bold text-slate-900 text-xs mt-0.5">${item.name}</div>
+                            <div class="text-[10px] text-slate-500 truncate max-w-sm">${item.specification || item.category || ''}</div>
+                        </td>
+                        <td class="py-3 px-3 whitespace-nowrap">
+                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                                ${item.category || 'General'}
+                            </span>
+                        </td>
+                        <td class="py-3 px-2 text-center font-mono font-bold text-slate-600">${item.unit}</td>
+                        <td class="py-3 px-3 text-center bg-rose-50/60 border-x border-rose-200">
+                            <span class="font-mono text-xs font-black px-2.5 py-1 rounded-lg bg-rose-600 text-white shadow-xs">
+                                ${item.requestedQuantity || item.quantity} ${item.unit}
+                            </span>
+                        </td>
+                        <td class="py-3 px-3 text-right font-mono text-slate-600">
+                            SAR ${(Number(item.unitCost) || 0).toLocaleString()}
+                        </td>
+                        <td class="py-3 px-4 text-right font-mono font-bold text-slate-900">
+                            <span class="text-rose-700 font-black">
+                                SAR ${(Number(item.totalCost) || ((Number(item.requestedQuantity) || 1) * (Number(item.unitCost) || 0))).toLocaleString()}
+                            </span>
+                        </td>
+                        <td class="py-3 px-3">
+                            <span class="text-[11px] font-medium text-slate-700 truncate max-w-[160px] block">
+                                ${item.preferredVendor || 'Aramco Approved Stockist'}
+                            </span>
+                        </td>
+                        <td class="py-3 px-3 text-center">
+                            ${isRestocked ? `
+                                <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">✓ Restocked</span>
+                            ` : isPoPlaced ? `
+                                <span class="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 text-[10px] font-bold">PO Placed</span>
+                            ` : `
+                                <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">Pending PO</span>
+                            `}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        } else {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="p-8 text-center text-slate-400 text-xs">
+                        No shortfall Material Request submitted for this project.
+                    </td>
+                </tr>
+            `;
+        }
+
+        // Section 2: Vendor Purchase Orders (PO) for this Project
+        document.getElementById('projectPosCountTitle').innerText = `${projectPos.length} Issued`;
+        const anotherPoContainer = document.getElementById('issueAnotherPoContainer');
+        if (projectMr) {
+            anotherPoContainer.innerHTML = `
+                <button
+                    type="button"
+                    onclick="openCreatePoModal()"
+                    class="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+                >
+                    <i data-lucide="plus" class="w-3.5 h-3.5 text-cyan-400"></i>
+                    <span>Issue Another PO</span>
+                </button>
+            `;
+        } else {
+            anotherPoContainer.innerHTML = '';
+        }
+
+        const posListContainer = document.getElementById('projectPosListContainer');
+        if (projectPos.length === 0) {
+            posListContainer.innerHTML = `
+                <div class="p-8 text-center bg-slate-50 rounded-2xl border border-slate-200">
+                    <i data-lucide="shopping-cart" class="w-8 h-8 text-slate-300 mx-auto mb-2"></i>
+                    <p class="text-xs font-bold text-slate-700">No Purchase Orders Issued Yet for this Project</p>
+                    ${projectMr ? `
+                        <button
+                            type="button"
+                            onclick="openCreatePoModal()"
+                            class="mt-3 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition inline-flex items-center gap-1.5 cursor-pointer shadow-xs"
+                        >
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                            <span>Issue Official PO Now</span>
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+        } else {
+            posListContainer.innerHTML = projectPos.map(po => {
+                const isCompleted = po.status === 'Completed (Stock Updated)';
+                const isShipped = po.status === 'Vendor Shipped';
+
+                return `
+                    <div class="rounded-3xl border border-slate-200 overflow-hidden bg-white shadow-xs">
+                        <!-- PO Header Strip -->
+                        <div class="p-4 bg-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-2.5 flex-wrap">
+                                    <span class="font-mono text-cyan-400 font-black text-sm">${po.poNumber}</span>
+                                    <span class="text-xs text-slate-400">•</span>
+                                    <span class="text-xs text-slate-300">Vendor: <strong class="text-white">${po.vendorName}</strong></span>
+                                    <span class="text-xs text-slate-400">•</span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                                        isCompleted ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' :
+                                        isShipped ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' :
+                                        'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
+                                    }">
+                                        ${po.status}
+                                    </span>
+                                </div>
+                                <div class="text-[11px] text-slate-400">
+                                    MR Ref: <span class="font-mono text-cyan-300">${po.mrNumber || 'MR-Auto'}</span> • Issued: <span class="font-mono text-white">${po.issueDate || '2026-10-20'}</span> • Expected Site Target: <span class="font-mono text-cyan-200 font-bold">${po.expectedDeliveryDate || 'TBD'}</span> • Terms: ${po.paymentTerms || 'Net 30 Days'}
+                                </div>
+                            </div>
+
+                            <!-- PO Action Buttons -->
+                            <div class="flex items-center gap-2 flex-wrap">
+                                ${po.status === 'PO Issued' ? `
+                                    <button
+                                        type="button"
+                                        onclick="handleShipGoodsToYard('${po.id}')"
+                                        class="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+                                    >
+                                        <i data-lucide="truck" class="w-3.5 h-3.5"></i>
+                                        <span>🚚 Confirm Vendor Dispatch (In-Transit)</span>
+                                    </button>
+                                ` : ''}
+
+                                ${!isCompleted ? `
+                                    <button
+                                        type="button"
+                                        onclick="handleRestockPoIntoInventory('${po.id}')"
+                                        class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black text-xs transition flex items-center gap-2 shadow-lg shadow-emerald-900/30 cursor-pointer"
+                                    >
+                                        <i data-lucide="boxes" class="w-4 h-4 text-emerald-200"></i>
+                                        <span>📦 Accept Delivery & Restock to Central Warehouse (GRN)</span>
+                                    </button>
+                                ` : `
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1.5">
+                                            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+                                            <span>Restocked in Inventory Stock</span>
+                                        </span>
+                                        <a
+                                            href="/inventory/?project=${proj.workOrderNo}"
+                                            class="px-3 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+                                        >
+                                            <span>Inspect in Inventory Reconciler</span>
+                                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                                        </a>
+                                    </div>
+                                `}
+                            </div>
+                        </div>
+
+                        <!-- PO Items Table -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead class="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold uppercase text-[10px]">
+                                    <tr>
+                                        <th class="py-2.5 px-3 text-center">#</th>
+                                        <th class="py-2.5 px-4">Item SKU & Name</th>
+                                        <th class="py-2.5 px-3">Unit</th>
+                                        <th class="py-2.5 px-3 text-center">Purchased Qty</th>
+                                        <th class="py-2.5 px-3 text-right">Unit Rate (SAR)</th>
+                                        <th class="py-2.5 px-4 text-right">Line Total (SAR)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200 text-slate-700">
+                                    ${(po.items || []).map((it, i) => `
+                                        <tr class="hover:bg-slate-50/60 transition">
+                                            <td class="py-2.5 px-3 text-center font-mono text-slate-400">${i + 1}</td>
+                                            <td class="py-2.5 px-4 font-bold text-slate-900">${it.name}</td>
+                                            <td class="py-2.5 px-3 font-mono">${it.unit}</td>
+                                            <td class="py-2.5 px-3 text-center font-mono font-bold text-blue-900 bg-blue-50/50">
+                                                ${it.requestedQuantity || it.quantity} ${it.unit}
+                                            </td>
+                                            <td class="py-2.5 px-3 text-right font-mono text-slate-600">SAR ${(Number(it.unitCost) || Number(it.unitPrice) || 0).toLocaleString()}</td>
+                                            <td class="py-2.5 px-4 text-right font-mono font-bold text-slate-900">
+                                                SAR ${(Number(it.totalCost) || Number(it.totalPrice) || 0).toLocaleString()}
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- PO Footer Strip -->
+                        <div class="p-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs">
+                            <div class="text-[11px] text-slate-500">
+                                Total contract committed to vendor <strong class="text-slate-800">${po.vendorName}</strong>
+                            </div>
+                            <div class="text-right">
+                                <span class="font-mono font-black text-sm text-emerald-600">
+                                    SAR ${(Number(po.totalAmount) || 0).toLocaleString()}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Section 3: GRN Logs
+        const grnContainer = document.getElementById('sectionGrnContainer');
+        const grnBody = document.getElementById('grnTableBody');
+        if (projectGrns.length > 0) {
+            grnContainer.classList.remove('hidden');
+            document.getElementById('grnCountTitle').innerText = `${projectGrns.length} Received`;
+            grnBody.innerHTML = projectGrns.map(grn => `
+                <tr class="hover:bg-slate-50/60 transition">
+                    <td class="py-2.5 px-4 font-mono font-black text-emerald-800">${grn.grnNumber}</td>
+                    <td class="py-2.5 px-3 font-mono text-slate-600">${grn.receivedDate}</td>
+                    <td class="py-2.5 px-4 text-slate-900 font-semibold">${grn.receivedBy}</td>
+                    <td class="py-2.5 px-4 text-slate-600">${grn.warehouseLocation}</td>
+                    <td class="py-2.5 px-3 text-center">
+                        <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                            ✓ Passed QA/QC
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        } else {
+            grnContainer.classList.add('hidden');
+        }
+
+        lucide.createIcons();
+    }
+
+    // Modal Operations
+    function openCreatePoModal() {
+        const proj = DJANGO_PROJECTS.find(p => p.id == selectedProjectId || p.workOrderNo === selectedProjectId) || DJANGO_PROJECTS[0];
+        const mr = getProjectMr(proj);
+        if (!mr) {
+            alert('No shortfall Material Request available for this project.');
+            return;
+        }
+
+        selectedMrForPo = mr;
+        document.getElementById('modalPoMrNumber').innerText = mr.mrNumber;
+        document.getElementById('modalPoProjectName').innerText = mr.projectName;
+        document.getElementById('modalPoWorkOrder').innerText = mr.workOrderNo;
+        document.getElementById('modalPoClient').innerText = mr.clientName;
+        document.getElementById('modalPoItemsCountBadge').innerText = `✓ 100% All Requisitioned Products (${mr.items.length}/${mr.items.length}) Included`;
+        document.getElementById('modalPoItemsLabel').innerText = `Requisitioned Products Included in this PO (${mr.items.length} Products):`;
+        document.getElementById('modalPoTotalValueLabel').innerText = `SAR ${(Number(mr.totalEstimatedCost) || 0).toLocaleString()}`;
+        document.getElementById('modalPoFooterItemCount').innerText = `Total PO Contract Value (${mr.items.length} Products):`;
+        document.getElementById('modalPoFooterTotalAmount').innerText = `SAR ${(Number(mr.totalEstimatedCost) || 0).toLocaleString()}`;
+
+        // Populate items table
+        document.getElementById('modalPoTableBody').innerHTML = (mr.items || []).map((it, idx) => `
+            <tr class="hover:bg-slate-50 transition">
+                <td class="py-2.5 px-3 text-center font-mono text-slate-400 font-bold">${idx + 1}</td>
+                <td class="py-2.5 px-3">
+                    <span class="font-mono text-[10px] text-cyan-700 font-bold block">${it.itemCode}</span>
+                    <span class="font-bold text-slate-900 text-xs block">${it.name}</span>
+                </td>
+                <td class="py-2.5 px-2 text-center font-mono text-slate-600">${it.unit}</td>
+                <td class="py-2.5 px-3 text-center bg-blue-50/50">
+                    <span class="font-mono text-xs font-black px-2 py-0.5 rounded bg-blue-600 text-white">
+                        ${it.requestedQuantity || it.quantity} ${it.unit}
+                    </span>
+                </td>
+                <td class="py-2.5 px-3 text-right font-mono text-slate-600">
+                    SAR ${(Number(it.unitCost) || 0).toLocaleString()}
+                </td>
+                <td class="py-2.5 px-4 text-right font-mono font-bold text-slate-900">
+                    SAR ${(Number(it.totalCost) || 0).toLocaleString()}
+                </td>
+            </tr>
+        `).join('');
+
+        // Prefill vendor and date
+        if (mr.items[0] && mr.items[0].preferredVendor) {
+            document.getElementById('formVendorName').value = mr.items[0].preferredVendor;
+        } else {
+            document.getElementById('formVendorName').value = 'Arabian Pipe Company (APC)';
+        }
+
+        const d = new Date();
+        d.setDate(d.getDate() + 10);
+        document.getElementById('formDeliveryDate').value = d.toISOString().slice(0, 10);
+
+        document.getElementById('createPoModal').classList.remove('hidden');
+        document.getElementById('createPoModal').classList.add('flex');
+        lucide.createIcons();
+    }
+
+    function closeCreatePoModal() {
+        document.getElementById('createPoModal').classList.add('hidden');
+        document.getElementById('createPoModal').classList.remove('flex');
+    }
+
+    function handleConfirmCreatePo(e) {
+        e.preventDefault();
+        if (!selectedMrForPo) return;
+
+        const vendorName = document.getElementById('formVendorName').value.trim() || 'Arabian Pipe Company (APC)';
+        const deliveryDate = document.getElementById('formDeliveryDate').value;
+        const paymentTerms = document.getElementById('formPaymentTerms').value;
+
+        const newPoNumber = `PO-RAD-2026-${String(purchaseOrders.length + 82).padStart(4, '0')}`;
+        const newPo = {
+            id: `po-${Date.now()}`,
+            poNumber: newPoNumber,
+            mrNumber: selectedMrForPo.mrNumber,
+            workOrderNo: selectedMrForPo.workOrderNo,
+            projectName: selectedMrForPo.projectName,
+            vendorName: vendorName,
+            items: (selectedMrForPo.items || []).map((it, idx) => ({
+                id: it.id || `poi-${idx}`,
+                itemCode: it.itemCode,
+                name: it.name,
+                requestedQuantity: it.requestedQuantity || it.quantity || 1,
+                quantity: it.requestedQuantity || it.quantity || 1,
+                unit: it.unit || 'NOS',
+                unitPrice: it.unitCost || 0,
+                unitCost: it.unitCost || 0,
+                totalPrice: it.totalCost || ((it.requestedQuantity || 1) * (it.unitCost || 0)),
+                totalCost: it.totalCost || ((it.requestedQuantity || 1) * (it.unitCost || 0))
+            })),
+            totalAmount: selectedMrForPo.totalEstimatedCost,
+            issueDate: new Date().toISOString().slice(0, 10),
+            expectedDeliveryDate: deliveryDate,
+            paymentTerms: paymentTerms,
+            status: 'PO Issued'
+        };
+
+        purchaseOrders = [newPo, ...purchaseOrders];
+        saveStorage('radwa_purchase_orders', purchaseOrders);
+
+        // Update MR status to 'PO Issued'
+        materialRequests = materialRequests.map(mr => {
+            if (mr.id === selectedMrForPo.id || mr.mrNumber === selectedMrForPo.mrNumber) {
+                return { ...mr, status: 'PO Issued', poNumber: newPoNumber };
+            }
+            return mr;
+        });
+        saveStorage('radwa_material_requests', materialRequests);
+
+        closeCreatePoModal();
+        showToast(`🛒 Issued Purchase Order ${newPoNumber} to ${vendorName}!`);
+        renderProjectDetail();
+    }
+
+    // Confirm Vendor Dispatch (Vendor Ships Goods)
+    function handleShipGoodsToYard(poId) {
+        const po = purchaseOrders.find(p => p.id === poId);
+        if (!po) return;
+
+        const newGrnNumber = `GRN-2026-${String(goodsReceipts.length + 13).padStart(4, '0')}`;
+        const newGrn = {
+            id: `grn-${Date.now()}`,
+            grnNumber: newGrnNumber,
+            poNumber: po.poNumber,
+            mrNumber: po.mrNumber,
+            workOrderNo: po.workOrderNo,
+            projectName: po.projectName,
+            receivedDate: new Date().toISOString().slice(0, 10),
+            receivedBy: 'Sultan Al-Otaibi (Central Yard Gate 2)',
+            warehouseLocation: 'Riyadh Central Yard - Inbound Gate 2',
+            deliveryNoteNo: `DN-${po.vendorName.slice(0, 3).toUpperCase()}-${Math.floor(100000 + Math.random() * 900000)}`,
+            items: (po.items || []).map(it => ({
+                itemCode: it.itemCode,
+                name: it.name,
+                quantityReceived: it.requestedQuantity || it.quantity,
+                unit: it.unit,
+                inspectionStatus: 'Passed QA/QC'
+            })),
+            notes: `Dispatched from Purchase Order ${po.poNumber}. Transferred to Inventory for warehouse acceptance.`
+        };
+
+        goodsReceipts = [newGrn, ...goodsReceipts];
+        saveStorage('radwa_goods_receipts', goodsReceipts);
+
+        purchaseOrders = purchaseOrders.map(p => {
+            if (p.id === poId) {
+                return { ...p, status: 'Vendor Shipped', grnNumber: newGrnNumber };
+            }
+            return p;
+        });
+        saveStorage('radwa_purchase_orders', purchaseOrders);
+
+        showToast(`🚚 Goods shipped to Yard! Inbound ${newGrnNumber} created.`);
+        renderProjectDetail();
+    }
+
+    // Accept Delivery & Restock to Central Warehouse (GRN)
+    function handleRestockPoIntoInventory(poId) {
+        const po = purchaseOrders.find(p => p.id === poId);
+        if (!po) return;
+
+        // 1. Update Inventory in localStorage
+        let currentInv = [];
+        try {
+            const raw = localStorage.getItem('radwa_inventory_items');
+            if (raw) currentInv = JSON.parse(raw);
+        } catch(e) {}
+
+        const matchedCodes = new Set();
+        let updatedInv = (currentInv.length > 0 ? currentInv : []).map(item => {
+            const match = (po.items || []).find(pi => 
+                (pi.itemCode && pi.itemCode.toLowerCase() === item.itemCode.toLowerCase()) ||
+                (pi.name && pi.name.toLowerCase().trim() === item.name.toLowerCase().trim())
+            );
+            if (match) {
+                matchedCodes.add(match.itemCode || match.name);
+                const addQty = Number(match.requestedQuantity || match.quantity || 0);
+                const newCurrent = (Number(item.currentStock) || 0) + addQty;
+                const newAvailable = Math.max(0, newCurrent - (Number(item.reservedQuantity) || 0));
+                return {
+                    ...item,
+                    currentStock: newCurrent,
+                    availableStock: newAvailable,
+                    status: newAvailable > (item.minStockAlert || 5) ? 'In Stock' : 'Low Stock',
+                    lastRestocked: new Date().toISOString().slice(0, 10)
+                };
+            }
+            return item;
+        });
+
+        // Add any missing items to inventory
+        (po.items || []).forEach((pi, idx) => {
+            const codeOrName = pi.itemCode || pi.name;
+            if (!matchedCodes.has(codeOrName)) {
+                updatedInv.push({
+                    id: `inv-restocked-${Date.now()}-${idx}`,
+                    itemCode: pi.itemCode || `MAT-REC-${Date.now()}-${idx}`,
+                    name: pi.name,
+                    specification: 'Purchased project material',
+                    category: pi.category || 'Piping & Flanges',
+                    unit: pi.unit || 'NOS',
+                    currentStock: Number(pi.quantity || pi.requestedQuantity || 0),
+                    reservedQuantity: 0,
+                    availableStock: Number(pi.quantity || pi.requestedQuantity || 0),
+                    minStockAlert: 5,
+                    unitCost: Number(pi.unitCost || pi.unitPrice || 0),
+                    warehouseLocation: 'Riyadh Central Yard - Received Inbound',
+                    lastRestocked: new Date().toISOString().slice(0, 10),
+                    status: 'In Stock'
+                });
+            }
+        });
+        saveStorage('radwa_inventory_items', updatedInv);
+
+        // 2. Issue official GRN
+        const newGrnNumber = po.grnNumber || `GRN-2026-${String(goodsReceipts.length + 14).padStart(4, '0')}`;
+        const newGrn = {
+            id: `grn-${Date.now()}`,
+            grnNumber: newGrnNumber,
+            poNumber: po.poNumber,
+            mrNumber: po.mrNumber,
+            workOrderNo: po.workOrderNo,
+            projectName: po.projectName,
+            receivedDate: new Date().toISOString().slice(0, 10),
+            receivedBy: 'Sultan Al-Otaibi (Warehouse Receiver)',
+            warehouseLocation: 'Riyadh Central Yard - Inbound Dock 3',
+            deliveryNoteNo: `DN-${po.vendorName.slice(0, 3).toUpperCase()}-${Math.floor(100000 + Math.random() * 900000)}`,
+            items: (po.items || []).map(it => ({
+                itemCode: it.itemCode,
+                name: it.name,
+                quantityReceived: it.requestedQuantity || it.quantity,
+                unit: it.unit,
+                inspectionStatus: 'Passed QA/QC'
+            })),
+            notes: `Official GRN acceptance for ${po.poNumber}. All ${po.items.length} items physically verified and restocked into warehouse inventory.`
+        };
+        goodsReceipts = [newGrn, ...goodsReceipts];
+        saveStorage('radwa_goods_receipts', goodsReceipts);
+
+        // 3. Update PO status
+        purchaseOrders = purchaseOrders.map(p => {
+            if (p.id === poId) {
+                return { ...p, status: 'Completed (Stock Updated)', grnNumber: newGrnNumber };
+            }
+            return p;
+        });
+        saveStorage('radwa_purchase_orders', purchaseOrders);
+
+        // 4. Update MR status & mark all line items as 100% covered in yard
+        materialRequests = materialRequests.map(mr => {
+            if (mr.mrNumber === po.mrNumber || mr.workOrderNo === po.workOrderNo) {
+                return {
+                    ...mr,
+                    status: 'Goods Received in Inventory (GRN)',
+                    isFullyRestocked: true,
+                    readyForExecution: true,
+                    items: (mr.items || []).map(it => ({
+                        ...it,
+                        status: 'Covered in Yard',
+                        shortageQuantity: 0,
+                        allocatedFromStock: it.requestedQuantity || it.quantity || 0,
+                        isCovered: true,
+                        restocked: true,
+                        qaAudit: 'Passed QA/QC & Restocked'
+                    })),
+                    notes: `${mr.notes ? mr.notes + ' • ' : ''}100% of all ${po.items.length} materials received under ${po.poNumber} & ${newGrnNumber}. Restocked in Central Yard.`
+                };
+            }
+            return mr;
+        });
+        saveStorage('radwa_material_requests', materialRequests);
+
+        // 5. Update Restocked Projects registry in localStorage
+        try {
+            let restockedProjects = [];
+            const raw = localStorage.getItem('radwa_restocked_projects');
+            if (raw) restockedProjects = JSON.parse(raw);
+            if (!restockedProjects.includes(po.workOrderNo)) restockedProjects.push(po.workOrderNo);
+            if (po.mrNumber && !restockedProjects.includes(po.mrNumber)) restockedProjects.push(po.mrNumber);
+            saveStorage('radwa_restocked_projects', restockedProjects);
+        } catch(e) {}
+
+        showToast(`🎉 100% of materials (${po.items.length} products) from ${po.poNumber} received & restocked into Central Warehouse! All items covered. Ready to start project!`);
+        renderProjectDetail();
+    }
+
+    // Sync across tabs & windows
+    window.addEventListener('storage', () => {
+        materialRequests = loadStorage('radwa_material_requests', INITIAL_MATERIAL_REQUESTS);
+        purchaseOrders = loadStorage('radwa_purchase_orders', INITIAL_PURCHASE_ORDERS);
+        goodsReceipts = loadStorage('radwa_goods_receipts', INITIAL_GOODS_RECEIPTS);
+        if (viewMode === 'project_list') {
+            renderProjectsDirectory();
+        } else {
+            renderProjectDetail();
+        }
+    });
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialProject = urlParams.get('project');
+        if (initialProject) {
+            switchToProjectDetail(initialProject);
+        } else {
+            renderProjectsDirectory();
+        }
+        lucide.createIcons();
+    });
+    </script>
+</body>
+</html>

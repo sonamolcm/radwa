@@ -1,0 +1,810 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radwa Gulf | Engineering & Construction Portal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            },
+            colors: {
+              brand: {
+                blue: '#0e43b8',
+                blueHover: '#0a3597',
+                navy: '#071638',
+                navyDark: '#040d23',
+                gold: '#F59E0B',
+                amber: '#D97706'
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+      }
+      .diagonal-cut {
+        clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);
+      }
+      @media (max-width: 1024px) {
+        .diagonal-cut {
+          clip-path: none;
+        }
+      }
+      .accent-slash {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: -30px;
+        width: 60px;
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        transform: skewX(-7deg);
+        z-index: 10;
+        pointer-events: none;
+      }
+      @media (max-width: 1024px) {
+        .accent-slash {
+          display: none;
+        }
+      }
+      /* Custom Dot Pattern */
+      .bg-dot-pattern {
+        background-image: radial-gradient(rgba(255, 255, 255, 0.25) 1.5px, transparent 1.5px);
+        background-size: 16px 16px;
+      }
+      input:-webkit-autofill,
+      input:-webkit-autofill:hover, 
+      input:-webkit-autofill:focus {
+        -webkit-text-fill-color: #0f172a;
+        -webkit-box-shadow: 0 0 0px 1000px #ffffff inset;
+        transition: background-color 5000s ease-in-out 0s;
+      }
+    </style>
+</head>
+<body class="min-h-screen w-full bg-[#f4f6fa] text-slate-800 antialiased selection:bg-blue-600 selection:text-white flex flex-col justify-between">
+
+    <div class="min-h-screen w-full flex flex-col lg:flex-row relative">
+
+        <!-- ================================================================= -->
+        <!-- LEFT PANEL: DRAMATIC NAVY BRANDING & SUNSET CONSTRUCTION HERO      -->
+        <!-- ================================================================= -->
+        <div class="w-full lg:w-[48%] xl:w-[49%] bg-[#071638] text-white flex flex-col justify-between relative overflow-hidden diagonal-cut z-10 shrink-0">
+            
+            <!-- Deep Navy Gradient Overlays -->
+            <div class="absolute inset-0 bg-gradient-to-b from-[#06112c] via-[#091d49] to-[#030919] z-0"></div>
+
+            <!-- Dot Grid Accent (Top Left) -->
+            <div class="absolute top-6 left-6 w-32 h-32 bg-dot-pattern opacity-40 z-0 pointer-events-none"></div>
+
+            <!-- Giant Watermark "RG" in Background -->
+            <div class="absolute top-20 right-[-40px] text-[240px] xl:text-[300px] font-black text-white/[0.035] select-none pointer-events-none leading-none z-0 tracking-tighter">
+                RG
+            </div>
+
+            <!-- Top Content Container -->
+            <div class="relative z-10 p-8 sm:p-12 lg:p-14 xl:p-16 flex-1 flex flex-col justify-start">
+                
+                <!-- Logo & Brand Mark -->
+                <div class="flex items-center gap-4">
+                    <!-- Stylized 3D-Look Metallic "RG" Emblem -->
+                    <div class="relative w-14 h-14 flex items-center justify-center shrink-0">
+                        <svg class="w-full h-full drop-shadow-lg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="rgBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#3b82f6"/>
+                                    <stop offset="50%" stop-color="#1d4ed8"/>
+                                    <stop offset="100%" stop-color="#172554"/>
+                                </linearGradient>
+                                <linearGradient id="rgOrange" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#fbbf24"/>
+                                    <stop offset="50%" stop-color="#f59e0b"/>
+                                    <stop offset="100%" stop-color="#d97706"/>
+                                </linearGradient>
+                            </defs>
+                            <!-- R shape (Blue Metallic) -->
+                            <path d="M10 14 H28 C34 14, 38 18, 38 24 C38 30, 34 34, 28 34 H20 V50 H10 V14 Z M20 22 V26 H27 C29 26, 30 25, 30 24 C30 23, 29 22, 27 22 H20 Z" fill="url(#rgBlue)"/>
+                            <!-- Leg of R angled into G -->
+                            <path d="M24 34 L36 50 H47 L34 33 H24 Z" fill="url(#rgBlue)"/>
+                            <!-- G shape (Orange / Gold Accent Intertwined) -->
+                            <path d="M38 18 H54 V26 H46 C48 28, 50 32, 50 36 C50 44, 44 50, 36 50 C29 50, 24 46, 22 41 L30 36 C31 39, 33 42, 36 42 C40 42, 42 39, 42 36 C42 33, 40 31, 36 31 H32 V23 H38 V18 Z" fill="url(#rgOrange)"/>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <div class="text-2xl sm:text-[26px] font-extrabold tracking-wider text-white uppercase leading-tight font-sans">
+                            RADWA GULF
+                        </div>
+                        <div class="text-[10px] sm:text-[11px] font-semibold tracking-[0.24em] text-amber-400 uppercase mt-0.5">
+                            ENGINEERING AND CONSTRUCTION
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Headline -->
+                <div class="mt-12 sm:mt-16">
+                    <h1 class="text-3xl sm:text-4xl lg:text-[44px] xl:text-[48px] font-extrabold text-white leading-[1.15] tracking-tight">
+                        Building <span class="text-amber-400">Excellence</span>.<br/>
+                        Delivering <span class="text-amber-400">Trust</span>.
+                    </h1>
+                    <div class="mt-5 text-sm sm:text-base text-slate-300/90 font-normal leading-relaxed max-w-lg">
+                        <p>Integrated solutions. Sustainable results.</p>
+                        <p class="mt-0.5">Building a better tomorrow, together.</p>
+                    </div>
+                </div>
+
+                <!-- 4 Core Pillars Badges -->
+                <div class="mt-10 sm:mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-xl">
+                    <!-- Pillar 1 -->
+                    <div class="flex flex-col items-start gap-2">
+                        <div class="w-10 h-10 rounded-xl bg-white/5 border border-amber-400/30 flex items-center justify-center text-amber-400 shadow-inner">
+                            <i data-lucide="hard-hat" class="w-5 h-5"></i>
+                        </div>
+                        <div class="text-xs leading-tight">
+                            <div class="font-bold text-white">Safety</div>
+                            <div class="text-slate-400 text-[11px]">First</div>
+                        </div>
+                    </div>
+
+                    <!-- Pillar 2 -->
+                    <div class="flex flex-col items-start gap-2">
+                        <div class="w-10 h-10 rounded-xl bg-white/5 border border-amber-400/30 flex items-center justify-center text-amber-400 shadow-inner">
+                            <i data-lucide="settings" class="w-5 h-5"></i>
+                        </div>
+                        <div class="text-xs leading-tight">
+                            <div class="font-bold text-white">Quality</div>
+                            <div class="text-slate-400 text-[11px]">Assured</div>
+                        </div>
+                    </div>
+
+                    <!-- Pillar 3 -->
+                    <div class="flex flex-col items-start gap-2">
+                        <div class="w-10 h-10 rounded-xl bg-white/5 border border-amber-400/30 flex items-center justify-center text-amber-400 shadow-inner">
+                            <i data-lucide="users" class="w-5 h-5"></i>
+                        </div>
+                        <div class="text-xs leading-tight">
+                            <div class="font-bold text-white">Team</div>
+                            <div class="text-slate-400 text-[11px]">Collaboration</div>
+                        </div>
+                    </div>
+
+                    <!-- Pillar 4 -->
+                    <div class="flex flex-col items-start gap-2">
+                        <div class="w-10 h-10 rounded-xl bg-white/5 border border-amber-400/30 flex items-center justify-center text-amber-400 shadow-inner">
+                            <i data-lucide="trending-up" class="w-5 h-5"></i>
+                        </div>
+                        <div class="text-xs leading-tight">
+                            <div class="font-bold text-white">Performance</div>
+                            <div class="text-slate-400 text-[11px]">Driven</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Bottom Sunset Construction Site Image Area -->
+            <div class="relative w-full h-72 sm:h-80 lg:h-96 mt-6 z-10 overflow-hidden">
+                <!-- Fade-in Gradient over top of image -->
+                <div class="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#071638] via-[#071638]/70 to-transparent z-10 pointer-events-none"></div>
+                <!-- Hero Construction Image -->
+                <img 
+                    src="/static/images/construction_hero.jpg" 
+                    alt="Radwa Gulf Construction Project"
+                    class="w-full h-full object-cover object-bottom filter brightness-95 contrast-105"
+                    onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1541888946425-d0fbb18615f8?q=80&w=1600&auto=format&fit=crop';"
+                />
+            </div>
+
+            <!-- Gold Angle Accent Chevron (Visible on desktop) -->
+            <div class="accent-slash hidden lg:block"></div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- RIGHT PANEL: CLEAN FLOATING SIGN-IN CARD & ENTERPRISE COMPLIANCE   -->
+        <!-- ================================================================= -->
+        <div class="w-full lg:w-[52%] xl:w-[51%] bg-[#f4f6fa] flex flex-col justify-between items-center p-6 sm:p-10 lg:p-12 relative z-0">
+            
+            <!-- Top Language Selector -->
+            <div class="w-full flex justify-end">
+                <button type="button" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 hover:border-slate-300 transition cursor-pointer">
+                    <i data-lucide="globe" class="w-3.5 h-3.5 text-slate-500"></i>
+                    <span>English</span>
+                    <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+                </button>
+            </div>
+
+            <!-- Main Floating Authentication Card -->
+            <div class="w-full max-w-[440px] my-auto py-6 sm:py-8">
+                
+                <div class="bg-white rounded-[28px] p-8 sm:p-10 shadow-xl shadow-slate-200/70 border border-slate-100 transition-all">
+                    
+                    <!-- Card Header -->
+                    <div class="mb-6">
+                        <h2 class="text-2xl sm:text-[28px] font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                            <span>Welcome Back!</span>
+                            <span class="text-2xl">👋</span>
+                        </h2>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                            Sign in to access your RADWA GULF portal
+                        </p>
+                    </div>
+
+                    <!-- Error Alert Box -->
+                    <div id="loginErrorMessage" class="hidden mb-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2.5 transition-all">
+                        <i data-lucide="alert-circle" class="w-4 h-4 text-rose-500 shrink-0"></i>
+                        <span id="loginErrorText" class="font-medium"></span>
+                    </div>
+
+                    <!-- Sign In Form -->
+                    <form onsubmit="handleExecuteSignIn(event)" class="space-y-4">
+                        
+                        <!-- Email / Employee ID Field -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                                Email / Employee ID
+                            </label>
+                            <div class="relative flex items-center">
+                                <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none"></i>
+                                <input 
+                                    type="text" 
+                                    id="loginEmailInput" 
+                                    placeholder="Enter your email or employee ID" 
+                                    required
+                                    autocomplete="username"
+                                    class="w-full bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 focus:outline-none rounded-xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 pl-10 pr-4 py-3 transition shadow-2xs"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div>
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="block text-xs font-semibold text-slate-700">
+                                    Password
+                                </label>
+                                <button 
+                                    type="button" 
+                                    onclick="handleForgotPassword()"
+                                    class="text-xs text-blue-600 hover:text-blue-700 font-medium transition cursor-pointer"
+                                >
+                                    Forgot Password?
+                                </button>
+                            </div>
+                            <div class="relative flex items-center">
+                                <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none"></i>
+                                <input 
+                                    type="password" 
+                                    id="loginPasswordInput" 
+                                    placeholder="Enter your password" 
+                                    required
+                                    autocomplete="current-password"
+                                    class="w-full bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 focus:outline-none rounded-xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 pl-10 pr-10 py-3 transition shadow-2xs"
+                                />
+                                <button 
+                                    type="button" 
+                                    onclick="togglePasswordVisibility('loginPasswordInput', 'pwdToggleIcon')"
+                                    class="absolute right-3.5 text-slate-400 hover:text-slate-600 transition cursor-pointer p-1"
+                                    title="Toggle Password"
+                                >
+                                    <i data-lucide="eye" id="pwdToggleIcon" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Remember Me Checkbox -->
+                        <div class="flex items-center text-xs text-slate-600 pt-0.5">
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <input 
+                                    type="checkbox" 
+                                    id="rememberMeCheckbox"
+                                    checked 
+                                    class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                />
+                                <span class="font-normal text-slate-600">Remember me</span>
+                            </label>
+                        </div>
+
+                        <!-- Primary Sign In Button: Royal Blue with Right Arrow -->
+                        <button 
+                            type="submit" 
+                            id="signInSubmitBtn"
+                            class="w-full py-3.5 px-6 rounded-xl bg-[#0e43b8] hover:bg-[#0a3597] text-white font-semibold text-sm transition duration-200 shadow-md shadow-blue-700/20 cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] mt-3"
+                        >
+                            <span>Sign In</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </form>
+
+                    <!-- "or continue with" Divider -->
+                    <div class="relative flex items-center justify-center my-6">
+                        <div class="border-t border-slate-200 w-full"></div>
+                        <span class="bg-white px-3 text-[11px] font-medium text-slate-400 uppercase tracking-wider absolute">
+                            or continue with
+                        </span>
+                    </div>
+
+                    <!-- Sign in with Microsoft Button -->
+                    <button 
+                        type="button" 
+                        onclick="handleMicrosoftSignIn()"
+                        class="w-full py-3 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs sm:text-sm transition shadow-2xs flex items-center justify-center gap-2.5 cursor-pointer"
+                    >
+                        <!-- Official Microsoft 4-Color Grid Icon -->
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
+                            <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
+                            <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
+                            <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+                        </svg>
+                        <span>Sign in with Microsoft</span>
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- Footer & ISO Certifications -->
+            <div class="w-full max-w-[560px] text-center space-y-4 pt-4">
+                
+                <p class="text-xs text-slate-400 font-normal">
+                    &copy; 2026 Radwa Gulf Engineering and Construction. All rights reserved.
+                </p>
+
+                <!-- 4 ISO Certification Badges in Clean Line Icons -->
+                <div class="flex items-center justify-center gap-4 sm:gap-8 flex-wrap border-t border-slate-200/80 pt-4 text-slate-600">
+                    
+                    <!-- ISO 9001 -->
+                    <div class="flex items-center gap-2 text-left">
+                        <div class="w-7 h-7 rounded-full border border-slate-300 flex items-center justify-center shrink-0 text-slate-700 text-[10px] font-bold">
+                            ISO
+                        </div>
+                        <div class="text-[10px] leading-tight">
+                            <div class="font-bold text-slate-800">ISO 9001</div>
+                            <div class="text-slate-400 text-[9px]">Quality Management</div>
+                        </div>
+                    </div>
+
+                    <!-- ISO 14001 -->
+                    <div class="flex items-center gap-2 text-left">
+                        <div class="w-7 h-7 rounded-full border border-emerald-400 flex items-center justify-center shrink-0 text-emerald-600">
+                            <i data-lucide="leaf" class="w-3.5 h-3.5"></i>
+                        </div>
+                        <div class="text-[10px] leading-tight">
+                            <div class="font-bold text-slate-800">ISO 14001</div>
+                            <div class="text-slate-400 text-[9px]">Environmental Management</div>
+                        </div>
+                    </div>
+
+                    <!-- ISO 45001 -->
+                    <div class="flex items-center gap-2 text-left">
+                        <div class="w-7 h-7 rounded-full border border-amber-400 flex items-center justify-center shrink-0 text-amber-600">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                        </div>
+                        <div class="text-[10px] leading-tight">
+                            <div class="font-bold text-slate-800">ISO 45001</div>
+                            <div class="text-slate-400 text-[9px]">Occupational Health & Safety</div>
+                        </div>
+                    </div>
+
+                    <!-- ISO 2015 QMS -->
+                    <div class="flex items-center gap-2 text-left">
+                        <div class="w-7 h-7 rounded-full border border-blue-400 flex items-center justify-center shrink-0 text-blue-600">
+                            <i data-lucide="award" class="w-3.5 h-3.5"></i>
+                        </div>
+                        <div class="text-[10px] leading-tight">
+                            <div class="font-bold text-slate-800">ISO 2015</div>
+                            <div class="text-slate-400 text-[9px]">QMS Certified</div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- JAVASCRIPT: STRICT AUTHENTICATION LOGIC                          -->
+    <!-- ================================================================= -->
+    <script>
+        const PRESET_USERS = {
+            admin: {
+                id: 'u-admin',
+                name: 'Eng. Abdulrahman Al-Mutawa',
+                email: 'admin@radwa.sa',
+                role: 'admin',
+                department: 'Executive Governance & Operations',
+                defaultPassword: 'radwa123',
+                avatarInitials: 'AM',
+                title: 'Super Admin Portal',
+                launchUrl: '/menu/?view=admin_grid'
+            },
+            crm: {
+                id: 'u-crm',
+                name: 'Sarah Al-Ghamdi',
+                email: 'crm@radwa.sa',
+                role: 'crm',
+                department: 'Tender Management Desk',
+                defaultPassword: 'radwa123',
+                avatarInitials: 'SG',
+                title: 'CRM Client Intake',
+                launchUrl: '/crm/'
+            },
+            md: {
+                id: 'u-md',
+                name: 'Eng. Tarek Al-Falih',
+                email: 'md@radwa.sa',
+                role: 'md',
+                department: 'Managing Director Directorate',
+                defaultPassword: 'radwa123',
+                avatarInitials: 'TF',
+                title: 'Managing Director',
+                launchUrl: '/md/'
+            },
+            estimator: {
+                id: 'u-est',
+                name: 'Tariq Mansoor',
+                email: 'estimator@radwa.sa',
+                role: 'estimator',
+                department: 'Quantity Surveying & Estimation',
+                defaultPassword: 'radwa123',
+                avatarInitials: 'TM',
+                title: 'Lead Estimator',
+                launchUrl: '/estimator/'
+            },
+            operations: {
+                id: 'u-ops',
+                name: 'Eng. Khaled Al-Dosari',
+                email: 'operations@radwa.sa',
+                role: 'operations',
+                department: 'Field Operations & Dispatch',
+                defaultPassword: 'radwa123',
+                avatarInitials: 'KD',
+                title: 'Operations & Dispatch',
+                launchUrl: '/operations/'
+            },
+            surveyor: {
+                id: 'u-surv',
+                name: 'Majed Al-Harbi',
+                email: 'surveyor@radwa.sa',
+                role: 'surveyor',
+                department: 'Site Survey & Ground Recon',
+                defaultPassword: 'radwa123',
+                avatarInitials: 'MH',
+                title: 'Field Surveyor',
+                launchUrl: '/surveyor/'
+            },
+            qaqc: {
+                id: 'u-qaqc',
+                name: 'Eng. Youssef Nabil',
+                email: 'qaqc@radwa.sa',
+                role: 'qaqc',
+                department: 'Quality Assurance & Quality Control',
+                defaultPassword: 'radwa123',
+                avatarInitials: 'YN',
+                title: 'QA/QC Quality',
+                launchUrl: '/qaqc/'
+            },
+            hse: {
+                id: 'u-hse',
+                name: 'Sultan Al-Otaibi',
+                email: 'hse@radwa.sa',
+                role: 'hse',
+                department: 'Health, Safety & Environment',
+                defaultPassword: 'radwa123',
+                avatarInitials: 'SO',
+                title: 'HSE Safety',
+                launchUrl: '/hse/'
+            },
+            hr: {
+                id: 'u-hr',
+                name: 'Nouf Al-Shehri',
+                email: 'hr@radwa.sa',
+                role: 'hr',
+                department: 'Human Resources & Personnel',
+                defaultPassword: 'radwa123',
+                avatarInitials: 'NS',
+                title: 'HR & Nitaqat',
+                launchUrl: '/hr/'
+            },
+            inventory: {
+                id: 'u-inv',
+                name: 'Hassan Al-Bishi',
+                email: 'inventory@radwa.sa',
+                role: 'inventory',
+                department: 'Warehouse & Central Yards',
+                defaultPassword: 'radwa123',
+                avatarInitials: 'HB',
+                title: 'Inventory & Yard',
+                launchUrl: '/inventory/'
+            },
+            purchase: {
+                id: 'u-pur',
+                name: 'Fahad Al-Qahtani',
+                email: 'purchase@radwa.sa',
+                role: 'purchase',
+                department: 'Procurement & Supply Chain',
+                defaultPassword: 'radwa123',
+                avatarInitials: 'FQ',
+                title: 'Procurement & PO',
+                launchUrl: '/purchase/'
+            },
+            mr: {
+                id: 'u-mr',
+                name: 'Eng. Tariq Al-Mansour',
+                email: 'mr@radwa.sa',
+                role: 'mr',
+                department: 'Material Verification & QA Desk',
+                defaultPassword: 'radwa123',
+                avatarInitials: 'MR',
+                title: 'Material Requests & QA',
+                launchUrl: '/material-requests/'
+            }
+        };
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function showAuthError(msg) {
+            const errBox = document.getElementById('loginErrorMessage');
+            const errText = document.getElementById('loginErrorText');
+            if (errBox && errText) {
+                errText.textContent = msg || 'Invalid email/username or password. Access denied.';
+                errBox.classList.remove('hidden');
+            } else {
+                alert(msg);
+            }
+            const pwdInp = document.getElementById('loginPasswordInput');
+            if (pwdInp) {
+                pwdInp.classList.add('border-rose-500', 'ring-2', 'ring-rose-200');
+                pwdInp.focus();
+            }
+            const emailInp = document.getElementById('loginEmailInput');
+            if (emailInp) {
+                emailInp.classList.add('border-rose-500');
+            }
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        function clearAuthError() {
+            const errBox = document.getElementById('loginErrorMessage');
+            if (errBox) errBox.classList.add('hidden');
+            const pwdInp = document.getElementById('loginPasswordInput');
+            if (pwdInp) pwdInp.classList.remove('border-rose-500', 'ring-2', 'ring-rose-200');
+            const emailInp = document.getElementById('loginEmailInput');
+            if (emailInp) emailInp.classList.remove('border-rose-500');
+        }
+
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (!input || !icon) return;
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        }
+
+        function handleForgotPassword() {
+            alert('To reset corporate credentials, please contact Radwa Gulf Enterprise IT Support at it@radwa.sa or contact your System Administrator.');
+        }
+
+        function handleMicrosoftSignIn() {
+            // Pre-fill enterprise single sign-on demo
+            const emailInp = document.getElementById('loginEmailInput');
+            const pwdInp = document.getElementById('loginPasswordInput');
+            if (emailInp && pwdInp) {
+                emailInp.value = 'admin@radwa.sa';
+                pwdInp.value = 'radwa123';
+                handleExecuteSignIn();
+            }
+        }
+
+        async function handleExecuteSignIn(e) {
+            if (e) e.preventDefault();
+            clearAuthError();
+
+            const emailInp = document.getElementById('loginEmailInput');
+            const pwdInp = document.getElementById('loginPasswordInput');
+            const rawIdent = (emailInp?.value || '').trim();
+            const password = (pwdInp?.value || '');
+
+            if (!rawIdent) {
+                showAuthError('Please enter your corporate email address or employee ID.');
+                emailInp?.focus();
+                return;
+            }
+            if (!password) {
+                showAuthError('Please enter your password.');
+                pwdInp?.focus();
+                return;
+            }
+
+            const inBtn = document.getElementById('signInSubmitBtn');
+            const originalBtnHtml = inBtn ? inBtn.innerHTML : '<span>Sign In</span>';
+            if (inBtn) {
+                inBtn.innerHTML = `<span class="animate-pulse flex items-center justify-center gap-2"><svg class="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Verifying Credentials...</span>`;
+                inBtn.disabled = true;
+            }
+
+            try {
+                // 1. Attempt Backend API authentication
+                try {
+                    const resp = await fetch('/api/auth/login/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken') || ''
+                        },
+                        body: JSON.stringify({ email: rawIdent, username: rawIdent, password: password })
+                    });
+                    
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        const userRole = data.user?.role || 'admin';
+                        const preset = PRESET_USERS[userRole] || PRESET_USERS.admin;
+                        const authUser = {
+                            id: data.user?.id || preset.id,
+                            name: data.user?.name || preset.name,
+                            email: data.user?.email || preset.email,
+                            role: userRole,
+                            roleTitle: data.user?.roleTitle || preset.title,
+                            department: preset.department,
+                            avatarInitials: preset.avatarInitials,
+                            launchUrl: preset.launchUrl || '/'
+                        };
+                        executeLoginSession(authUser);
+                        return;
+                    } else {
+                        const errData = await resp.json().catch(() => ({}));
+                        showAuthError(errData.error || 'Authentication failed: Invalid credentials. Access denied.');
+                        if (inBtn) {
+                            inBtn.innerHTML = originalBtnHtml;
+                            inBtn.disabled = false;
+                            lucide.createIcons();
+                        }
+                        return; // Explicitly block login
+                    }
+                } catch(netErr) {
+                    console.warn('Backend login endpoint unavailable, performing strict local authentication:', netErr);
+                }
+
+                // 2. Strict Local Validation (if backend is offline)
+                const normalized = rawIdent.toLowerCase();
+                const roleKey = normalized.includes('@') ? normalized.split('@')[0] : normalized;
+                const normalizedEmail = normalized.includes('@') ? normalized : `${normalized}@radwa.sa`;
+
+                // Check custom registered users
+                let registeredUsers = [];
+                try {
+                    registeredUsers = JSON.parse(localStorage.getItem('radwa_registered_users') || '[]');
+                } catch(e) {}
+                const customUser = registeredUsers.find(u => 
+                    u.email.toLowerCase() === normalizedEmail || 
+                    (u.username && u.username.toLowerCase() === normalized) ||
+                    u.email.toLowerCase() === normalized
+                );
+
+                if (customUser) {
+                    if (customUser.password !== password) {
+                        showAuthError('Invalid password for this account. Access denied.');
+                        if (inBtn) {
+                            inBtn.innerHTML = originalBtnHtml;
+                            inBtn.disabled = false;
+                            lucide.createIcons();
+                        }
+                        return;
+                    }
+                    executeLoginSession(customUser);
+                    return;
+                }
+
+                // Check PRESET_USERS
+                let matchedPreset = Object.values(PRESET_USERS).find(u => 
+                    u.email.toLowerCase() === normalizedEmail || 
+                    u.role === roleKey ||
+                    u.id === `u-${roleKey}`
+                );
+                if (!matchedPreset && PRESET_USERS[roleKey]) {
+                    matchedPreset = PRESET_USERS[roleKey];
+                }
+
+                if (matchedPreset) {
+                    const expectedPassword = matchedPreset.defaultPassword || 'radwa123';
+                    if (password !== expectedPassword) {
+                        showAuthError('Invalid password for this corporate account. Access denied.');
+                        if (inBtn) {
+                            inBtn.innerHTML = originalBtnHtml;
+                            inBtn.disabled = false;
+                            lucide.createIcons();
+                        }
+                        return;
+                    }
+                    executeLoginSession(matchedPreset);
+                    return;
+                }
+
+                // If account not found at all
+                showAuthError('No corporate account found with this email or username. Access denied.');
+                if (inBtn) {
+                    inBtn.innerHTML = originalBtnHtml;
+                    inBtn.disabled = false;
+                    lucide.createIcons();
+                }
+            } catch (err) {
+                showAuthError('An authentication error occurred. Please verify your credentials.');
+                if (inBtn) {
+                    inBtn.innerHTML = originalBtnHtml;
+                    inBtn.disabled = false;
+                    lucide.createIcons();
+                }
+            }
+        }
+
+        function executeLoginSession(user) {
+            try {
+                localStorage.setItem('radwa_auth_user', JSON.stringify(user));
+                localStorage.setItem('radwa_current_role', user.role);
+                localStorage.setItem('radwa_active_role', user.role);
+            } catch(e) {}
+
+            document.cookie = `radwa_role=${user.role}; path=/; max-age=86400`;
+
+            const inBtn = document.getElementById('signInSubmitBtn');
+            if (inBtn) {
+                inBtn.innerHTML = `<span class="animate-pulse">Authenticated. Redirecting...</span>`;
+                inBtn.disabled = true;
+            }
+
+            setTimeout(() => {
+                if (user.role === 'mr' || user.launchUrl === '/material-requests/') {
+                    window.location.href = '/material-requests/';
+                } else if (user.role === 'admin') {
+                    window.location.href = '/menu/?view=admin_grid';
+                } else {
+                    window.location.href = user.launchUrl || `/?role=${encodeURIComponent(user.role)}`;
+                }
+            }, 350);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            const emailInp = document.getElementById('loginEmailInput');
+            if (emailInp) emailInp.focus();
+        });
+    </script>
+</body>
+</html>

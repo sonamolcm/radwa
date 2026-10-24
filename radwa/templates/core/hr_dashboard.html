@@ -1,0 +1,3175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radwa ERP - HR & Personnel Management</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+      .font-mono {
+        font-family: 'JetBrains Mono', monospace;
+      }
+      /* Custom Print Styles for ID Badge */
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        #printable-id-card-wrapper, #printable-id-card-wrapper * {
+          visibility: visible;
+        }
+        #printable-id-card-wrapper {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          width: 85mm;
+          margin: 0;
+          padding: 0;
+          box-shadow: none !important;
+          border: 2px solid #0f172a !important;
+        }
+      }
+      /* Custom scrollbars */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 9999px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-900 antialiased flex flex-col">
+
+    <!-- Master Navigation Component -->
+    {% include "core/components/master_nav.html" with active_module="hr" active_label="HR & Personnel Management" %}
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+        
+        <!-- ============================================================ -->
+        <!-- 1. HR EXECUTIVE COMMAND BANNER & KPI METRICS                 -->
+        <!-- ============================================================ -->
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-rose-950 text-white p-6 sm:p-8 shadow-xl border border-slate-800/80 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <!-- Ambient Decorative Glows -->
+            <div class="absolute top-0 right-0 w-96 h-96 bg-rose-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-0 left-1/4 w-72 h-72 bg-pink-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-2">
+                <div class="flex items-center gap-2.5">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/20 border border-rose-400/30 text-rose-300 text-xs font-semibold">
+                        <span class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span>
+                        <span>HR & Workforce Management</span>
+                    </span>
+                    <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-white/10 text-slate-300 border border-white/10">
+                        Saudi Labor Law / GOSI / Muqeem
+                    </span>
+                </div>
+
+                <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-3">
+                    <span>Workforce Registry & Onboarding</span>
+                </h2>
+
+                <p class="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                    Centralized employee directory, multi-sponsor registry (Radwa, Alfakama, Sulaiman), Work Order site allocations, printable ID cards, Saudi Labor Law end-of-service indemnity calculator, and historical salary revision logs.
+                </p>
+            </div>
+
+            <!-- Action Buttons in Banner -->
+            <div class="relative z-10 flex flex-wrap items-center gap-3 shrink-0">
+                <button
+                    type="button"
+                    onclick="handleExportCsv()"
+                    class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/15 transition cursor-pointer flex items-center gap-2 shadow-xs backdrop-blur-md active:scale-95"
+                    title="Download Excel / CSV of all employees"
+                >
+                    <i data-lucide="download" class="w-4 h-4 text-emerald-400"></i>
+                    <span>Export Excel</span>
+                </button>
+
+                <button
+                    type="button"
+                    onclick="openAddEmployeeModal()"
+                    class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-bold text-xs transition cursor-pointer flex items-center gap-2 shadow-lg shadow-rose-900/40 border border-rose-400/30 active:scale-95"
+                >
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>+ Add Employee Joining</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- 2. EXECUTIVE WORKFORCE KPI CARDS                              -->
+        <!-- ============================================================ -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+            
+            <!-- Total Headcount -->
+            <div class="rounded-2xl bg-white p-4 sm:p-5 border border-slate-200/80 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition">
+                <div class="flex items-center justify-between text-slate-500">
+                    <span class="text-xs font-bold uppercase tracking-wider">Total Headcount</span>
+                    <div class="p-2 rounded-xl bg-rose-50 text-rose-600">
+                        <i data-lucide="users" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <div id="kpi-total-headcount" class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                        0
+                    </div>
+                    <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1 font-medium">
+                        <span id="kpi-active-count" class="text-emerald-600 font-bold">0 Active</span>
+                        <span>•</span>
+                        <span id="kpi-inactive-count">0 Inactive</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saudi Nationalization / Nitaqat -->
+            <div class="rounded-2xl bg-white p-4 sm:p-5 border border-slate-200/80 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition">
+                <div class="flex items-center justify-between text-slate-500">
+                    <span class="text-xs font-bold uppercase tracking-wider">Saudi Nationalization</span>
+                    <div class="p-2 rounded-xl bg-emerald-50 text-emerald-600">
+                        <i data-lucide="award" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <div class="text-2xl sm:text-3xl font-extrabold text-emerald-600 tracking-tight flex items-baseline gap-1">
+                        <span id="kpi-saudi-percentage">0%</span>
+                    </div>
+                    <div class="text-[11px] text-emerald-700 font-semibold mt-1 flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span id="kpi-saudi-tier">Nitaqat Platinum Tier (0 Nationals)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assigned to Projects -->
+            <div class="rounded-2xl bg-white p-4 sm:p-5 border border-slate-200/80 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition">
+                <div class="flex items-center justify-between text-slate-500">
+                    <span class="text-xs font-bold uppercase tracking-wider">Project Deployments</span>
+                    <div class="p-2 rounded-xl bg-blue-50 text-blue-600">
+                        <i data-lucide="briefcase" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <div id="kpi-project-deployments" class="text-2xl sm:text-3xl font-extrabold text-blue-600 tracking-tight">
+                        0
+                    </div>
+                    <div class="text-[11px] text-slate-500 mt-1 font-medium">
+                        Direct Site Work Orders (wo#)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Payroll Total -->
+            <div class="rounded-2xl bg-white p-4 sm:p-5 border border-slate-200/80 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition">
+                <div class="flex items-center justify-between text-slate-500">
+                    <span class="text-xs font-bold uppercase tracking-wider">Monthly Payroll</span>
+                    <div class="p-2 rounded-xl bg-amber-50 text-amber-600">
+                        <i data-lucide="dollar-sign" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <div id="kpi-monthly-payroll" class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight font-mono">
+                        SAR 0
+                    </div>
+                    <div class="text-[11px] text-slate-500 mt-1 font-medium">
+                        Gross (Basic + All Allowances)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Average Experience -->
+            <div class="rounded-2xl bg-white p-4 sm:p-5 border border-slate-200/80 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition">
+                <div class="flex items-center justify-between text-slate-500">
+                    <span class="text-xs font-bold uppercase tracking-wider">Avg Experience</span>
+                    <div class="p-2 rounded-xl bg-purple-50 text-purple-600">
+                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <div class="text-2xl sm:text-3xl font-extrabold text-purple-600 tracking-tight">
+                        <span id="kpi-avg-exp">0</span> <span class="text-sm font-normal text-slate-400">Years</span>
+                    </div>
+                    <div class="text-[11px] text-slate-500 mt-1 font-medium">
+                        Technical & Supervisory Seniority
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- 3. TOOLBAR: SEARCH, FILTERS & VIEW MODE SWITCHER             -->
+        <!-- ============================================================ -->
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            
+            <!-- Search Bar -->
+            <div class="relative flex-1 max-w-md">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                <input
+                    type="text"
+                    id="hrSearchInput"
+                    oninput="handleSearchInput(this.value)"
+                    placeholder="Search by name, Empl #, trade, Iqama, work order..."
+                    class="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 transition shadow-2xs"
+                />
+            </div>
+
+            <!-- Filter Dropdowns -->
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+                
+                <!-- Sponsor Filter -->
+                <div class="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded-xl border border-slate-200">
+                    <span class="text-slate-400 font-semibold">Sponsor:</span>
+                    <select
+                        id="sponsorFilterSelect"
+                        onchange="handleFilterChange()"
+                        class="bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer"
+                    >
+                        <option value="ALL">All Sponsors</option>
+                        <option value="Radwa">Radwa</option>
+                        <option value="Alfakama">Alfakama</option>
+                        <option value="Sulaiman">Sulaiman</option>
+                    </select>
+                </div>
+
+                <!-- Category Filter -->
+                <div class="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded-xl border border-slate-200">
+                    <span class="text-slate-400 font-semibold">Category:</span>
+                    <select
+                        id="categoryFilterSelect"
+                        onchange="handleFilterChange()"
+                        class="bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer max-w-[150px] truncate"
+                    >
+                        <option value="ALL">All Categories</option>
+                        <option value="Directors">Directors</option>
+                        <option value="Senior management">Senior Management</option>
+                        <option value="Operation Management team">Operation Management</option>
+                        <option value="officeManagement team">Office Management</option>
+                        <option value="OfficeSupporting staff">Office Supporting Staff</option>
+                        <option value="Project Management team (PMT)">PMT</option>
+                        <option value="Project operation team (POT)">POT</option>
+                    </select>
+                </div>
+
+                <!-- Work Order Filter -->
+                <div class="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded-xl border border-slate-200">
+                    <span class="text-slate-400 font-semibold">Work Order:</span>
+                    <select
+                        id="workOrderFilterSelect"
+                        onchange="handleFilterChange()"
+                        class="bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer"
+                    >
+                        <option value="ALL">All Work Orders</option>
+                    </select>
+                </div>
+
+                <!-- Status Filter -->
+                <div class="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded-xl border border-slate-200">
+                    <span class="text-slate-400 font-semibold">Status:</span>
+                    <select
+                        id="statusFilterSelect"
+                        onchange="handleFilterChange()"
+                        class="bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer"
+                    >
+                        <option value="ALL">All Status</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                        <option value="On Leave">On Leave</option>
+                    </select>
+                </div>
+
+                <!-- View Mode Toggle: Grid vs Spreadsheet Table -->
+                <div class="flex items-center rounded-xl border border-slate-200 bg-slate-100 p-0.5 ml-auto">
+                    <button
+                        type="button"
+                        id="btn-view-grid"
+                        onclick="setViewMode('grid')"
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-white text-rose-600 shadow-2xs"
+                        title="Employee Card Grid View (with Photo, Name, and Role)"
+                    >
+                        <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+                        <span>Card Grid</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        id="btn-view-table"
+                        onclick="setViewMode('table')"
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer text-slate-600 hover:text-slate-900"
+                        title="Excel Spreadsheet Table View (Matching Screenshot 1 & 2)"
+                    >
+                        <i data-lucide="table" class="w-3.5 h-3.5"></i>
+                        <span>Excel Table</span>
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- 4. MAIN WORKFORCE DIRECTORY DISPLAY                           -->
+        <!-- ============================================================ -->
+
+        <!-- MODE A: CARD GRID VIEW (Requested in Audio 2) -->
+        <div id="grid-view-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+            <!-- Dynamic Cards Rendered by JS -->
+        </div>
+
+        <!-- MODE B: SPREADSHEET TABLE VIEW (Exact User Excel Layout) -->
+        <div id="table-view-container" class="hidden bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+            <!-- Table Header Controls -->
+            <div class="p-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs">
+                <div class="font-bold text-slate-700 flex items-center gap-2">
+                    <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-600"></i>
+                    <span>Full Employee Joining Registry (All 38 Columns)</span>
+                    <span id="table-record-count-badge" class="px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-mono text-[11px]">
+                        0 records
+                    </span>
+                </div>
+
+                <button
+                    type="button"
+                    onclick="handleExportCsv()"
+                    class="px-3 py-1 rounded-lg bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                >
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                    <span>Download Excel</span>
+                </button>
+            </div>
+
+            <!-- Dense Horizontal Scrolling Table -->
+            <div class="overflow-x-auto max-h-[700px] border-b border-slate-200">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="sticky top-0 z-10 bg-gradient-to-r from-blue-100 via-emerald-100 to-amber-100 text-slate-800 font-bold uppercase tracking-wider text-[10px] border-b border-slate-300">
+                        <tr>
+                            <th class="py-2.5 px-3 border-r border-slate-200 whitespace-nowrap">Employee Sponsor</th>
+                            <th class="py-2.5 px-3 border-r border-slate-200 whitespace-nowrap">Empl #</th>
+                            <th class="py-2.5 px-4 border-r border-slate-200 whitespace-nowrap">Empl. Main Category</th>
+                            <th class="py-2.5 px-4 border-r border-slate-200 whitespace-nowrap">Trade / Designation</th>
+                            <th class="py-2.5 px-3 border-r border-slate-200 whitespace-nowrap">Expenses Category</th>
+                            <th class="py-2.5 px-3 border-r border-slate-200 whitespace-nowrap">Nationality</th>
+                            <th class="py-2.5 px-3 border-r border-slate-200 whitespace-nowrap">Religion</th>
+                            <th class="py-2.5 px-3 border-r border-slate-200 whitespace-nowrap">DOB</th>
+                            <th class="py-2.5 px-3 border-r border-slate-200 whitespace-nowrap">Date of Arrival</th>
+                            <th class="py-2.5 px-4 border-r border-slate-200 whitespace-nowrap">Departure Port</th>
+                            <th class="py-2.5 px-3 border-r border-slate-200 whitespace-nowrap">Date of Join</th>
+                            <th class="py-2.5 px-3 border-r border-slate-200 whitespace-nowrap">Passport #</th>
+                            <th class="py-2.5 px-3 border-r border-slate-200 whitespace-nowrap">Iqama #</th>
+                            <th class="py-2.5 px-3 border-r border-slate-200 whitespace-nowrap">Assigned Work Order</th>
+                            <th class="py-2.5 px-3 border-r border-slate-200 whitespace-nowrap">Recruitment Type</th>
+                            <th class="py-2.5 px-3 border-r border-slate-200 whitespace-nowrap">Agent Name</th>
+                            <th class="py-2.5 px-3 border-r border-slate-200 whitespace-nowrap">Referred By</th>
+                            <th class="py-2.5 px-3 border-r border-slate-200 whitespace-nowrap">Local Mob #</th>
+                            <th class="py-2.5 px-2 border-r border-slate-200 whitespace-nowrap text-center">Blood</th>
+                            <th class="py-2.5 px-4 border-r border-slate-200 whitespace-nowrap">Emergency Address</th>
+                            <th class="py-2.5 px-3 border-r border-slate-200 whitespace-nowrap">Emergency Tele</th>
+                            <th class="py-2.5 px-3 border-r border-slate-200 whitespace-nowrap">Education</th>
+                            <th class="py-2.5 px-2 border-r border-slate-200 whitespace-nowrap text-center">Exp (Yrs)</th>
+                            <th class="py-2.5 px-3 border-r border-slate-200 whitespace-nowrap text-right bg-emerald-50">Basic Salary</th>
+                            <th class="py-2.5 px-2 border-r border-slate-200 whitespace-nowrap text-center">Duty Hrs</th>
+                            <th class="py-2.5 px-2 border-r border-slate-200 whitespace-nowrap text-center">OT Rate</th>
+                            <th class="py-2.5 px-2 border-r border-slate-200 whitespace-nowrap text-right">Food Allw</th>
+                            <th class="py-2.5 px-2 border-r border-slate-200 whitespace-nowrap text-right">OT Allw</th>
+                            <th class="py-2.5 px-2 border-r border-slate-200 whitespace-nowrap text-right">Tele Allw</th>
+                            <th class="py-2.5 px-2 border-r border-slate-200 text-right">House Allw</th>
+                            <th class="py-2.5 px-2 border-r border-slate-200 text-right">Veh Allw</th>
+                            <th class="py-2.5 px-2 border-r border-slate-200 text-right">Other Allw</th>
+                            <th class="py-2.5 px-3 border-r border-slate-200 whitespace-nowrap">Contract Period</th>
+                            <th class="py-2.5 px-3 border-r border-slate-200 whitespace-nowrap">Yearly Leave</th>
+                            <th class="py-2.5 px-2 border-r border-slate-200 text-center">Coverall</th>
+                            <th class="py-2.5 px-2 border-r border-slate-200 text-center">Shoe</th>
+                            <th class="py-2.5 px-3 border-r border-slate-200 text-center">Status</th>
+                            <th class="py-2.5 px-4 text-center sticky right-0 bg-white shadow-l">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="spreadsheet-tbody" class="divide-y divide-slate-200 text-slate-700 font-mono text-[11px]">
+                        <!-- Dynamic Rows Rendered by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ============================================================ -->
+    <!-- 5. ADD EMPLOYEE JOINING MODAL (All 38 Fields from Images 1 & 2)-->
+    <!-- ============================================================ -->
+    <div id="addEmployeeModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-6 overflow-y-auto">
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden my-auto">
+            
+            <!-- Modal Header -->
+            <div class="px-6 py-4 bg-gradient-to-r from-slate-900 to-rose-950 text-white flex items-center justify-between border-b border-slate-800 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30">
+                        <i data-lucide="users" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-extrabold text-white tracking-tight">
+                            Add Employee Joining (New Onboarding)
+                        </h3>
+                        <p class="text-xs text-slate-300">
+                            Complete all 38 field registry matching Radwa Corporate HR Excel standard
+                        </p>
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    onclick="closeAddEmployeeModal()"
+                    class="p-1.5 rounded-xl hover:bg-white/10 text-slate-300 hover:text-white transition"
+                >
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body: Scrollable Form -->
+            <form id="addEmployeeForm" onsubmit="handleCreateEmployee(event)" class="flex-1 overflow-y-auto p-6 space-y-6 text-xs">
+                
+                <!-- SECTION 1: Personal Identification & Nationality -->
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2 pb-1 border-b border-slate-200">
+                        <span class="font-extrabold text-slate-900 text-xs uppercase tracking-wider">
+                            1. Identification & Personal Details
+                        </span>
+                        <span class="text-[10px] text-slate-400 font-mono">(Empl #, Iqama, Passport, DOB)</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Empl # *</label>
+                            <input
+                                type="text"
+                                id="formEmplNo"
+                                required
+                                placeholder="e.g. 1014"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono font-bold text-slate-900 focus:ring-1 focus:ring-rose-500"
+                            />
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label class="block text-slate-600 font-semibold mb-1">Full Name (As per Iqama / Passport) *</label>
+                            <input
+                                type="text"
+                                id="formName"
+                                required
+                                placeholder="e.g. Eng. Tariq Al-Mansoor"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 font-bold text-slate-900 focus:ring-1 focus:ring-rose-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Blood Group</label>
+                            <select
+                                id="formBloodGroup"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 font-bold text-rose-700 focus:ring-1 focus:ring-rose-500"
+                            >
+                                <option value="A+">A+</option>
+                                <option value="B+">B+</option>
+                                <option value="AB+">AB+</option>
+                                <option value="O+" selected>O+</option>
+                                <option value="A-">A-</option>
+                                <option value="B-">B-</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Nationality *</label>
+                            <input
+                                type="text"
+                                id="formNationality"
+                                required
+                                value="Saudi Arabia"
+                                placeholder="e.g. Saudi Arabia, India, Egypt"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Religion</label>
+                            <input
+                                type="text"
+                                id="formReligion"
+                                value="Muslim"
+                                placeholder="e.g. Muslim, Christian"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Date of Birth</label>
+                            <input
+                                type="date"
+                                id="formDateOfBirth"
+                                value="1992-05-18"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Date of Join *</label>
+                            <input
+                                type="date"
+                                id="formDateOfJoin"
+                                required
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 font-bold text-slate-900"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Date of Arrival (in KSA)</label>
+                            <input
+                                type="date"
+                                id="formDateOfArrival"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Departure Port</label>
+                            <input
+                                type="text"
+                                id="formDeparturePort"
+                                value="King Khalid International Airport (RUH)"
+                                placeholder="e.g. King Khalid Int Airport"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Passport #</label>
+                            <input
+                                type="text"
+                                id="formPassportNo"
+                                placeholder="e.g. P9028442"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono text-slate-800"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Iqama # (Civil ID) *</label>
+                            <input
+                                type="text"
+                                id="formIqamaNo"
+                                required
+                                placeholder="10-digit ID (e.g. 2389104829)"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono font-bold text-slate-900 focus:ring-1 focus:ring-rose-500"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: Sponsorship, Hierarchy & Work Order Assignment -->
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2 pb-1 border-b border-slate-200">
+                        <span class="font-extrabold text-slate-900 text-xs uppercase tracking-wider">
+                            2. Sponsorship, Designation & Work Order
+                        </span>
+                        <span class="text-[10px] text-slate-400 font-mono">(Sponsor, Main Category, Trade, WO#)</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Employee Sponsor *</label>
+                            <select
+                                id="formSponsor"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 font-bold text-slate-900 focus:ring-1 focus:ring-rose-500"
+                            >
+                                <option value="Radwa" selected>Radwa</option>
+                                <option value="Alfakama">Alfakama</option>
+                                <option value="Sulaiman">Sulaiman</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Empl. Main Category *</label>
+                            <select
+                                id="formMainCategory"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-900 font-medium focus:ring-1 focus:ring-rose-500"
+                            >
+                                <option value="Directors">Directors</option>
+                                <option value="Senior management">Senior management</option>
+                                <option value="Operation Management team">Operation Management team</option>
+                                <option value="officeManagement team">officeManagement team</option>
+                                <option value="OfficeSupporting staff">OfficeSupporting staff</option>
+                                <option value="Project Management team (PMT)">Project Management team (PMT)</option>
+                                <option value="Project operation team (POT)" selected>Project operation team (POT)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Trade / Designation *</label>
+                            <input
+                                type="text"
+                                id="formTradeDesignation"
+                                required
+                                placeholder="e.g. Site supervisor, MD, Safety officer"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 font-bold text-rose-700 focus:ring-1 focus:ring-rose-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Expenses Category</label>
+                            <select
+                                id="formExpensesCategory"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
+                            >
+                                <option value="Office support overhead">Office support overhead</option>
+                                <option value="Project direct cost" selected>Project direct cost</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Assigned Work Order (wo#) *</label>
+                            <input
+                                type="text"
+                                id="formAssignedWorkOrder"
+                                required
+                                value="wo# 1234"
+                                placeholder="e.g. wo# 1234"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono font-bold text-indigo-700"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Recruitment Type</label>
+                            <select
+                                id="formRecruitmentType"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
+                            >
+                                <option value="employee transer">employee transer</option>
+                                <option value="new recruited" selected>new recruited</option>
+                                <option value="local hire">local hire</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Agent Name</label>
+                            <input
+                                type="text"
+                                id="formAgentName"
+                                placeholder="Recruiting Agency name"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Referred By Name</label>
+                            <input
+                                type="text"
+                                id="formReferredByName"
+                                placeholder="Referral contact"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: Contact, Emergency, Education & Documents -->
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2 pb-1 border-b border-slate-200">
+                        <span class="font-extrabold text-slate-900 text-xs uppercase tracking-wider">
+                            3. Contact, Qualifications & Attachments
+                        </span>
+                        <span class="text-[10px] text-slate-400 font-mono">(Phone, CV, Photo, Experience)</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Local Mobile #</label>
+                            <input
+                                type="text"
+                                id="formLocalMobNo"
+                                value="+966 5"
+                                placeholder="+966 50 ..."
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono text-slate-800"
+                            />
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label class="block text-slate-600 font-semibold mb-1">Emergency Contact Address</label>
+                            <input
+                                type="text"
+                                id="formEmergencyContactAddress"
+                                placeholder="Street, City, Country"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Emergency Contact Tele</label>
+                            <input
+                                type="text"
+                                id="formEmergencyContactTele"
+                                value="+966 5"
+                                placeholder="+966 50 ..."
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono text-slate-800"
+                            />
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label class="block text-slate-600 font-semibold mb-1">Education</label>
+                            <input
+                                type="text"
+                                id="formEducation"
+                                value="B.Sc Engineering"
+                                placeholder="e.g. B.Tech Civil, Diploma"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
+                            />
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label class="block text-slate-600 font-semibold mb-1">Experience (Years)</label>
+                            <input
+                                type="number"
+                                id="formExperienceYears"
+                                value="5"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800 font-bold"
+                            />
+                        </div>
+
+                        <!-- Employee Photo Input -->
+                        <div class="sm:col-span-2 p-3.5 rounded-2xl bg-gradient-to-br from-indigo-50/50 via-slate-50 to-white border border-indigo-100/90 shadow-xs space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label class="text-slate-800 font-bold text-xs flex items-center gap-1.5">
+                                    <i data-lucide="camera" class="w-3.5 h-3.5 text-indigo-600"></i>
+                                    <span>Employee Photo (ID Badge Picture)</span>
+                                </label>
+                            </div>
+                            <div class="space-y-1">
+                                <input
+                                    type="text"
+                                    id="formPhotoUrl"
+                                    placeholder="https://images.unsplash.com/... or leave blank for auto"
+                                    class="w-full px-3 py-2 rounded-xl border border-indigo-200 text-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 outline-none font-mono"
+                                />
+                                <p class="text-[10px] text-slate-400">Direct image URL for official employee ID badge.</p>
+                            </div>
+                        </div>
+
+                        <!-- Attach CV -->
+                        <div class="sm:col-span-2 p-3.5 rounded-2xl bg-gradient-to-br from-blue-50/50 via-slate-50 to-white border border-blue-100/90 shadow-xs space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label class="text-slate-800 font-bold text-xs flex items-center gap-1.5">
+                                    <i data-lucide="file-up" class="w-3.5 h-3.5 text-blue-600"></i>
+                                    <span>Attach CV (Candidate Resume)</span>
+                                </label>
+                                <span class="text-[10px] text-slate-400 font-mono">PDF, DOC, DOCX</span>
+                            </div>
+                            <div class="space-y-1">
+                                <input
+                                    type="text"
+                                    id="formCvFileName"
+                                    value="Candidate_Resume.pdf"
+                                    placeholder="Candidate_Resume.pdf"
+                                    class="w-full px-3 py-2 rounded-xl border border-blue-200 text-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none font-mono"
+                                />
+                                <p class="text-[10px] text-slate-400">CV Document title attached to employee records.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 4: Compensation & Salary Allowances -->
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2 pb-1 border-b border-slate-200">
+                        <span class="font-extrabold text-slate-900 text-xs uppercase tracking-wider">
+                            4. Compensation Breakdown & Allowances (SAR)
+                        </span>
+                        <span class="text-[10px] text-slate-400 font-mono">(Basic, OT, Food, Housing, Vehicle, Tele)</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Basic Salary (SAR) *</label>
+                            <input
+                                type="number"
+                                id="formBasicSalary"
+                                required
+                                value="4500"
+                                oninput="calcAddFormGross()"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono font-bold text-emerald-700 bg-emerald-50/30"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Duty Hours</label>
+                            <input
+                                type="number"
+                                id="formDutyHours"
+                                value="8"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">OT Rate</label>
+                            <input
+                                type="number"
+                                step="0.1"
+                                id="formOtRate"
+                                value="1.5"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-rose-600 font-bold"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Food Allowance</label>
+                            <input
+                                type="number"
+                                id="formFoodAllowance"
+                                value="300"
+                                oninput="calcAddFormGross()"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800 font-mono"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">OT Allowance</label>
+                            <input
+                                type="number"
+                                id="formOtAllowance"
+                                value="0"
+                                oninput="calcAddFormGross()"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800 font-mono"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Tele. Allowance</label>
+                            <input
+                                type="number"
+                                id="formTeleAllowance"
+                                value="100"
+                                oninput="calcAddFormGross()"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800 font-mono"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">House Allowance</label>
+                            <input
+                                type="number"
+                                id="formHouseAllowance"
+                                value="1000"
+                                oninput="calcAddFormGross()"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800 font-mono"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Vehicle Allowance</label>
+                            <input
+                                type="number"
+                                id="formVehicleAllowance"
+                                value="0"
+                                oninput="calcAddFormGross()"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800 font-mono"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Other Allowance</label>
+                            <input
+                                type="number"
+                                id="formOtherAllowance"
+                                value="0"
+                                oninput="calcAddFormGross()"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800 font-mono"
+                            />
+                        </div>
+
+                        <div class="sm:col-span-3 bg-slate-900 text-white rounded-xl p-2.5 flex items-center justify-between">
+                            <div>
+                                <div class="text-[10px] text-slate-400 uppercase font-semibold">Total Monthly Gross Package</div>
+                                <div id="formTotalGrossDisplay" class="text-sm font-bold font-mono text-emerald-400">
+                                    SAR 5,900
+                                </div>
+                            </div>
+                            <i data-lucide="dollar-sign" class="w-5 h-5 text-emerald-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 5: Leave Contract & PPE Uniform Sizes -->
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2 pb-1 border-b border-slate-200">
+                        <span class="font-extrabold text-slate-900 text-xs uppercase tracking-wider">
+                            5. Contract Terms & PPE Sizes
+                        </span>
+                        <span class="text-[10px] text-slate-400 font-mono">(Leave Cycle, Coverall, Safety Shoes)</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Leave Contract Period</label>
+                            <input
+                                type="text"
+                                id="formLeaveContractPeriod"
+                                value="1 Year"
+                                placeholder="e.g. 1 Year, 2 year"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Yearly Leave (Days/Year)</label>
+                            <input
+                                type="number"
+                                id="formYearlyLeaveDays"
+                                value="21"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800 font-bold"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Coverall Size</label>
+                            <select
+                                id="formCoverallSize"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 font-bold text-slate-800"
+                            >
+                                <option value="S">S</option>
+                                <option value="M">M</option>
+                                <option value="L" selected>L</option>
+                                <option value="XL">XL</option>
+                                <option value="XXL">XXL</option>
+                                <option value="XXXL">XXXL</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1">Shoe Size</label>
+                            <input
+                                type="number"
+                                id="formShoeSize"
+                                value="42"
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800 font-bold"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Footer -->
+                <div class="pt-4 border-t border-slate-200 flex items-center justify-between">
+                    <button
+                        type="button"
+                        onclick="closeAddEmployeeModal()"
+                        class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50 transition"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-rose-900/30"
+                    >
+                        <i data-lucide="check" class="w-4 h-4"></i>
+                        <span>Confirm & Save Employee Joining</span>
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 6. OFFICIAL ID CARD GENERATOR MODAL (Exact match to Image 2)  -->
+    <!-- ============================================================ -->
+    <div id="idBadgeModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-xl overflow-hidden my-auto">
+            
+            <!-- Modal Header -->
+            <div class="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="id-card" class="w-4 h-4 text-rose-400"></i>
+                    <span class="font-bold text-xs uppercase tracking-wider text-slate-200">
+                        Generate an ID Card (Employee Identity Badge)
+                    </span>
+                </div>
+                <button
+                    type="button"
+                    onclick="closeIdBadgeModal()"
+                    class="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition"
+                >
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <!-- ID Card Canvas (Matching Image 2 Layout) -->
+            <div class="p-6 bg-slate-100 flex flex-col items-center">
+                
+                <div 
+                    id="printable-id-card-wrapper"
+                    class="w-full max-w-md bg-white rounded-2xl border-2 border-slate-900 shadow-xl overflow-hidden text-slate-900 font-sans"
+                >
+                    <!-- ID Header with Company Name & Logo -->
+                    <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-rose-950 text-white px-4 py-3 flex items-center justify-between border-b-2 border-slate-900">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center font-black text-rose-400 text-xs">
+                                R
+                            </div>
+                            <div>
+                                <div class="text-xs font-black tracking-wider uppercase leading-none">
+                                    Radwa Contracting & Trading
+                                </div>
+                                <div class="text-[9px] text-slate-400 font-mono mt-0.5">
+                                    Kingdom of Saudi Arabia • CR 1010293847
+                                </div>
+                            </div>
+                        </div>
+                        <span id="badge-sponsor-tag" class="text-[9px] font-bold px-2 py-0.5 rounded bg-rose-500/30 text-rose-300 border border-rose-500/40 uppercase">
+                            Radwa
+                        </span>
+                    </div>
+
+                    <!-- 2-Column Split matching Image 2 -->
+                    <div class="grid grid-cols-5 divide-x-2 divide-slate-900">
+                        
+                        <!-- Left Column (3/5): Employee Personal Details -->
+                        <div class="col-span-3 p-3.5 space-y-1.5 text-[11px]">
+                            <div>
+                                <span class="text-[9px] font-bold uppercase text-slate-400 block">Empl. Name</span>
+                                <span id="badge-emp-name" class="font-extrabold text-slate-950 text-xs block leading-tight">
+                                    Eng. Tariq Al-Mansoor
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2 pt-1">
+                                <div>
+                                    <span class="text-[9px] font-bold uppercase text-slate-400 block">Empl No.</span>
+                                    <span id="badge-emp-no" class="font-mono font-bold text-rose-700 block">
+                                        1014
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="text-[9px] font-bold uppercase text-slate-400 block">Blood Group</span>
+                                    <span id="badge-blood-group" class="font-bold text-rose-600 block">
+                                        O+
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <span class="text-[9px] font-bold uppercase text-slate-400 block">Nationality</span>
+                                <span id="badge-nationality" class="font-semibold text-slate-800 block">
+                                    Saudi Arabia
+                                </span>
+                            </div>
+
+                            <div>
+                                <span class="text-[9px] font-bold uppercase text-slate-400 block">Iqama / Civil ID #</span>
+                                <span id="badge-iqama-no" class="font-mono font-bold text-slate-950 block">
+                                    2389104829
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100">
+                                <div>
+                                    <span class="text-[9px] font-bold uppercase text-slate-400 block">Date of Birth</span>
+                                    <span id="badge-dob" class="font-mono text-[10px] text-slate-700 block">
+                                        1994-04-12
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="text-[9px] font-bold uppercase text-slate-400 block">Date of Join</span>
+                                    <span id="badge-doj" class="font-mono text-[10px] text-slate-700 block font-semibold">
+                                        2024-01-15
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column (2/5): Designation, Photo, Barcode -->
+                        <div class="col-span-2 p-3 flex flex-col items-center justify-between text-center bg-slate-50/50">
+                            
+                            <!-- Designation box -->
+                            <div class="w-full pb-2 border-b border-slate-200">
+                                <span class="text-[9px] font-bold uppercase text-slate-400 block">Designation</span>
+                                <span id="badge-trade" class="font-bold text-slate-900 text-xs leading-tight block mt-0.5">
+                                    Site Supervisor
+                                </span>
+                            </div>
+
+                            <!-- Employee Photo -->
+                            <div class="my-2">
+                                <img
+                                    id="badge-photo-img"
+                                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+                                    alt="Employee Photo"
+                                    class="w-20 h-24 object-cover rounded-lg border-2 border-slate-800 shadow-sm"
+                                    onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face'"
+                                />
+                            </div>
+
+                            <!-- Code-128 Barcode Simulation -->
+                            <div class="w-full pt-1 border-t border-slate-200">
+                                <div class="font-mono text-[9px] text-slate-400 uppercase tracking-widest text-center">
+                                    Barcode
+                                </div>
+                                <!-- SVG Barcode Lines -->
+                                <svg viewBox="0 0 120 28" class="w-28 h-7 mx-auto mt-0.5">
+                                    <rect x="2" y="0" width="3" height="28" fill="#000" />
+                                    <rect x="7" y="0" width="1" height="28" fill="#000" />
+                                    <rect x="10" y="0" width="4" height="28" fill="#000" />
+                                    <rect x="16" y="0" width="2" height="28" fill="#000" />
+                                    <rect x="21" y="0" width="1" height="28" fill="#000" />
+                                    <rect x="24" y="0" width="3" height="28" fill="#000" />
+                                    <rect x="30" y="0" width="2" height="28" fill="#000" />
+                                    <rect x="34" y="0" width="4" height="28" fill="#000" />
+                                    <rect x="41" y="0" width="1" height="28" fill="#000" />
+                                    <rect x="45" y="0" width="3" height="28" fill="#000" />
+                                    <rect x="51" y="0" width="2" height="28" fill="#000" />
+                                    <rect x="56" y="0" width="3" height="28" fill="#000" />
+                                    <rect x="62" y="0" width="1" height="28" fill="#000" />
+                                    <rect x="66" y="0" width="4" height="28" fill="#000" />
+                                    <rect x="73" y="0" width="2" height="28" fill="#000" />
+                                    <rect x="78" y="0" width="1" height="28" fill="#000" />
+                                    <rect x="82" y="0" width="3" height="28" fill="#000" />
+                                    <rect x="88" y="0" width="2" height="28" fill="#000" />
+                                    <rect x="93" y="0" width="4" height="28" fill="#000" />
+                                    <rect x="100" y="0" width="1" height="28" fill="#000" />
+                                    <rect x="104" y="0" width="3" height="28" fill="#000" />
+                                    <rect x="110" y="0" width="2" height="28" fill="#000" />
+                                    <rect x="115" y="0" width="3" height="28" fill="#000" />
+                                </svg>
+                                <div id="badge-barcode-text" class="font-mono text-[8px] text-slate-500 text-center tracking-wider">
+                                    *1014*2389104829*
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- ID Bottom Security Bar -->
+                    <div class="bg-slate-900 text-white text-[9px] px-3 py-1 text-center font-mono tracking-wider flex items-center justify-between">
+                        <span id="badge-wo-bar">WORK ORDER: WO-2026-101</span>
+                        <span>SAUDI ARABIA</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Modal Actions -->
+            <div class="p-4 bg-white border-t border-slate-200 flex items-center justify-between">
+                <button
+                    type="button"
+                    onclick="closeIdBadgeModal()"
+                    class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition"
+                >
+                    Close
+                </button>
+
+                <button
+                    type="button"
+                    onclick="window.print()"
+                    class="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-2 shadow-xs cursor-pointer"
+                >
+                    <i data-lucide="printer" class="w-4 h-4 text-cyan-400"></i>
+                    <span>Print Official Badge</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 7. EMPLOYEE DETAIL & SAUDI INDEMNITY & SALARY REVISION MODAL -->
+    <!-- ============================================================ -->
+    <div id="detailModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-6 overflow-y-auto">
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden my-auto">
+            
+            <!-- Modal Header -->
+            <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800 shrink-0">
+                <div class="flex items-center gap-3">
+                    <img
+                        id="detail-modal-photo"
+                        src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+                        alt="Employee Photo"
+                        class="w-10 h-10 rounded-xl object-cover ring-2 ring-rose-500/40"
+                    />
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 id="detail-modal-name" class="text-sm font-bold text-white tracking-tight">
+                                Employee Name
+                            </h3>
+                            <span id="detail-modal-emplNo" class="font-mono text-xs px-2 py-0.2 rounded bg-white/10 text-slate-300 border border-white/10">
+                                #000
+                            </span>
+                            <span id="detail-modal-status-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold border bg-emerald-50 text-emerald-700 border-emerald-200">
+                                Active
+                            </span>
+                        </div>
+                        <div id="detail-modal-role-sponsor" class="text-xs text-rose-300 font-medium">
+                            Role • Sponsor
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button
+                        type="button"
+                        id="detail-modal-toggle-status-btn"
+                        onclick="toggleDetailModalEmployeeStatus()"
+                        class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 border bg-rose-500/20 text-rose-300 border-rose-500/40 hover:bg-rose-500/30"
+                        title="Saudi Labor Law: Once employee left make it as Inactive"
+                    >
+                        <i data-lucide="user-x" class="w-3.5 h-3.5"></i>
+                        <span id="detail-modal-toggle-status-text">Set Inactive (Left)</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="closeDetailModal()"
+                        class="p-1.5 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition"
+                    >
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Navigation Tabs (Profile, ID Card, 2nd PART Benefits, Salary Revision) -->
+            <div class="px-6 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2 text-xs overflow-x-auto shrink-0">
+                <button
+                    type="button"
+                    id="tab-btn-profile"
+                    onclick="switchDetailTab('profile')"
+                    class="px-3.5 py-1.5 rounded-xl font-bold transition cursor-pointer flex items-center gap-1.5 bg-slate-900 text-white shadow-xs"
+                >
+                    <i data-lucide="file-text" class="w-3.5 h-3.5 text-cyan-400"></i>
+                    <span>Employee Profile Dossier</span>
+                </button>
+
+                <button
+                    type="button"
+                    id="tab-btn-idcard"
+                    onclick="switchDetailTab('idcard')"
+                    class="px-3.5 py-1.5 rounded-xl font-bold transition cursor-pointer flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
+                >
+                    <i data-lucide="id-card" class="w-3.5 h-3.5 text-rose-400"></i>
+                    <span>Official ID Card Badge</span>
+                </button>
+
+                <button
+                    type="button"
+                    id="tab-btn-benefits"
+                    onclick="switchDetailTab('benefits')"
+                    class="px-3.5 py-1.5 rounded-xl font-bold transition cursor-pointer flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
+                >
+                    <i data-lucide="calculator" class="w-3.5 h-3.5 text-amber-500"></i>
+                    <span>2nd PART - Cumulative Benefits & Saudi Indemnity</span>
+                </button>
+
+                <button
+                    type="button"
+                    id="tab-btn-salary"
+                    onclick="switchDetailTab('salary')"
+                    class="px-3.5 py-1.5 rounded-xl font-bold transition cursor-pointer flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
+                >
+                    <i data-lucide="history" class="w-3.5 h-3.5 text-emerald-500"></i>
+                    <span>Salary Revision Tracker</span>
+                    <span id="detail-salary-rev-count-badge" class="px-1.5 py-0.2 rounded-full bg-emerald-200 text-emerald-950 text-[10px] font-black hidden">
+                        0
+                    </span>
+                </button>
+            </div>
+
+            <!-- Modal Body Content Tabs -->
+            <div class="flex-1 overflow-y-auto p-6 text-xs">
+                
+                <!-- TAB 1: FULL PROFILE DOSSIER -->
+                <div id="detail-tab-content-profile" class="space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        
+                        <!-- Identification Box -->
+                        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                            <div class="text-xs font-bold uppercase text-slate-400 pb-1 border-b border-slate-200 flex items-center justify-between">
+                                <span>Personal Identity</span>
+                                <i data-lucide="credit-card" class="w-3.5 h-3.5 text-slate-500"></i>
+                            </div>
+                            <div class="space-y-1.5 text-slate-700">
+                                <div class="flex justify-between"><span class="text-slate-400">Iqama / Civil ID:</span> <span id="d-iqama" class="font-mono font-bold">-</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Passport #:</span> <span id="d-passport" class="font-mono font-semibold">-</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Nationality:</span> <span id="d-nationality">-</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Religion:</span> <span id="d-religion">-</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Date of Birth:</span> <span id="d-dob">-</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Blood Group:</span> <span id="d-blood" class="font-bold text-rose-600">-</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Employment & Sponsorship -->
+                        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                            <div class="text-xs font-bold uppercase text-slate-400 pb-1 border-b border-slate-200 flex items-center justify-between">
+                                <span>Sponsorship & Work Order</span>
+                                <i data-lucide="building-2" class="w-3.5 h-3.5 text-slate-500"></i>
+                            </div>
+                            <div class="space-y-1.5 text-slate-700">
+                                <div class="flex justify-between"><span class="text-slate-400">Sponsor:</span> <span id="d-sponsor" class="font-bold text-slate-900">-</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Category:</span> <span id="d-category">-</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Assigned WO:</span> <span id="d-wo" class="font-mono font-bold text-indigo-600">-</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Expenses Type:</span> <span id="d-expenses">-</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Date of Join:</span> <span id="d-doj" class="font-semibold">-</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Recruitment:</span> <span id="d-recruitment">-</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Contract, Uniform & Contacts -->
+                        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                            <div class="text-xs font-bold uppercase text-slate-400 pb-1 border-b border-slate-200 flex items-center justify-between">
+                                <span>PPE Sizes & Contacts</span>
+                                <i data-lucide="hard-hat" class="w-3.5 h-3.5 text-slate-500"></i>
+                            </div>
+                            <div class="space-y-1.5 text-slate-700">
+                                <div class="flex justify-between"><span class="text-slate-400">Coverall Size:</span> <span id="d-coverall" class="font-bold">-</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Shoe Size:</span> <span id="d-shoe" class="font-bold">-</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Contract Period:</span> <span id="d-contract">-</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Yearly Leave:</span> <span id="d-yearlyleave">-</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Local Mobile:</span> <span id="d-mob" class="font-mono">-</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Emergency Tele:</span> <span id="d-emgtel" class="font-mono">-</span></div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Education, Background & Attached CV Document -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Education & Experience -->
+                        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                            <div class="text-xs font-bold uppercase text-slate-400 pb-1 border-b border-slate-200 flex items-center justify-between">
+                                <span>Education & Professional Background</span>
+                                <i data-lucide="award" class="w-3.5 h-3.5 text-slate-500"></i>
+                            </div>
+                            <div class="space-y-1.5 text-slate-700">
+                                <div class="flex justify-between"><span class="text-slate-400">Education:</span> <span id="d-education" class="font-semibold">-</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Experience:</span> <span id="d-experience" class="font-bold text-slate-900">-</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Departure Port:</span> <span id="d-port">-</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Date of Arrival:</span> <span id="d-doa" class="font-mono">-</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Recruitment Agent:</span> <span id="d-agent">-</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Referred By:</span> <span id="d-referral">-</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Attached Candidate CV Document -->
+                        <div class="p-4 rounded-2xl bg-gradient-to-br from-blue-50/40 via-white to-slate-50 border border-blue-200/80 space-y-2 flex flex-col justify-between">
+                            <div>
+                                <div class="text-xs font-bold uppercase text-blue-900 pb-1 border-b border-blue-100 flex items-center justify-between">
+                                    <span class="flex items-center gap-1.5">
+                                        <i data-lucide="file-text" class="w-3.5 h-3.5 text-rose-500"></i>
+                                        <span>Candidate CV / Resume</span>
+                                    </span>
+                                    <span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                                        Verified
+                                    </span>
+                                </div>
+                                
+                                <div class="mt-3 flex items-center gap-3 p-2.5 rounded-xl bg-white border border-slate-200 shadow-xs">
+                                    <div class="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
+                                        <i data-lucide="file-text" class="w-5 h-5"></i>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <div id="d-cv-name" class="text-xs font-bold text-slate-900 truncate">
+                                            Candidate_Resume.pdf
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 font-mono mt-0.5">
+                                            Candidate Document • PDF Format
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onclick="triggerDownloadCv()"
+                                    class="flex-1 py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-xs cursor-pointer"
+                                >
+                                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                                    <span>Download Candidate CV</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Compensation Summary Card -->
+                    <div class="p-5 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-950 text-white border border-slate-800">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                            <div>
+                                <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">Monthly Compensation Structure</span>
+                                <span class="text-sm font-extrabold text-white">Full Allowance Breakdown (SAR)</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs text-slate-400 block">Total Monthly Gross</span>
+                                <span id="d-monthly-gross" class="text-xl font-extrabold text-emerald-400 font-mono">
+                                    SAR 0
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3 mt-4 text-center">
+                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                                <span class="text-[10px] text-slate-400 uppercase block">Basic</span>
+                                <span id="d-basic" class="font-mono font-bold text-emerald-400 text-xs">SAR 0</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                                <span class="text-[10px] text-slate-400 uppercase block">Housing</span>
+                                <span id="d-housing" class="font-mono font-bold text-slate-200 text-xs">SAR 0</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                                <span class="text-[10px] text-slate-400 uppercase block">Vehicle</span>
+                                <span id="d-vehicle" class="font-mono font-bold text-slate-200 text-xs">SAR 0</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                                <span class="text-[10px] text-slate-400 uppercase block">Telephone</span>
+                                <span id="d-tele" class="font-mono font-bold text-slate-200 text-xs">SAR 0</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                                <span class="text-[10px] text-slate-400 uppercase block">Food</span>
+                                <span id="d-food" class="font-mono font-bold text-slate-200 text-xs">SAR 0</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                                <span class="text-[10px] text-slate-400 uppercase block">OT Rate</span>
+                                <span id="d-otrate" class="font-mono font-bold text-rose-400 text-xs">1.5x</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                                <span class="text-[10px] text-slate-400 uppercase block">Duty Hours</span>
+                                <span id="d-dutyhours" class="font-mono font-bold text-slate-200 text-xs">8 hrs</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: OFFICIAL ID CARD GENERATOR (Embedded) -->
+                <div id="detail-tab-content-idcard" class="hidden flex flex-col items-center justify-center py-4 space-y-4">
+                    <div class="w-full max-w-md bg-white rounded-2xl border-2 border-slate-900 shadow-xl overflow-hidden text-slate-900 font-sans">
+                        <div class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between border-b-2 border-slate-900">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-lg bg-rose-600 text-white flex items-center justify-center font-black text-xs">
+                                    R
+                                </div>
+                                <div>
+                                    <div class="text-xs font-black uppercase tracking-wider">RADWA CONTRACTING</div>
+                                    <div class="text-[8px] text-slate-400 font-mono">SAUDI ARABIA</div>
+                                </div>
+                            </div>
+                            <span id="tab2-badge-sponsor" class="text-[9px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 uppercase">
+                                Radwa
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-5 divide-x-2 divide-slate-900">
+                            <div class="col-span-3 p-3.5 space-y-1.5 text-[11px]">
+                                <div>
+                                    <span class="text-[9px] font-bold uppercase text-slate-400 block">Empl. Name</span>
+                                    <span id="tab2-badge-name" class="font-extrabold text-slate-950 text-xs block leading-tight">-</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <span class="text-[9px] font-bold uppercase text-slate-400 block">Empl No.</span>
+                                        <span id="tab2-badge-emplno" class="font-mono font-bold text-rose-700 block">-</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-[9px] font-bold uppercase text-slate-400 block">Blood Group</span>
+                                        <span id="tab2-badge-blood" class="font-bold text-rose-600 block">-</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-[9px] font-bold uppercase text-slate-400 block">Nationality</span>
+                                    <span id="tab2-badge-nationality" class="font-semibold block">-</span>
+                                </div>
+                                <div>
+                                    <span class="text-[9px] font-bold uppercase text-slate-400 block">Iqama #</span>
+                                    <span id="tab2-badge-iqama" class="font-mono font-bold block">-</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100">
+                                    <div>
+                                        <span class="text-[9px] font-bold uppercase text-slate-400 block">DOB</span>
+                                        <span id="tab2-badge-dob" class="font-mono text-[10px] block">-</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-[9px] font-bold uppercase text-slate-400 block">Date of Join</span>
+                                        <span id="tab2-badge-doj" class="font-mono text-[10px] block font-semibold">-</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-span-2 p-3 flex flex-col items-center justify-between text-center bg-slate-50">
+                                <div class="w-full pb-1 border-b border-slate-200">
+                                    <span class="text-[8px] font-bold uppercase text-slate-400 block">Designation</span>
+                                    <span id="tab2-badge-trade" class="font-bold text-slate-900 text-[11px] block">-</span>
+                                </div>
+                                <img
+                                    id="tab2-badge-photo"
+                                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+                                    alt="Photo"
+                                    class="w-18 h-22 object-cover rounded-md border border-slate-800 my-1 shadow-xs"
+                                    onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face'"
+                                />
+                                <div class="w-full pt-1 border-t border-slate-200">
+                                    <div class="font-mono text-[7px] text-slate-400 uppercase tracking-widest">Barcode</div>
+                                    <div class="h-4 bg-slate-900 rounded mx-2 my-0.5"></div>
+                                    <div id="tab2-badge-barcode" class="font-mono text-[8px] text-slate-500">*-*</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button
+                        type="button"
+                        onclick="window.print()"
+                        class="px-5 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs flex items-center gap-2 shadow-xs cursor-pointer hover:bg-slate-800"
+                    >
+                        <i data-lucide="printer" class="w-4 h-4 text-cyan-400"></i>
+                        <span>Print Badge Document</span>
+                    </button>
+                </div>
+
+                <!-- TAB 3: 2nd PART - CUMULATIVE EMPLOYEES BENEFIT CALCULATION (Image 3) -->
+                <div id="detail-tab-content-benefits" class="hidden space-y-6">
+                    <!-- Banner matching Image 3 Header -->
+                    <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <h4 class="text-sm font-extrabold flex items-center gap-2">
+                                <i data-lucide="calculator" class="w-4 h-4 text-amber-600"></i>
+                                <span>Cumulative Employees Benefit & Saudi Labor Law Indemnity</span>
+                            </h4>
+                            <p class="text-[11px] text-amber-900 mt-0.5">
+                                Calculation of End-of-Service Gratuity (Articles 84/85) and Leave Salary balance
+                            </p>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <span id="benefits-status-pill" class="px-3 py-1 rounded-full text-xs font-bold border bg-emerald-100 text-emerald-800 border-emerald-300">
+                                Status: Active Employee
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Calculations Table matching User Screenshot 3 -->
+                    <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead class="bg-amber-100/70 border-b border-amber-200 text-amber-950 font-bold uppercase text-[10px]">
+                                <tr>
+                                    <th class="py-2.5 px-3 border-r border-amber-200">Joining Date</th>
+                                    <th class="py-2.5 px-3 border-r border-amber-200">Vacation / Leave / Exit Date</th>
+                                    <th class="py-2.5 px-3 border-r border-amber-200">Total Days Worked</th>
+                                    <th class="py-2.5 px-3 border-r border-amber-200">Leave Salary Calculation</th>
+                                    <th class="py-2.5 px-3 border-r border-amber-200">Cumulative Leave Salary</th>
+                                    <th class="py-2.5 px-3 border-r border-amber-200">Paid Leave Salary</th>
+                                    <th class="py-2.5 px-3 border-r border-amber-200 text-emerald-800 bg-emerald-50">Balance Leave Salary</th>
+                                    <th class="py-2.5 px-3 border-r border-amber-200">Indemnity Reason</th>
+                                    <th class="py-2.5 px-4 border-r border-amber-200">Formula Rule</th>
+                                    <th class="py-2.5 px-3 text-right bg-amber-50">Actual Indemnity</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 font-mono text-[11px] bg-white">
+                                <tr>
+                                    <td id="b-doj" class="py-3 px-3 border-r border-slate-200 font-bold">-</td>
+                                    <td id="b-exitdate" class="py-3 px-3 border-r border-slate-200 text-slate-500">Current Active</td>
+                                    <td id="b-daysworked" class="py-3 px-3 border-r border-slate-200 font-bold text-slate-900">0 days</td>
+                                    <td id="b-leavesalaryrule" class="py-3 px-3 border-r border-slate-200 font-sans">one year 21 days</td>
+                                    <td id="b-cumulativeleavesalary" class="py-3 px-3 border-r border-slate-200">SAR 0</td>
+                                    <td id="b-paidleavesalary" class="py-3 px-3 border-r border-slate-200">SAR 0</td>
+                                    <td id="b-balanceleavesalary" class="py-3 px-3 border-r border-slate-200 font-bold text-emerald-700 bg-emerald-50/50">SAR 0</td>
+                                    <td id="b-indemnityreason" class="py-3 px-3 border-r border-slate-200 font-sans font-bold text-slate-800">Resignation</td>
+                                    <td id="b-indemnityformula" class="py-3 px-4 border-r border-slate-200 font-sans text-rose-700 font-semibold text-[10px]">1/2 Basic salary per year</td>
+                                    <td id="b-actualindemnity" class="py-3 px-3 text-right font-extrabold text-amber-700 bg-amber-50/50 text-xs">SAR 0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Saudi Labor Law Explanation & Terminal Details -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                            <div class="text-xs font-bold uppercase text-slate-500 pb-1 border-b border-slate-200">
+                                Saudi Labor Law Statutory Rules (Article 84/85)
+                            </div>
+                            <ul class="space-y-1.5 text-[11px] text-slate-600 list-disc pl-4 leading-relaxed">
+                                <li><strong>Termination by Employer:</strong> Half month basic salary for first 5 years + full 1 month basic salary per year thereafter.</li>
+                                <li><strong>Resignation by Employee:</strong> Service &lt; 2 yrs = 0. Service 2-5 yrs = 1/3 indemnity. Service 5-10 yrs = 2/3 indemnity. Service &gt; 10 yrs = Full 100% indemnity.</li>
+                                <li><strong>Contract Period:</strong> <span id="b-contract-period">Completed</span>.</li>
+                            </ul>
+                        </div>
+
+                        <div class="p-4 rounded-2xl bg-slate-900 text-white border border-slate-800 space-y-3 flex flex-col justify-between">
+                            <div>
+                                <div class="text-xs font-bold uppercase text-amber-400">Total Terminal Settlement Pay</div>
+                                <div id="b-total-terminal-pay" class="text-2xl font-extrabold font-mono text-emerald-400 mt-1">
+                                    SAR 0
+                                </div>
+                                <div id="b-terminal-breakdown" class="text-[11px] text-slate-400 mt-1">
+                                    Indemnity (SAR 0) + Balance Leave Salary (SAR 0)
+                                </div>
+                            </div>
+
+                            <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
+                                <span id="b-duration-days" class="text-[11px] text-slate-300 font-medium">Cumulative Workdays: 0 days</span>
+                                <button
+                                    type="button"
+                                    id="b-toggle-status-btn"
+                                    onclick="toggleDetailModalEmployeeStatus()"
+                                    class="px-3 py-1.5 rounded-xl font-bold text-xs transition cursor-pointer bg-rose-600 hover:bg-rose-500 text-white"
+                                >
+                                    Mark Employee Inactive (Exit)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: SALARY REVISION HISTORY (Image 4) -->
+                <div id="detail-tab-content-salary" class="hidden space-y-6">
+                    <!-- Current Basic & Allowances Overview -->
+                    <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <span class="text-xs font-bold uppercase text-emerald-700 tracking-wider block">Present Compensation</span>
+                            <span id="salary-overview-text" class="text-base font-extrabold text-emerald-950 font-mono">
+                                Basic: SAR 0 | Housing: SAR 0 | Vehicle: SAR 0
+                            </span>
+                        </div>
+
+                        <span id="salary-current-basic-pill" class="text-xs font-mono px-3 py-1 rounded-full bg-white text-emerald-800 border border-emerald-300 font-bold">
+                            Current Basic: SAR 0
+                        </span>
+                    </div>
+
+                    <!-- Add New Revision Form (Matching Image 4) -->
+                    <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-900 flex items-center gap-2">
+                                <i data-lucide="plus" class="w-4 h-4 text-emerald-600"></i>
+                                <span>Log New Salary Revision (Multiple Items Allowed)</span>
+                            </h4>
+                            <span class="text-[10px] text-rose-600 font-semibold">May be Multiple item revision possible</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                            <div>
+                                <label class="block text-slate-600 font-semibold mb-1">New Revised Basic (SAR)</label>
+                                <input
+                                    type="number"
+                                    id="rev-basic-input"
+                                    class="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono font-bold text-slate-900"
+                                />
+                            </div>
+
+                            <div>
+                                <label class="block text-slate-600 font-semibold mb-1">New House Allowance (SAR)</label>
+                                <input
+                                    type="number"
+                                    id="rev-house-input"
+                                    class="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono text-slate-900"
+                                />
+                            </div>
+
+                            <div>
+                                <label class="block text-slate-600 font-semibold mb-1">New Vehicle Allowance (SAR)</label>
+                                <input
+                                    type="number"
+                                    id="rev-veh-input"
+                                    class="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono text-slate-900"
+                                />
+                            </div>
+
+                            <div>
+                                <label class="block text-slate-600 font-semibold mb-1">New Telephone Allowance (SAR)</label>
+                                <input
+                                    type="number"
+                                    id="rev-tele-input"
+                                    class="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono text-slate-900"
+                                />
+                            </div>
+
+                            <div>
+                                <label class="block text-slate-600 font-semibold mb-1">Revision Interval</label>
+                                <input
+                                    type="text"
+                                    id="rev-interval-input"
+                                    value="Annual Appraisal 2026"
+                                    placeholder="e.g. Annual Review, Mid-Year"
+                                    class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
+                                />
+                            </div>
+
+                            <div class="sm:col-span-2">
+                                <label class="block text-slate-600 font-semibold mb-1">Reason of Revision</label>
+                                <input
+                                    type="text"
+                                    id="rev-reason-input"
+                                    value="Merit Performance Promotion & Market Index Adjustment"
+                                    placeholder="e.g. Promotion, Cost of Living"
+                                    class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-800"
+                                />
+                            </div>
+
+                            <div>
+                                <label class="block text-slate-600 font-semibold mb-1">Approval Attachment</label>
+                                <input
+                                    type="text"
+                                    id="rev-approval-input"
+                                    value="MD_Executive_Approval_Signoff.pdf"
+                                    class="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-600 font-mono text-[10px]"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end pt-2">
+                            <button
+                                type="button"
+                                onclick="submitSalaryRevision()"
+                                class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 transition cursor-pointer shadow-xs"
+                            >
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                                <span>Save Salary Revision Record</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Revision History Log Table -->
+                    <div class="space-y-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block">
+                            Historical Revision Timeline Log
+                        </span>
+
+                        <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold uppercase text-[10px]">
+                                    <tr>
+                                        <th class="py-2.5 px-3 border-r border-slate-200">Date of Revision</th>
+                                        <th class="py-2.5 px-3 border-r border-slate-200">Previous Basic</th>
+                                        <th class="py-2.5 px-3 border-r border-slate-200 text-emerald-800 bg-emerald-50/50">Revised Basic</th>
+                                        <th class="py-2.5 px-3 border-r border-slate-200">Revised Allowances</th>
+                                        <th class="py-2.5 px-3 border-r border-slate-200 font-bold text-slate-900">Total Revised (Gross)</th>
+                                        <th class="py-2.5 px-3 border-r border-slate-200">Revision Interval</th>
+                                        <th class="py-2.5 px-4 border-r border-slate-200">Reason of Revision</th>
+                                        <th class="py-2.5 px-3">Approval Attachment</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="salary-revisions-tbody" class="divide-y divide-slate-200 font-mono text-[11px] bg-white">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+                <button
+                    type="button"
+                    onclick="closeDetailModal()"
+                    class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-100 transition cursor-pointer"
+                >
+                    Close
+                </button>
+
+                <div class="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onclick="openBadgeFromDetailModal()"
+                        class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                    >
+                        <i data-lucide="id-card" class="w-3.5 h-3.5 text-rose-400"></i>
+                        <span>Open Printable ID Badge</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Enterprise Toast Notification -->
+    <div id="toastNotification" class="fixed bottom-5 right-5 z-50 p-4 rounded-2xl bg-slate-900 text-white text-xs font-bold shadow-2xl border border-slate-800 hidden items-center gap-2.5 transition-all">
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+        <span id="toastNotificationMessage">Notification text</span>
+    </div>
+
+    <!-- Django Context Payload -->
+    <script id="projects-data" type="application/json">
+        {{ projects_json|default:"[]"|safe }}
+    </script>
+
+    <!-- Master HR Dashboard Script -->
+    <script>
+        // ============================================================================
+        // 1. INITIAL MOCK DATA (High fidelity matching Next.js mock data & Excel)
+        // ============================================================================
+        const INITIAL_EMPLOYEES = [
+            {
+                id: 'emp-1014',
+                emplNo: '1014',
+                name: 'Eng. Tariq Al-Mansoor',
+                photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+                sponsor: 'Radwa',
+                mainCategory: 'Project Management team (PMT)',
+                tradeDesignation: 'Senior Project Manager & Field Lead',
+                expensesCategory: 'Project direct cost',
+                nationality: 'Saudi Arabia',
+                religion: 'Muslim',
+                dateOfBirth: '1989-04-12',
+                dateOfArrival: '2018-02-10',
+                departurePort: 'King Khalid International Airport (RUH)',
+                dateOfJoin: '2018-02-15',
+                passportNo: 'KSA9283741',
+                iqamaNo: '1092837482',
+                assignedWorkOrder: 'WO-2026-101',
+                recruitmentType: 'local hire',
+                agentName: 'Radwa Talent Acq',
+                referredByName: 'Dr. Al-Mutawa',
+                localMobNo: '+966 50 128 4920',
+                bloodGroup: 'O+',
+                emergencyContactAddress: 'Al-Malaz District, Riyadh, KSA',
+                emergencyContactTele: '+966 50 128 4999',
+                education: 'B.Sc Civil & Structural Engineering',
+                experienceYears: 12,
+                cvFileName: 'Eng_Tariq_Al_Mansoor_CV.pdf',
+                photoFileName: 'Tariq_Al_Mansoor.jpg',
+                basicSalary: 14500,
+                dutyHours: 8,
+                otRate: 1.5,
+                foodAllowance: 600,
+                otAllowance: 0,
+                teleAllowance: 400,
+                houseAllowance: 3500,
+                vehicleAllowance: 1500,
+                otherAllowance: 500,
+                leaveContractPeriod: '1 Year',
+                yearlyLeaveDays: 30,
+                coverallSize: 'L',
+                shoeSize: 43,
+                status: 'Active',
+                benefits: {
+                    joiningDate: '2018-02-15',
+                    totalDaysWorked: 2980,
+                    leaveSalaryCalculationRule: 'one year 30 days',
+                    cumulativeAmountLeaveSalary: 145000,
+                    paidLeaveSalary: 116000,
+                    balanceLeaveSalary: 29000,
+                    indemnityReason: 'Resignation',
+                    indemnityFormula: 'Saudi Labor Law Article 84 (Full 100% indemnity for >5 yrs)',
+                    cumulativeAmountIndemnity: 94250,
+                    contractCompletedPeriod: 'Completed',
+                    actualIndemnityAmount: 94250,
+                    totalDurationDaysWorked: 2980,
+                    isActive: true
+                },
+                salaryRevisions: [
+                    {
+                        id: 'rev-1',
+                        dateOfRevision: '2025-01-15',
+                        presentBasic: 12500,
+                        revisedBasic: 14500,
+                        revisedHouseAllowance: 3500,
+                        revisedVehicleAllowance: 1500,
+                        revisedTelephoneAllowance: 400,
+                        revisedAmount: 19900,
+                        revisionInterval: 'Annual Appraisal 2025',
+                        reasonOfRevision: 'Promotion to Senior Project Lead & Cost of Living Adjustment',
+                        approvalAttachName: 'Executive_MD_Signoff_Tariq.pdf'
+                    }
+                ]
+            },
+            {
+                id: 'emp-101',
+                emplNo: '101',
+                name: 'Mohammed Al-Zahrani',
+                photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
+                sponsor: 'Radwa',
+                mainCategory: 'Project operation team (POT)',
+                tradeDesignation: 'Senior 6G Welder & Pipe Fitter',
+                expensesCategory: 'Project direct cost',
+                nationality: 'Saudi Arabia',
+                religion: 'Muslim',
+                dateOfBirth: '1988-06-14',
+                dateOfArrival: '2016-03-01',
+                departurePort: 'King Fahd International Airport (DMM)',
+                dateOfJoin: '2016-03-10',
+                passportNo: 'KSA8492011',
+                iqamaNo: '1084920194',
+                assignedWorkOrder: 'WO-2026-101',
+                recruitmentType: 'Direct Hire',
+                agentName: 'Eastern Province HR',
+                referredByName: 'Site Manager',
+                localMobNo: '+966 54 819 2011',
+                bloodGroup: 'O+',
+                emergencyContactAddress: 'Al-Jubail Industrial City, Eastern Province',
+                emergencyContactTele: '+966 54 819 2099',
+                education: 'Technical Diploma in Mechanical Piping',
+                experienceYears: 10,
+                cvFileName: 'Mohammed_Al_Zahrani_Resume.pdf',
+                photoFileName: 'Mohammed_Al_Zahrani.jpg',
+                basicSalary: 6500,
+                dutyHours: 8,
+                otRate: 1.5,
+                foodAllowance: 500,
+                otAllowance: 1200,
+                teleAllowance: 200,
+                houseAllowance: 1500,
+                vehicleAllowance: 500,
+                otherAllowance: 0,
+                leaveContractPeriod: '1 Year',
+                yearlyLeaveDays: 30,
+                coverallSize: 'L',
+                shoeSize: 43,
+                status: 'Active',
+                benefits: {
+                    joiningDate: '2016-03-10',
+                    totalDaysWorked: 3870,
+                    leaveSalaryCalculationRule: 'one year 30 days',
+                    cumulativeAmountLeaveSalary: 65000,
+                    paidLeaveSalary: 52000,
+                    balanceLeaveSalary: 13000,
+                    indemnityReason: 'Resignation',
+                    indemnityFormula: 'Saudi Labor Law Article 84 (Full 100% indemnity for >5 yrs)',
+                    cumulativeAmountIndemnity: 65000,
+                    contractCompletedPeriod: 'Completed',
+                    actualIndemnityAmount: 65000,
+                    totalDurationDaysWorked: 3870,
+                    isActive: true
+                },
+                salaryRevisions: []
+            },
+            {
+                id: 'emp-102',
+                emplNo: '102',
+                name: 'Suresh Kumar',
+                photoUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face',
+                sponsor: 'Radwa',
+                mainCategory: 'Project operation team (POT)',
+                tradeDesignation: 'Lead Rigging Specialist & Scaffolder',
+                expensesCategory: 'Project direct cost',
+                nationality: 'India',
+                religion: 'Hindu',
+                dateOfBirth: '1992-09-22',
+                dateOfArrival: '2019-05-15',
+                departurePort: 'Mumbai International Airport (BOM)',
+                dateOfJoin: '2019-05-20',
+                passportNo: 'Z9482019',
+                iqamaNo: '2492810492',
+                assignedWorkOrder: 'WO-2026-102',
+                recruitmentType: 'new recruited',
+                agentName: 'Global Manpower Consultancy',
+                referredByName: 'Foreman Joseph',
+                localMobNo: '+966 55 918 4022',
+                bloodGroup: 'B+',
+                emergencyContactAddress: 'Kochi, Kerala, India',
+                emergencyContactTele: '+91 9847 123456',
+                education: 'Secondary School + Rigger Level 1 Certification',
+                experienceYears: 7,
+                cvFileName: 'Suresh_Kumar_CV.pdf',
+                photoFileName: 'Suresh_Kumar.jpg',
+                basicSalary: 3800,
+                dutyHours: 8,
+                otRate: 1.5,
+                foodAllowance: 400,
+                otAllowance: 900,
+                teleAllowance: 100,
+                houseAllowance: 1000,
+                vehicleAllowance: 0,
+                otherAllowance: 0,
+                leaveContractPeriod: '2 Years',
+                yearlyLeaveDays: 21,
+                coverallSize: 'M',
+                shoeSize: 42,
+                status: 'Active',
+                benefits: {
+                    joiningDate: '2019-05-20',
+                    totalDaysWorked: 2700,
+                    leaveSalaryCalculationRule: 'two years 42 days',
+                    cumulativeAmountLeaveSalary: 26600,
+                    paidLeaveSalary: 21000,
+                    balanceLeaveSalary: 5600,
+                    indemnityReason: 'Resignation',
+                    indemnityFormula: 'basic / 1/3 for 2-5 yrs service',
+                    cumulativeAmountIndemnity: 28500,
+                    contractCompletedPeriod: 'Completed',
+                    actualIndemnityAmount: 28500,
+                    totalDurationDaysWorked: 2700,
+                    isActive: true
+                },
+                salaryRevisions: []
+            },
+            {
+                id: 'emp-103',
+                emplNo: '103',
+                name: 'Faisal Al-Otaibi',
+                photoUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&h=150&fit=crop&crop=face',
+                sponsor: 'Alfakama',
+                mainCategory: 'OfficeSupporting staff',
+                tradeDesignation: 'HSE Field Compliance Officer',
+                expensesCategory: 'Project direct cost',
+                nationality: 'Saudi Arabia',
+                religion: 'Muslim',
+                dateOfBirth: '1995-11-03',
+                dateOfArrival: '2021-08-01',
+                departurePort: 'King Khalid International Airport (RUH)',
+                dateOfJoin: '2021-08-05',
+                passportNo: 'KSA7182941',
+                iqamaNo: '1192837461',
+                assignedWorkOrder: 'WO-2026-103',
+                recruitmentType: 'local hire',
+                agentName: 'National Talent Pool',
+                referredByName: 'Eng. Tariq',
+                localMobNo: '+966 56 312 9081',
+                bloodGroup: 'A+',
+                emergencyContactAddress: 'Al-Suwaidi, Riyadh, KSA',
+                emergencyContactTele: '+966 56 312 9099',
+                education: 'NEBOSH IGC & Safety Diploma',
+                experienceYears: 5,
+                cvFileName: 'Faisal_Al_Otaibi_HSE_CV.pdf',
+                photoFileName: 'Faisal_Al_Otaibi.jpg',
+                basicSalary: 7200,
+                dutyHours: 8,
+                otRate: 1.5,
+                foodAllowance: 400,
+                otAllowance: 0,
+                teleAllowance: 200,
+                houseAllowance: 1800,
+                vehicleAllowance: 500,
+                otherAllowance: 0,
+                leaveContractPeriod: '1 Year',
+                yearlyLeaveDays: 21,
+                coverallSize: 'L',
+                shoeSize: 44,
+                status: 'Active',
+                benefits: {
+                    joiningDate: '2021-08-05',
+                    totalDaysWorked: 1890,
+                    leaveSalaryCalculationRule: 'one year 21 days',
+                    cumulativeAmountLeaveSalary: 45360,
+                    paidLeaveSalary: 35000,
+                    balanceLeaveSalary: 10360,
+                    indemnityReason: 'Resignation',
+                    indemnityFormula: 'Saudi Labor Law Article 84 (2/3 indemnity for 2-5 yrs)',
+                    cumulativeAmountIndemnity: 22800,
+                    contractCompletedPeriod: 'Completed',
+                    actualIndemnityAmount: 22800,
+                    totalDurationDaysWorked: 1890,
+                    isActive: true
+                },
+                salaryRevisions: []
+            },
+            {
+                id: 'emp-104',
+                emplNo: '104',
+                name: 'Ahmed Al-Ghamdi',
+                photoUrl: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&h=150&fit=crop&crop=face',
+                sponsor: 'Sulaiman',
+                mainCategory: 'Operation Management team',
+                tradeDesignation: 'Civil & Structural Superintendent',
+                expensesCategory: 'Project direct cost',
+                nationality: 'Saudi Arabia',
+                religion: 'Muslim',
+                dateOfBirth: '1987-01-25',
+                dateOfArrival: '2017-06-12',
+                departurePort: 'King Abdulaziz International Airport (JED)',
+                dateOfJoin: '2017-06-20',
+                passportNo: 'KSA6102934',
+                iqamaNo: '1061029384',
+                assignedWorkOrder: 'wo# 1234',
+                recruitmentType: 'employee transer',
+                agentName: 'Internal Transfer',
+                referredByName: 'Operations GM',
+                localMobNo: '+966 53 781 2093',
+                bloodGroup: 'O-',
+                emergencyContactAddress: 'Al-Khobar, Eastern Province, KSA',
+                emergencyContactTele: '+966 53 781 2000',
+                education: 'Diploma in Civil Engineering Technology',
+                experienceYears: 14,
+                cvFileName: 'Ahmed_Al_Ghamdi_Superintendent.pdf',
+                photoFileName: 'Ahmed_Al_Ghamdi.jpg',
+                basicSalary: 9800,
+                dutyHours: 8,
+                otRate: 1.5,
+                foodAllowance: 500,
+                otAllowance: 0,
+                teleAllowance: 300,
+                houseAllowance: 2500,
+                vehicleAllowance: 1000,
+                otherAllowance: 0,
+                leaveContractPeriod: '1 Year',
+                yearlyLeaveDays: 30,
+                coverallSize: 'XL',
+                shoeSize: 45,
+                status: 'Active',
+                benefits: {
+                    joiningDate: '2017-06-20',
+                    totalDaysWorked: 3390,
+                    leaveSalaryCalculationRule: 'one year 30 days',
+                    cumulativeAmountLeaveSalary: 98000,
+                    paidLeaveSalary: 78000,
+                    balanceLeaveSalary: 20000,
+                    indemnityReason: 'Resignation',
+                    indemnityFormula: 'Saudi Labor Law Article 84 (Full 100% indemnity for >5 yrs)',
+                    cumulativeAmountIndemnity: 68600,
+                    contractCompletedPeriod: 'Completed',
+                    actualIndemnityAmount: 68600,
+                    totalDurationDaysWorked: 3390,
+                    isActive: true
+                },
+                salaryRevisions: []
+            },
+            {
+                id: 'emp-105',
+                emplNo: '105',
+                name: 'Vikram Patel',
+                photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face',
+                sponsor: 'Radwa',
+                mainCategory: 'Project operation team (POT)',
+                tradeDesignation: 'Electrical QA/QC Senior Technician',
+                expensesCategory: 'Project direct cost',
+                nationality: 'India',
+                religion: 'Hindu',
+                dateOfBirth: '1993-08-14',
+                dateOfArrival: '2020-01-10',
+                departurePort: 'Ahmedabad International Airport (AMD)',
+                dateOfJoin: '2020-01-15',
+                passportNo: 'W8102934',
+                iqamaNo: '2391029384',
+                assignedWorkOrder: 'wo# 1234',
+                recruitmentType: 'new recruited',
+                agentName: 'Apex Placement Agency',
+                referredByName: 'Site Lead',
+                localMobNo: '+966 54 992 1083',
+                bloodGroup: 'A+',
+                emergencyContactAddress: 'Vadodara, Gujarat, India',
+                emergencyContactTele: '+91 9825 001122',
+                education: 'Diploma in Electrical & Instrumentation',
+                experienceYears: 6,
+                cvFileName: 'Vikram_Patel_QAQC.pdf',
+                photoFileName: 'Vikram_Patel.jpg',
+                basicSalary: 4200,
+                dutyHours: 8,
+                otRate: 1.5,
+                foodAllowance: 400,
+                otAllowance: 600,
+                teleAllowance: 100,
+                houseAllowance: 1100,
+                vehicleAllowance: 0,
+                otherAllowance: 0,
+                leaveContractPeriod: '2 Years',
+                yearlyLeaveDays: 21,
+                coverallSize: 'M',
+                shoeSize: 42,
+                status: 'Active',
+                benefits: {
+                    joiningDate: '2020-01-15',
+                    totalDaysWorked: 2450,
+                    leaveSalaryCalculationRule: 'two years 42 days',
+                    cumulativeAmountLeaveSalary: 29400,
+                    paidLeaveSalary: 22000,
+                    balanceLeaveSalary: 7400,
+                    indemnityReason: 'Resignation',
+                    indemnityFormula: 'basic / 1/3 for 2-5 yrs service',
+                    cumulativeAmountIndemnity: 17500,
+                    contractCompletedPeriod: 'Completed',
+                    actualIndemnityAmount: 17500,
+                    totalDurationDaysWorked: 2450,
+                    isActive: true
+                },
+                salaryRevisions: []
+            }
+        ];
+
+        // ============================================================================
+        // 2. STATE INITIALIZATION & LOCAL STORAGE PERSISTENCE
+        // ============================================================================
+        let employees = [];
+        try {
+            const stored = localStorage.getItem('radwa_hr_employees');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    employees = parsed;
+                } else {
+                    employees = INITIAL_EMPLOYEES;
+                }
+            } else {
+                employees = INITIAL_EMPLOYEES;
+                localStorage.setItem('radwa_hr_employees', JSON.stringify(employees));
+            }
+        } catch (e) {
+            console.error('Failed to load hr employees', e);
+            employees = INITIAL_EMPLOYEES;
+        }
+
+        // Projects loaded from Django context
+        let projects = [];
+        try {
+            const rawProjects = document.getElementById('projects-data')?.textContent;
+            if (rawProjects) {
+                projects = JSON.parse(rawProjects);
+            }
+        } catch (e) {
+            console.error('Failed to parse projects', e);
+            projects = [];
+        }
+
+        // UI State
+        let currentViewMode = 'grid'; // 'grid' or 'table'
+        let currentSearchQuery = '';
+        let currentSponsorFilter = 'ALL';
+        let currentCategoryFilter = 'ALL';
+        let currentWorkOrderFilter = 'ALL';
+        let currentStatusFilter = 'ALL';
+
+        let selectedEmployeeForDetail = null;
+        let selectedEmployeeForIdBadge = null;
+        let currentDetailTab = 'profile'; // 'profile', 'idcard', 'benefits', 'salary'
+
+        function saveEmployees(updated) {
+            employees = updated;
+            try {
+                localStorage.setItem('radwa_hr_employees', JSON.stringify(updated));
+            } catch (e) {
+                console.error('Failed to persist hr employees', e);
+            }
+            renderAll();
+        }
+
+        // ============================================================================
+        // 3. TOAST NOTIFICATION
+        // ============================================================================
+        let toastTimeout = null;
+        function showToast(message) {
+            const toast = document.getElementById('toastNotification');
+            const toastText = document.getElementById('toastNotificationMessage');
+            if (!toast || !toastText) return;
+            toastText.textContent = message;
+            toast.classList.remove('hidden');
+            toast.classList.add('flex');
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('flex');
+            }, 4000);
+        }
+
+        // ============================================================================
+        // 4. COMPUTED METRICS & KPI CARDS
+        // ============================================================================
+        function updateKpiMetrics() {
+            const totalCount = employees.length;
+            const activeCount = employees.filter(e => e.status === 'Active').length;
+            const inactiveCount = totalCount - activeCount;
+
+            const saudiCount = employees.filter(e => (e.nationality || '').toLowerCase().includes('saudi')).length;
+            const saudiPercentage = totalCount > 0 ? ((saudiCount / totalCount) * 100).toFixed(1) : '0';
+
+            const projectDeploymentsCount = employees.filter(e => e.expensesCategory === 'Project direct cost').length;
+
+            const totalMonthlyPayroll = employees.reduce((sum, e) => {
+                const totalAllowances = (e.foodAllowance || 0) + (e.otAllowance || 0) + (e.teleAllowance || 0) + (e.houseAllowance || 0) + (e.vehicleAllowance || 0) + (e.otherAllowance || 0);
+                return sum + (e.basicSalary || 0) + totalAllowances;
+            }, 0);
+
+            const avgExp = totalCount > 0 
+                ? (employees.reduce((sum, e) => sum + (e.experienceYears || 0), 0) / totalCount).toFixed(1)
+                : '0';
+
+            document.getElementById('kpi-total-headcount').textContent = totalCount;
+            document.getElementById('kpi-active-count').textContent = `${activeCount} Active`;
+            document.getElementById('kpi-inactive-count').textContent = `${inactiveCount} Inactive`;
+            document.getElementById('kpi-saudi-percentage').textContent = `${saudiPercentage}%`;
+            document.getElementById('kpi-saudi-tier').textContent = `Nitaqat Platinum Tier (${saudiCount} Nationals)`;
+            document.getElementById('kpi-project-deployments').textContent = projectDeploymentsCount;
+            document.getElementById('kpi-monthly-payroll').textContent = `SAR ${totalMonthlyPayroll.toLocaleString()}`;
+            document.getElementById('kpi-avg-exp').textContent = avgExp;
+        }
+
+        // ============================================================================
+        // 5. WORK ORDER OPTIONS POPULATION
+        // ============================================================================
+        function populateWorkOrderOptions() {
+            const woSet = new Set();
+            employees.forEach(e => {
+                if (e.assignedWorkOrder) woSet.add(e.assignedWorkOrder);
+            });
+            projects.forEach(p => {
+                if (p.workOrderNo) woSet.add(p.workOrderNo);
+                if (p.work_order_no) woSet.add(p.work_order_no);
+            });
+
+            const select = document.getElementById('workOrderFilterSelect');
+            if (!select) return;
+
+            const currentVal = select.value;
+            select.innerHTML = '<option value="ALL">All Work Orders</option>';
+            Array.from(woSet).sort().forEach(wo => {
+                const opt = document.createElement('option');
+                opt.value = wo;
+                opt.textContent = wo;
+                select.appendChild(opt);
+            });
+            if (woSet.has(currentVal)) {
+                select.value = currentVal;
+            }
+        }
+
+        // ============================================================================
+        // 6. FILTERING LOGIC
+        // ============================================================================
+        function getFilteredEmployees() {
+            const q = currentSearchQuery.toLowerCase().trim();
+            return employees.filter(emp => {
+                const matchesSearch = !q ||
+                    (emp.name || '').toLowerCase().includes(q) ||
+                    (emp.emplNo || '').toLowerCase().includes(q) ||
+                    (emp.tradeDesignation || '').toLowerCase().includes(q) ||
+                    (emp.iqamaNo || '').toLowerCase().includes(q) ||
+                    (emp.assignedWorkOrder || '').toLowerCase().includes(q) ||
+                    (emp.nationality || '').toLowerCase().includes(q);
+
+                const matchesSponsor = currentSponsorFilter === 'ALL' || emp.sponsor === currentSponsorFilter;
+                const matchesCategory = currentCategoryFilter === 'ALL' || emp.mainCategory === currentCategoryFilter;
+                const matchesWorkOrder = currentWorkOrderFilter === 'ALL' || emp.assignedWorkOrder === currentWorkOrderFilter;
+                const matchesStatus = currentStatusFilter === 'ALL' || emp.status === currentStatusFilter;
+
+                return matchesSearch && matchesSponsor && matchesCategory && matchesWorkOrder && matchesStatus;
+            });
+        }
+
+        function getSponsorBadgeClass(sponsor) {
+            switch (sponsor) {
+                case 'Radwa':
+                    return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                case 'Alfakama':
+                    return 'bg-blue-50 text-blue-700 border-blue-200';
+                case 'Sulaiman':
+                    return 'bg-purple-50 text-purple-700 border-purple-200';
+                default:
+                    return 'bg-slate-100 text-slate-700 border-slate-200';
+            }
+        }
+
+        function getStatusBadgeClass(status) {
+            switch (status) {
+                case 'Active':
+                    return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                case 'Inactive':
+                    return 'bg-rose-50 text-rose-700 border-rose-200';
+                case 'On Leave':
+                    return 'bg-amber-50 text-amber-700 border-amber-200';
+                default:
+                    return 'bg-slate-100 text-slate-700 border-slate-200';
+            }
+        }
+
+        // ============================================================================
+        // 7. RENDER DIRECTORY (GRID & TABLE)
+        // ============================================================================
+        function renderAll() {
+            updateKpiMetrics();
+            populateWorkOrderOptions();
+            const filtered = getFilteredEmployees();
+
+            document.getElementById('table-record-count-badge').textContent = `${filtered.length} records`;
+
+            if (currentViewMode === 'grid') {
+                renderGridView(filtered);
+            } else {
+                renderTableView(filtered);
+            }
+
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        }
+
+        function renderGridView(filtered) {
+            const container = document.getElementById('grid-view-container');
+            if (!container) return;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full py-16 text-center bg-white rounded-3xl border border-dashed border-slate-300">
+                        <i data-lucide="users" class="w-12 h-12 text-slate-300 mx-auto mb-3"></i>
+                        <h3 class="text-base font-bold text-slate-700">No employees match this filter criteria</h3>
+                        <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+                            Try clearing search terms or resetting sponsor, category, and work order filters.
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(emp => `
+                <div class="group bg-white rounded-2xl border border-slate-200/90 hover:border-rose-400/80 shadow-xs hover:shadow-xl transition-all duration-200 overflow-hidden flex flex-col justify-between">
+                    <div>
+                        <!-- Card Header -->
+                        <div class="p-4 pb-0 flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-1.5">
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${getSponsorBadgeClass(emp.sponsor)}">
+                                    ${emp.sponsor || 'Radwa'}
+                                </span>
+                                <span class="font-mono text-[11px] font-semibold text-slate-500">
+                                    #${emp.emplNo || ''}
+                                </span>
+                            </div>
+                            
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${getStatusBadgeClass(emp.status)}">
+                                ${emp.status || 'Active'}
+                            </span>
+                        </div>
+
+                        <!-- Profile Overview -->
+                        <div class="p-4 pt-3 flex items-start gap-3.5">
+                            <div class="relative shrink-0">
+                                <img
+                                    src="${emp.photoUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'}"
+                                    alt="${emp.name || ''}"
+                                    class="w-14 h-14 rounded-2xl object-cover ring-2 ring-slate-100 shadow-sm"
+                                    onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face'"
+                                />
+                                <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white flex items-center justify-center shadow-xs text-[9px] font-bold text-slate-700">
+                                    ${emp.bloodGroup || 'O+'}
+                                </span>
+                            </div>
+
+                            <div class="min-w-0 flex-1">
+                                <h3 class="text-sm font-bold text-slate-900 truncate leading-snug group-hover:text-rose-600 transition">
+                                    ${emp.name || ''}
+                                </h3>
+                                <p class="text-xs font-semibold text-rose-700 truncate mt-0.5">
+                                    ${emp.tradeDesignation || ''}
+                                </p>
+                                <p class="text-[11px] text-slate-500 truncate mt-0.5">
+                                    ${emp.mainCategory || ''}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Info Grid -->
+                        <div class="px-4 py-2.5 mx-4 rounded-xl bg-slate-50 border border-slate-100 text-[11px] space-y-1.5">
+                            <div class="flex items-center justify-between text-slate-600">
+                                <span class="text-slate-400">Assigned WO:</span>
+                                <span class="font-mono font-bold text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200">
+                                    ${emp.assignedWorkOrder || 'Unassigned'}
+                                </span>
+                            </div>
+                            <div class="flex items-center justify-between text-slate-600">
+                                <span class="text-slate-400">Nationality:</span>
+                                <span class="font-medium text-slate-800">${emp.nationality || '-'}</span>
+                            </div>
+                            <div class="flex items-center justify-between text-slate-600">
+                                <span class="text-slate-400">Iqama / ID #:</span>
+                                <span class="font-mono text-slate-800">${emp.iqamaNo || '-'}</span>
+                            </div>
+                            <div class="flex items-center justify-between text-slate-600">
+                                <span class="text-slate-400">Joined Date:</span>
+                                <span class="text-slate-700 font-medium">${emp.dateOfJoin || '-'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="p-4 pt-3 border-t border-slate-100 mt-3 flex items-center justify-between gap-2">
+                        <button
+                            type="button"
+                            onclick="openIdBadgeModal('${emp.id}')"
+                            class="flex-1 py-1.5 px-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer hover:border-slate-300"
+                            title="Generate Official Company ID Badge"
+                        >
+                            <i data-lucide="id-card" class="w-3.5 h-3.5 text-rose-600"></i>
+                            <span>ID Badge</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            onclick="openDetailModal('${emp.id}', 'profile')"
+                            class="flex-1 py-1.5 px-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-xs"
+                        >
+                            <i data-lucide="eye" class="w-3.5 h-3.5 text-cyan-400"></i>
+                            <span>Dossier</span>
+                        </button>
+                    </div>
+
+                </div>
+            `).join('');
+        }
+
+        function renderTableView(filtered) {
+            const tbody = document.getElementById('spreadsheet-tbody');
+            if (!tbody) return;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="38" class="py-12 text-center text-slate-400 font-sans">
+                            No employees match current filter criteria.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(emp => `
+                <tr class="hover:bg-slate-50/80 transition group">
+                    <td class="py-2 px-3 border-r border-slate-200 font-sans font-bold text-slate-900 whitespace-nowrap">${emp.sponsor || '-'}</td>
+                    <td class="py-2 px-3 border-r border-slate-200 font-bold text-rose-600 whitespace-nowrap">${emp.emplNo || '-'}</td>
+                    <td class="py-2 px-4 border-r border-slate-200 font-sans whitespace-nowrap text-slate-800">${emp.mainCategory || '-'}</td>
+                    <td class="py-2 px-4 border-r border-slate-200 font-sans font-semibold text-slate-900 whitespace-nowrap">${emp.tradeDesignation || '-'}</td>
+                    <td class="py-2 px-3 border-r border-slate-200 font-sans whitespace-nowrap text-slate-600">${emp.expensesCategory || '-'}</td>
+                    <td class="py-2 px-3 border-r border-slate-200 font-sans whitespace-nowrap">${emp.nationality || '-'}</td>
+                    <td class="py-2 px-3 border-r border-slate-200 font-sans whitespace-nowrap">${emp.religion || '-'}</td>
+                    <td class="py-2 px-3 border-r border-slate-200 whitespace-nowrap">${emp.dateOfBirth || '-'}</td>
+                    <td class="py-2 px-3 border-r border-slate-200 whitespace-nowrap">${emp.dateOfArrival || '-'}</td>
+                    <td class="py-2 px-4 border-r border-slate-200 font-sans whitespace-nowrap max-w-xs truncate">${emp.departurePort || '-'}</td>
+                    <td class="py-2 px-3 border-r border-slate-200 whitespace-nowrap font-bold text-slate-900">${emp.dateOfJoin || '-'}</td>
+                    <td class="py-2 px-3 border-r border-slate-200 whitespace-nowrap">${emp.passportNo || '-'}</td>
+                    <td class="py-2 px-3 border-r border-slate-200 whitespace-nowrap font-bold text-slate-800">${emp.iqamaNo || '-'}</td>
+                    <td class="py-2 px-3 border-r border-slate-200 whitespace-nowrap font-bold text-indigo-600 bg-indigo-50/40">${emp.assignedWorkOrder || '-'}</td>
+                    <td class="py-2 px-3 border-r border-slate-200 font-sans whitespace-nowrap">${emp.recruitmentType || '-'}</td>
+                    <td class="py-2 px-3 border-r border-slate-200 font-sans whitespace-nowrap">${emp.agentName || '-'}</td>
+                    <td class="py-2 px-3 border-r border-slate-200 font-sans whitespace-nowrap">${emp.referredByName || '-'}</td>
+                    <td class="py-2 px-3 border-r border-slate-200 whitespace-nowrap">${emp.localMobNo || '-'}</td>
+                    <td class="py-2 px-2 border-r border-slate-200 text-center font-bold text-rose-700">${emp.bloodGroup || '-'}</td>
+                    <td class="py-2 px-4 border-r border-slate-200 font-sans whitespace-nowrap max-w-xs truncate">${emp.emergencyContactAddress || '-'}</td>
+                    <td class="py-2 px-3 border-r border-slate-200 whitespace-nowrap">${emp.emergencyContactTele || '-'}</td>
+                    <td class="py-2 px-3 border-r border-slate-200 font-sans whitespace-nowrap">${emp.education || '-'}</td>
+                    <td class="py-2 px-2 border-r border-slate-200 text-center">${emp.experienceYears || 0}</td>
+                    <td class="py-2 px-3 border-r border-slate-200 text-right font-bold text-emerald-800 bg-emerald-50/50">SAR ${(emp.basicSalary || 0).toLocaleString()}</td>
+                    <td class="py-2 px-2 border-r border-slate-200 text-center">${emp.dutyHours || 8}h</td>
+                    <td class="py-2 px-2 border-r border-slate-200 text-center text-rose-600 font-bold">${emp.otRate || 1.5}x</td>
+                    <td class="py-2 px-2 border-r border-slate-200 text-right">${emp.foodAllowance || 0}</td>
+                    <td class="py-2 px-2 border-r border-slate-200 text-right">${emp.otAllowance || 0}</td>
+                    <td class="py-2 px-2 border-r border-slate-200 text-right">${emp.teleAllowance || 0}</td>
+                    <td class="py-2 px-2 border-r border-slate-200 text-right">${emp.houseAllowance || 0}</td>
+                    <td class="py-2 px-2 border-r border-slate-200 text-right">${emp.vehicleAllowance || 0}</td>
+                    <td class="py-2 px-2 border-r border-slate-200 text-right">${emp.otherAllowance || 0}</td>
+                    <td class="py-2 px-3 border-r border-slate-200 font-sans whitespace-nowrap">${emp.leaveContractPeriod || '-'}</td>
+                    <td class="py-2 px-3 border-r border-slate-200 font-sans whitespace-nowrap">${emp.yearlyLeaveDays || 21} days</td>
+                    <td class="py-2 px-2 border-r border-slate-200 text-center font-bold">${emp.coverallSize || 'L'}</td>
+                    <td class="py-2 px-2 border-r border-slate-200 text-center">${emp.shoeSize || 42}</td>
+                    <td class="py-2 px-3 border-r border-slate-200 text-center whitespace-nowrap">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${getStatusBadgeClass(emp.status)}">
+                            ${emp.status || 'Active'}
+                        </span>
+                    </td>
+                    <td class="py-2 px-3 text-center whitespace-nowrap sticky right-0 bg-white group-hover:bg-slate-50 shadow-l">
+                        <div class="flex items-center justify-center gap-1.5">
+                            <button
+                                type="button"
+                                onclick="openIdBadgeModal('${emp.id}')"
+                                class="p-1 rounded-md text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition"
+                                title="Generate ID Card Badge"
+                            >
+                                <i data-lucide="id-card" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button
+                                type="button"
+                                onclick="openDetailModal('${emp.id}', 'profile')"
+                                class="p-1 rounded-md text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition"
+                                title="View Full Profile & Saudi Indemnity"
+                            >
+                                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ============================================================================
+        // 8. VIEW MODE TOGGLE & FILTER HANDLERS
+        // ============================================================================
+        function setViewMode(mode) {
+            currentViewMode = mode;
+            const gridContainer = document.getElementById('grid-view-container');
+            const tableContainer = document.getElementById('table-view-container');
+            const btnGrid = document.getElementById('btn-view-grid');
+            const btnTable = document.getElementById('btn-view-table');
+
+            if (mode === 'grid') {
+                gridContainer.classList.remove('hidden');
+                tableContainer.classList.add('hidden');
+                btnGrid.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-white text-rose-600 shadow-2xs';
+                btnTable.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer text-slate-600 hover:text-slate-900';
+            } else {
+                gridContainer.classList.add('hidden');
+                tableContainer.classList.remove('hidden');
+                btnTable.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-white text-rose-600 shadow-2xs';
+                btnGrid.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer text-slate-600 hover:text-slate-900';
+            }
+            renderAll();
+        }
+
+        function syncSearchInputs(val) {
+            currentSearchQuery = val;
+            const mainInput = document.getElementById('hrSearchInput');
+            if (mainInput && mainInput.value !== val) mainInput.value = val;
+            renderAll();
+        }
+
+        function handleSearchInput(val) {
+            currentSearchQuery = val;
+            const topInput = document.getElementById('hrTopSearchInput');
+            if (topInput && topInput.value !== val) topInput.value = val;
+            renderAll();
+        }
+
+        function handleFilterChange() {
+            currentSponsorFilter = document.getElementById('sponsorFilterSelect').value;
+            currentCategoryFilter = document.getElementById('categoryFilterSelect').value;
+            currentWorkOrderFilter = document.getElementById('workOrderFilterSelect').value;
+            currentStatusFilter = document.getElementById('statusFilterSelect').value;
+            renderAll();
+        }
+
+        // ============================================================================
+        // 9. EXCEL / CSV EXPORT (All 38 Columns)
+        // ============================================================================
+        function handleExportCsv() {
+            const filtered = getFilteredEmployees();
+            const headers = [
+                'Empl #', 'Name', 'Sponsor', 'Main Category', 'Trade / Designation', 'Expenses Category',
+                'Nationality', 'Religion', 'DOB', 'Arrival Date', 'Departure Port', 'Date of Join',
+                'Passport #', 'Iqama #', 'Work Order', 'Recruitment Type', 'Agent Name', 'Referred By',
+                'Local Mobile', 'Blood Group', 'Emergency Address', 'Emergency Tele', 'Education', 'Experience (Yrs)',
+                'Basic Salary', 'Duty Hours', 'OT Rate', 'Food Allowance', 'OT Allowance', 'Tele Allowance',
+                'House Allowance', 'Vehicle Allowance', 'Other Allowance', 'Leave Period', 'Yearly Leave Days',
+                'Coverall Size', 'Shoe Size', 'Status'
+            ];
+
+            const rows = filtered.map(e => [
+                e.emplNo || '',
+                `"${(e.name || '').replace(/"/g, '""')}"`,
+                e.sponsor || '',
+                `"${(e.mainCategory || '').replace(/"/g, '""')}"`,
+                `"${(e.tradeDesignation || '').replace(/"/g, '""')}"`,
+                `"${(e.expensesCategory || '').replace(/"/g, '""')}"`,
+                e.nationality || '',
+                e.religion || '',
+                e.dateOfBirth || '',
+                e.dateOfArrival || '',
+                `"${(e.departurePort || '').replace(/"/g, '""')}"`,
+                e.dateOfJoin || '',
+                e.passportNo || '',
+                e.iqamaNo || '',
+                e.assignedWorkOrder || '',
+                e.recruitmentType || '',
+                `"${(e.agentName || '').replace(/"/g, '""')}"`,
+                `"${(e.referredByName || '').replace(/"/g, '""')}"`,
+                e.localMobNo || '',
+                e.bloodGroup || '',
+                `"${(e.emergencyContactAddress || '').replace(/"/g, '""')}"`,
+                e.emergencyContactTele || '',
+                `"${(e.education || '').replace(/"/g, '""')}"`,
+                e.experienceYears || 0,
+                e.basicSalary || 0,
+                e.dutyHours || 8,
+                e.otRate || 1.5,
+                e.foodAllowance || 0,
+                e.otAllowance || 0,
+                e.teleAllowance || 0,
+                e.houseAllowance || 0,
+                e.vehicleAllowance || 0,
+                e.otherAllowance || 0,
+                `"${(e.leaveContractPeriod || '').replace(/"/g, '""')}"`,
+                e.yearlyLeaveDays || 21,
+                e.coverallSize || 'L',
+                e.shoeSize || 42,
+                e.status || 'Active'
+            ]);
+
+            const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', `Radwa_HR_Workforce_Export_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('✅ Employee roster successfully exported to CSV / Excel format.');
+        }
+
+        // ============================================================================
+        // 10. ADD EMPLOYEE JOINING MODAL & FORM
+        // ============================================================================
+        function openAddEmployeeModal() {
+            const nextEmplNo = `10${employees.length + 1}`;
+            document.getElementById('formEmplNo').value = nextEmplNo;
+            document.getElementById('formName').value = '';
+            document.getElementById('formTradeDesignation').value = '';
+            document.getElementById('formPassportNo').value = `P${Math.floor(10000000 + Math.random() * 90000000)}`;
+            document.getElementById('formIqamaNo').value = `2${Math.floor(100000000 + Math.random() * 900000000)}`;
+            document.getElementById('formAgentName').value = '';
+            document.getElementById('formReferredByName').value = '';
+            document.getElementById('formEmergencyContactAddress').value = 'Riyadh, Kingdom of Saudi Arabia';
+            document.getElementById('formDateOfJoin').value = new Date().toISOString().slice(0, 10);
+            document.getElementById('formDateOfArrival').value = new Date().toISOString().slice(0, 10);
+            calcAddFormGross();
+
+            const modal = document.getElementById('addEmployeeModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        function closeAddEmployeeModal() {
+            const modal = document.getElementById('addEmployeeModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function calcAddFormGross() {
+            const b = Number(document.getElementById('formBasicSalary')?.value) || 0;
+            const f = Number(document.getElementById('formFoodAllowance')?.value) || 0;
+            const ot = Number(document.getElementById('formOtAllowance')?.value) || 0;
+            const t = Number(document.getElementById('formTeleAllowance')?.value) || 0;
+            const h = Number(document.getElementById('formHouseAllowance')?.value) || 0;
+            const v = Number(document.getElementById('formVehicleAllowance')?.value) || 0;
+            const o = Number(document.getElementById('formOtherAllowance')?.value) || 0;
+            const total = b + f + ot + t + h + v + o;
+            document.getElementById('formTotalGrossDisplay').textContent = `SAR ${total.toLocaleString()}`;
+        }
+
+        function handleCreateEmployee(e) {
+            e.preventDefault();
+            const name = document.getElementById('formName').value.trim();
+            const trade = document.getElementById('formTradeDesignation').value.trim();
+            if (!name || !trade) {
+                alert('Please fill in Employee Name and Trade / Designation.');
+                return;
+            }
+
+            const emplNo = document.getElementById('formEmplNo').value.trim() || `10${employees.length + 1}`;
+            const basicSalary = Number(document.getElementById('formBasicSalary').value) || 0;
+            const yearlyLeave = Number(document.getElementById('formYearlyLeaveDays').value) || 21;
+            const photoUrl = document.getElementById('formPhotoUrl').value.trim() || `https://images.unsplash.com/photo-${1500000000000 + Math.floor(Math.random() * 50000000)}?w=150&h=150&fit=crop&crop=face`;
+
+            const newEmp = {
+                id: `emp-${Date.now()}`,
+                emplNo: emplNo,
+                name: name,
+                photoUrl: photoUrl,
+                sponsor: document.getElementById('formSponsor').value,
+                mainCategory: document.getElementById('formMainCategory').value,
+                tradeDesignation: trade,
+                expensesCategory: document.getElementById('formExpensesCategory').value,
+                nationality: document.getElementById('formNationality').value,
+                religion: document.getElementById('formReligion').value,
+                dateOfBirth: document.getElementById('formDateOfBirth').value,
+                dateOfArrival: document.getElementById('formDateOfArrival').value,
+                departurePort: document.getElementById('formDeparturePort').value,
+                dateOfJoin: document.getElementById('formDateOfJoin').value,
+                passportNo: document.getElementById('formPassportNo').value,
+                iqamaNo: document.getElementById('formIqamaNo').value,
+                assignedWorkOrder: document.getElementById('formAssignedWorkOrder').value,
+                recruitmentType: document.getElementById('formRecruitmentType').value,
+                agentName: document.getElementById('formAgentName').value || undefined,
+                referredByName: document.getElementById('formReferredByName').value || undefined,
+                localMobNo: document.getElementById('formLocalMobNo').value,
+                bloodGroup: document.getElementById('formBloodGroup').value,
+                emergencyContactAddress: document.getElementById('formEmergencyContactAddress').value || 'Riyadh, KSA',
+                emergencyContactTele: document.getElementById('formEmergencyContactTele').value,
+                education: document.getElementById('formEducation').value,
+                experienceYears: Number(document.getElementById('formExperienceYears').value) || 0,
+                cvFileName: document.getElementById('formCvFileName').value || `${name.replace(/\s+/g, '_')}_CV.pdf`,
+                photoFileName: `${name.replace(/\s+/g, '_')}_Photo.jpg`,
+                basicSalary: basicSalary,
+                dutyHours: Number(document.getElementById('formDutyHours').value) || 8,
+                otRate: Number(document.getElementById('formOtRate').value) || 1.5,
+                foodAllowance: Number(document.getElementById('formFoodAllowance').value) || 0,
+                otAllowance: Number(document.getElementById('formOtAllowance').value) || 0,
+                teleAllowance: Number(document.getElementById('formTeleAllowance').value) || 0,
+                houseAllowance: Number(document.getElementById('formHouseAllowance').value) || 0,
+                vehicleAllowance: Number(document.getElementById('formVehicleAllowance').value) || 0,
+                otherAllowance: Number(document.getElementById('formOtherAllowance').value) || 0,
+                leaveContractPeriod: document.getElementById('formLeaveContractPeriod').value,
+                yearlyLeaveDays: yearlyLeave,
+                coverallSize: document.getElementById('formCoverallSize').value,
+                shoeSize: Number(document.getElementById('formShoeSize').value) || 42,
+                status: 'Active',
+                benefits: {
+                    joiningDate: document.getElementById('formDateOfJoin').value,
+                    totalDaysWorked: 1,
+                    leaveSalaryCalculationRule: `one year ${yearlyLeave} days`,
+                    cumulativeAmountLeaveSalary: Math.round((basicSalary / 30) * yearlyLeave),
+                    paidLeaveSalary: 0,
+                    balanceLeaveSalary: Math.round((basicSalary / 30) * yearlyLeave),
+                    indemnityReason: 'Resignation',
+                    indemnityFormula: 'basic / 1/3 for 2-5 yrs service',
+                    actualIndemnityCalculation: 0,
+                    indemnityCumulativeAmount: 0,
+                    contractCompletedPeriod: 'Not completed',
+                    actualIndemnityAmount: 0,
+                    totalDurationDaysWorked: 1,
+                    isActive: true
+                },
+                salaryRevisions: []
+            };
+
+            saveEmployees([newEmp, ...employees]);
+            closeAddEmployeeModal();
+            showToast(`✅ Employee ${newEmp.name} (Empl # ${newEmp.emplNo}) onboarded successfully!`);
+        }
+
+        // ============================================================================
+        // 11. OFFICIAL ID CARD BADGE MODAL
+        // ============================================================================
+        function openIdBadgeModal(empId) {
+            const emp = employees.find(e => e.id === empId);
+            if (!emp) return;
+            selectedEmployeeForIdBadge = emp;
+
+            document.getElementById('badge-sponsor-tag').textContent = emp.sponsor || 'Radwa';
+            document.getElementById('badge-emp-name').textContent = emp.name || '';
+            document.getElementById('badge-emp-no').textContent = emp.emplNo || '';
+            document.getElementById('badge-blood-group').textContent = emp.bloodGroup || 'O+';
+            document.getElementById('badge-nationality').textContent = emp.nationality || '-';
+            document.getElementById('badge-iqama-no').textContent = emp.iqamaNo || '-';
+            document.getElementById('badge-dob').textContent = emp.dateOfBirth || '-';
+            document.getElementById('badge-doj').textContent = emp.dateOfJoin || '-';
+            document.getElementById('badge-trade').textContent = emp.tradeDesignation || '';
+            document.getElementById('badge-photo-img').src = emp.photoUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face';
+            document.getElementById('badge-barcode-text').textContent = `*${emp.emplNo}*${emp.iqamaNo}*`;
+            document.getElementById('badge-wo-bar').textContent = `WORK ORDER: ${emp.assignedWorkOrder || 'UNASSIGNED'}`;
+
+            const modal = document.getElementById('idBadgeModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        function closeIdBadgeModal() {
+            const modal = document.getElementById('idBadgeModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            selectedEmployeeForIdBadge = null;
+        }
+
+        function openBadgeFromDetailModal() {
+            if (selectedEmployeeForDetail) {
+                openIdBadgeModal(selectedEmployeeForDetail.id);
+            }
+        }
+
+        // ============================================================================
+        // 12. EMPLOYEE DETAIL DOSSIER & INDEMNITY MODAL (4 TABS)
+        // ============================================================================
+        function openDetailModal(empId, tab = 'profile') {
+            const emp = employees.find(e => e.id === empId);
+            if (!emp) return;
+            selectedEmployeeForDetail = emp;
+
+            // Header elements
+            document.getElementById('detail-modal-photo').src = emp.photoUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face';
+            document.getElementById('detail-modal-name').textContent = emp.name;
+            document.getElementById('detail-modal-emplNo').textContent = `#${emp.emplNo}`;
+            document.getElementById('detail-modal-status-badge').className = `px-2 py-0.5 rounded-full text-[10px] font-bold border ${getStatusBadgeClass(emp.status)}`;
+            document.getElementById('detail-modal-status-badge').textContent = emp.status;
+            document.getElementById('detail-modal-role-sponsor').textContent = `${emp.tradeDesignation} • ${emp.sponsor}`;
+
+            updateDetailStatusButton(emp.status);
+
+            // Populate Tab 1: Profile
+            document.getElementById('d-iqama').textContent = emp.iqamaNo || '-';
+            document.getElementById('d-passport').textContent = emp.passportNo || '-';
+            document.getElementById('d-nationality').textContent = emp.nationality || '-';
+            document.getElementById('d-religion').textContent = emp.religion || '-';
+            document.getElementById('d-dob').textContent = emp.dateOfBirth || '-';
+            document.getElementById('d-blood').textContent = emp.bloodGroup || '-';
+
+            document.getElementById('d-sponsor').textContent = emp.sponsor || '-';
+            document.getElementById('d-category').textContent = emp.mainCategory || '-';
+            document.getElementById('d-wo').textContent = emp.assignedWorkOrder || '-';
+            document.getElementById('d-expenses').textContent = emp.expensesCategory || '-';
+            document.getElementById('d-doj').textContent = emp.dateOfJoin || '-';
+            document.getElementById('d-recruitment').textContent = emp.recruitmentType || '-';
+
+            document.getElementById('d-coverall').textContent = emp.coverallSize || 'L';
+            document.getElementById('d-shoe').textContent = emp.shoeSize || 42;
+            document.getElementById('d-contract').textContent = emp.leaveContractPeriod || '-';
+            document.getElementById('d-yearlyleave').textContent = `${emp.yearlyLeaveDays || 21} days`;
+            document.getElementById('d-mob').textContent = emp.localMobNo || '-';
+            document.getElementById('d-emgtel').textContent = emp.emergencyContactTele || '-';
+
+            document.getElementById('d-education').textContent = emp.education || '-';
+            document.getElementById('d-experience').textContent = `${emp.experienceYears || 0} Years`;
+            document.getElementById('d-port').textContent = emp.departurePort || '-';
+            document.getElementById('d-doa').textContent = emp.dateOfArrival || '-';
+            document.getElementById('d-agent').textContent = emp.agentName || '-';
+            document.getElementById('d-referral').textContent = emp.referredByName || '-';
+
+            document.getElementById('d-cv-name').textContent = emp.cvFileName || `${emp.name.replace(/\s+/g, '_')}_CV.pdf`;
+
+            const gross = (emp.basicSalary || 0) + (emp.foodAllowance || 0) + (emp.otAllowance || 0) + (emp.teleAllowance || 0) + (emp.houseAllowance || 0) + (emp.vehicleAllowance || 0) + (emp.otherAllowance || 0);
+            document.getElementById('d-monthly-gross').textContent = `SAR ${gross.toLocaleString()}`;
+            document.getElementById('d-basic').textContent = `SAR ${(emp.basicSalary || 0).toLocaleString()}`;
+            document.getElementById('d-housing').textContent = `SAR ${(emp.houseAllowance || 0).toLocaleString()}`;
+            document.getElementById('d-vehicle').textContent = `SAR ${(emp.vehicleAllowance || 0).toLocaleString()}`;
+            document.getElementById('d-tele').textContent = `SAR ${(emp.teleAllowance || 0).toLocaleString()}`;
+            document.getElementById('d-food').textContent = `SAR ${(emp.foodAllowance || 0).toLocaleString()}`;
+            document.getElementById('d-otrate').textContent = `${emp.otRate || 1.5}x`;
+            document.getElementById('d-dutyhours').textContent = `${emp.dutyHours || 8} hrs`;
+
+            // Populate Tab 2: Embedded ID Card
+            document.getElementById('tab2-badge-sponsor').textContent = emp.sponsor || 'Radwa';
+            document.getElementById('tab2-badge-name').textContent = emp.name;
+            document.getElementById('tab2-badge-emplno').textContent = emp.emplNo;
+            document.getElementById('tab2-badge-blood').textContent = emp.bloodGroup || 'O+';
+            document.getElementById('tab2-badge-nationality').textContent = emp.nationality;
+            document.getElementById('tab2-badge-iqama').textContent = emp.iqamaNo;
+            document.getElementById('tab2-badge-dob').textContent = emp.dateOfBirth;
+            document.getElementById('tab2-badge-doj').textContent = emp.dateOfJoin;
+            document.getElementById('tab2-badge-trade').textContent = emp.tradeDesignation;
+            document.getElementById('tab2-badge-photo').src = emp.photoUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face';
+            document.getElementById('tab2-badge-barcode').textContent = `*${emp.emplNo}*`;
+
+            // Populate Tab 3: Benefits & Indemnity
+            const b = emp.benefits || {};
+            document.getElementById('benefits-status-pill').textContent = emp.status === 'Active' ? 'Status: Active Employee' : 'Status: Inactive (Left Company)';
+            document.getElementById('benefits-status-pill').className = emp.status === 'Active'
+                ? 'px-3 py-1 rounded-full text-xs font-bold border bg-emerald-100 text-emerald-800 border-emerald-300'
+                : 'px-3 py-1 rounded-full text-xs font-bold border bg-rose-100 text-rose-800 border-rose-300';
+            document.getElementById('b-doj').textContent = emp.dateOfJoin || '-';
+            document.getElementById('b-exitdate').textContent = b.vacationExitDate || (emp.status === 'Active' ? 'Current Active' : 'Terminated');
+            document.getElementById('b-daysworked').textContent = `${b.totalDaysWorked || 300} days`;
+            document.getElementById('b-leavesalaryrule').textContent = b.leaveSalaryCalculationRule || `one year ${emp.yearlyLeaveDays || 21} days`;
+            document.getElementById('b-cumulativeleavesalary').textContent = `SAR ${(b.cumulativeAmountLeaveSalary || 0).toLocaleString()}`;
+            document.getElementById('b-paidleavesalary').textContent = `SAR ${(b.paidLeaveSalary || 0).toLocaleString()}`;
+            document.getElementById('b-balanceleavesalary').textContent = `SAR ${(b.balanceLeaveSalary || 0).toLocaleString()}`;
+            document.getElementById('b-indemnityreason').textContent = b.indemnityReason || 'Resignation';
+            document.getElementById('b-indemnityformula').textContent = b.indemnityFormula || 'Saudi Labor Law Article 84';
+            document.getElementById('b-actualindemnity').textContent = `SAR ${(b.actualIndemnityAmount || 0).toLocaleString()}`;
+            document.getElementById('b-contract-period').textContent = b.contractCompletedPeriod || 'Completed';
+
+            const totalTerminal = (b.actualIndemnityAmount || 0) + (b.balanceLeaveSalary || 0);
+            document.getElementById('b-total-terminal-pay').textContent = `SAR ${totalTerminal.toLocaleString()}`;
+            document.getElementById('b-terminal-breakdown').textContent = `Indemnity (SAR ${(b.actualIndemnityAmount || 0).toLocaleString()}) + Balance Leave Salary (SAR ${(b.balanceLeaveSalary || 0).toLocaleString()})`;
+            document.getElementById('b-duration-days').textContent = `Cumulative Workdays: ${b.totalDurationDaysWorked || b.totalDaysWorked || 300} days`;
+
+            // Populate Tab 4: Salary Revision
+            document.getElementById('salary-overview-text').textContent = `Basic: SAR ${(emp.basicSalary || 0).toLocaleString()} | Housing: SAR ${(emp.houseAllowance || 0).toLocaleString()} | Vehicle: SAR ${(emp.vehicleAllowance || 0).toLocaleString()}`;
+            document.getElementById('salary-current-basic-pill').textContent = `Current Basic: SAR ${(emp.basicSalary || 0).toLocaleString()}`;
+            document.getElementById('rev-basic-input').value = emp.basicSalary || 0;
+            document.getElementById('rev-house-input').value = emp.houseAllowance || 0;
+            document.getElementById('rev-veh-input').value = emp.vehicleAllowance || 0;
+            document.getElementById('rev-tele-input').value = emp.teleAllowance || 0;
+            renderSalaryRevisionsTable(emp.salaryRevisions || []);
+
+            const revBadge = document.getElementById('detail-salary-rev-count-badge');
+            if (emp.salaryRevisions && emp.salaryRevisions.length > 0) {
+                revBadge.textContent = emp.salaryRevisions.length;
+                revBadge.classList.remove('hidden');
+            } else {
+                revBadge.classList.add('hidden');
+            }
+
+            switchDetailTab(tab);
+
+            const modal = document.getElementById('detailModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        function closeDetailModal() {
+            const modal = document.getElementById('detailModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            selectedEmployeeForDetail = null;
+        }
+
+        function updateDetailStatusButton(status) {
+            const btn = document.getElementById('detail-modal-toggle-status-btn');
+            const txt = document.getElementById('detail-modal-toggle-status-text');
+            const bBtn = document.getElementById('b-toggle-status-btn');
+            if (status === 'Active') {
+                btn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 border bg-rose-500/20 text-rose-300 border-rose-500/40 hover:bg-rose-500/30';
+                txt.textContent = 'Set Inactive (Left)';
+                if (bBtn) {
+                    bBtn.className = 'px-3 py-1.5 rounded-xl font-bold text-xs transition cursor-pointer bg-rose-600 hover:bg-rose-500 text-white';
+                    bBtn.textContent = 'Mark Employee Inactive (Exit)';
+                }
+            } else {
+                btn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 border bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30';
+                txt.textContent = 'Reactivate Employee';
+                if (bBtn) {
+                    bBtn.className = 'px-3 py-1.5 rounded-xl font-bold text-xs transition cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white';
+                    bBtn.textContent = 'Mark Employee Active';
+                }
+            }
+        }
+
+        function toggleDetailModalEmployeeStatus() {
+            if (!selectedEmployeeForDetail) return;
+            const empId = selectedEmployeeForDetail.id;
+            const newStatus = selectedEmployeeForDetail.status === 'Active' ? 'Inactive' : 'Active';
+
+            const updated = employees.map(e => {
+                if (e.id === empId) {
+                    const updatedBenefits = e.benefits ? {
+                        ...e.benefits,
+                        isActive: newStatus === 'Active',
+                        vacationExitDate: newStatus === 'Inactive' ? new Date().toISOString().slice(0, 10) : undefined
+                    } : undefined;
+                    return {
+                        ...e,
+                        status: newStatus,
+                        benefits: updatedBenefits
+                    };
+                }
+                return e;
+            });
+
+            saveEmployees(updated);
+            openDetailModal(empId, currentDetailTab);
+            showToast(`Status updated: Employee is now marked as ${newStatus}.`);
+        }
+
+        function switchDetailTab(tab) {
+            currentDetailTab = tab;
+            const tabs = ['profile', 'idcard', 'benefits', 'salary'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-btn-${t}`);
+                const content = document.getElementById(`detail-tab-content-${t}`);
+                if (t === tab) {
+                    content.classList.remove('hidden');
+                    if (t === 'profile') btn.className = 'px-3.5 py-1.5 rounded-xl font-bold transition cursor-pointer flex items-center gap-1.5 bg-slate-900 text-white shadow-xs';
+                    else if (t === 'idcard') btn.className = 'px-3.5 py-1.5 rounded-xl font-bold transition cursor-pointer flex items-center gap-1.5 bg-slate-900 text-white shadow-xs';
+                    else if (t === 'benefits') btn.className = 'px-3.5 py-1.5 rounded-xl font-bold transition cursor-pointer flex items-center gap-1.5 bg-amber-600 text-white shadow-xs';
+                    else if (t === 'salary') btn.className = 'px-3.5 py-1.5 rounded-xl font-bold transition cursor-pointer flex items-center gap-1.5 bg-emerald-600 text-white shadow-xs';
+                } else {
+                    content.classList.add('hidden');
+                    btn.className = 'px-3.5 py-1.5 rounded-xl font-bold transition cursor-pointer flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-200/60';
+                }
+            });
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        function triggerDownloadCv() {
+            if (!selectedEmployeeForDetail) return;
+            showToast(`📥 Downloading CV: "${selectedEmployeeForDetail.cvFileName || 'Candidate_Resume.pdf'}"`);
+        }
+
+        function renderSalaryRevisionsTable(revisions) {
+            const tbody = document.getElementById('salary-revisions-tbody');
+            if (!tbody) return;
+
+            if (!revisions || revisions.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="py-6 text-center text-slate-400 font-sans">
+                            No prior salary revisions recorded for this employee.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = revisions.map(rev => `
+                <tr class="hover:bg-slate-50/80">
+                    <td class="py-2.5 px-3 border-r border-slate-200 font-bold text-slate-900">${rev.dateOfRevision || '-'}</td>
+                    <td class="py-2.5 px-3 border-r border-slate-200 text-slate-500">SAR ${(rev.presentBasic || 0).toLocaleString()}</td>
+                    <td class="py-2.5 px-3 border-r border-slate-200 font-bold text-emerald-700 bg-emerald-50/40">SAR ${(rev.revisedBasic || 0).toLocaleString()}</td>
+                    <td class="py-2.5 px-3 border-r border-slate-200 text-slate-700">
+                        H:${rev.revisedHouseAllowance || 0} V:${rev.revisedVehicleAllowance || 0} T:${rev.revisedTelephoneAllowance || 0}
+                    </td>
+                    <td class="py-2.5 px-3 border-r border-slate-200 font-extrabold text-slate-950 text-xs">SAR ${(rev.revisedAmount || 0).toLocaleString()}</td>
+                    <td class="py-2.5 px-3 border-r border-slate-200 font-sans">${rev.revisionInterval || '-'}</td>
+                    <td class="py-2.5 px-4 border-r border-slate-200 font-sans text-slate-800">${rev.reasonOfRevision || '-'}</td>
+                    <td class="py-2.5 px-3 font-sans text-indigo-600 font-semibold flex items-center gap-1">
+                        <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                        <span>${rev.approvalAttachName || 'Approved.pdf'}</span>
+                    </td>
+                </tr>
+            `).join('');
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        function submitSalaryRevision() {
+            if (!selectedEmployeeForDetail) return;
+            const empId = selectedEmployeeForDetail.id;
+
+            const revisedBasic = Number(document.getElementById('rev-basic-input').value) || selectedEmployeeForDetail.basicSalary;
+            const revisedHouse = Number(document.getElementById('rev-house-input').value) || 0;
+            const revisedVeh = Number(document.getElementById('rev-veh-input').value) || 0;
+            const revisedTele = Number(document.getElementById('rev-tele-input').value) || 0;
+            const interval = document.getElementById('rev-interval-input').value.trim() || 'Annual Review';
+            const reason = document.getElementById('rev-reason-input').value.trim() || 'Merit Increase';
+            const approval = document.getElementById('rev-approval-input').value.trim() || `Approval_Signoff_${selectedEmployeeForDetail.emplNo}.pdf`;
+
+            const newTotalRevised = revisedBasic + revisedHouse + revisedVeh + revisedTele;
+            const newRevision = {
+                id: `rev-${Date.now()}`,
+                presentBasic: selectedEmployeeForDetail.basicSalary,
+                revisedBasic: revisedBasic,
+                revisedHouseAllowance: revisedHouse,
+                revisedVehicleAllowance: revisedVeh,
+                revisedTelephoneAllowance: revisedTele,
+                revisedAmount: newTotalRevised,
+                dateOfRevision: new Date().toISOString().slice(0, 10),
+                revisionInterval: interval,
+                reasonOfRevision: reason,
+                approvalAttachName: approval
+            };
+
+            const updated = employees.map(e => {
+                if (e.id === empId) {
+                    const existing = e.salaryRevisions || [];
+                    return {
+                        ...e,
+                        basicSalary: revisedBasic,
+                        houseAllowance: revisedHouse,
+                        vehicleAllowance: revisedVeh,
+                        teleAllowance: revisedTele,
+                        salaryRevisions: [newRevision, ...existing]
+                    };
+                }
+                return e;
+            });
+
+            saveEmployees(updated);
+            openDetailModal(empId, 'salary');
+            showToast('✅ Salary revision logged and current compensation updated.');
+        }
+
+        // ============================================================================
+        // 13. BOOTSTRAP INITIALIZATION
+        // ============================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAll();
+        });
+    </script>
+</body>
+</html>

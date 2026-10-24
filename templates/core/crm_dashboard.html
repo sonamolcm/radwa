@@ -1,0 +1,2602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radwa ERP - Inbound Tender Intake & CRM Registry</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+      .font-mono {
+        font-family: 'JetBrains Mono', monospace;
+      }
+      /* Custom scrollbar */
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: #f1f5f9; }
+      ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+      ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.2s ease-out forwards;
+      }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      
+      /* Mobile responsiveness enhancements */
+      @media (max-width: 768px) {
+        html, body {
+          max-width: 100vw;
+          overflow-x: hidden;
+        }
+        .modal-body-scroll {
+          -webkit-overflow-scrolling: touch;
+        }
+      }
+      @media (max-width: 640px) {
+        .kpi-card-5 {
+          grid-column: span 2 / span 2;
+        }
+      }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-900 antialiased flex flex-col">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- ========================================================================= -->
+    <!-- MASTER TWO-TIER NAVBAR COMPONENT (MATCHING NEXT.JS FRONTEND)              -->
+    <!-- ========================================================================= -->
+    {% include "core/components/master_nav.html" with active_module="crm" %}
+
+    <!-- App Body: Full Width Layout Matching Screenshot -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+                <!-- Executive Hero Banner -->
+                <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white p-6 sm:p-8 shadow-xl border border-slate-800/80 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                    <div class="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="absolute bottom-0 left-1/4 w-72 h-72 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                    <div class="relative z-10 space-y-2">
+                        <div class="flex items-center gap-2.5">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold">
+                                <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+                                <span>CRM Intake & Commercial Registry</span>
+                            </span>
+                            <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-white/10 text-slate-300 border border-white/10">
+                                ISO 9001 / FIDIC
+                            </span>
+                        </div>
+
+                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white">
+                            Inbound Tender Intake & Work Orders
+                        </h1>
+                        <p class="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                            Register client tenders, assign engineering estimating capacity, track site feasibility surveys, and synchronize complete 40-document bid dossiers.
+                        </p>
+                    </div>
+
+                    <div class="relative z-10 shrink-0">
+                        <button
+                            onclick="openRegisterModal()"
+                            type="button"
+                            class="group inline-flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-sm shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
+                        >
+                            <i data-lucide="user-plus" class="h-4 w-4 group-hover:scale-110 transition-transform"></i>
+                            <span>Register New Client Tender</span>
+                            <i data-lucide="chevron-right" class="h-4 w-4 text-blue-200 group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 5 Executive KPI Metric Cards -->
+                <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                    <!-- Card 1: Total Projects -->
+                    <div class="relative overflow-hidden rounded-2xl bg-white border border-slate-200/90 p-4 sm:p-5 shadow-xs hover:shadow-lg transition-all duration-300 group">
+                        <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-sky-400 to-blue-600"></div>
+                        <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+                            <span>Total Projects & RFQs</span>
+                            <i data-lucide="building-2" class="w-4 h-4 text-slate-400 group-hover:text-blue-500 transition-colors"></i>
+                        </div>
+                        <div class="text-3xl font-black text-slate-900 mt-2 tracking-tight group-hover:scale-105 transition-transform origin-left" id="kpiTotalProjects">
+                            {{ metrics.total_projects }}
+                        </div>
+                        <div class="flex items-center gap-1.5 text-[11px] text-slate-400 mt-1.5 font-medium">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                            <span>All registered client tenders</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: In Estimation -->
+                    <div class="relative overflow-hidden rounded-2xl bg-white border border-slate-200/90 p-4 sm:p-5 shadow-xs hover:shadow-lg transition-all duration-300 group">
+                        <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-amber-400 to-orange-500"></div>
+                        <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+                            <span>In Estimation</span>
+                            <i data-lucide="clock" class="w-4 h-4 text-amber-500"></i>
+                        </div>
+                        <div class="text-3xl font-black text-amber-600 mt-2 tracking-tight group-hover:scale-105 transition-transform origin-left" id="kpiInEstimation">
+                            {{ metrics.in_estimation }}
+                        </div>
+                        <div class="flex items-center gap-1.5 text-[11px] text-slate-400 mt-1.5 font-medium">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                            <span>Assigned to engineering pool</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Approved Packages -->
+                    <div class="relative overflow-hidden rounded-2xl bg-emerald-50/30 border-2 border-emerald-500 p-4 sm:p-5 shadow-xs hover:shadow-lg transition-all duration-300 group">
+                        <div class="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-emerald-500 to-teal-600"></div>
+                        <div class="text-[11px] font-bold text-emerald-800 uppercase tracking-wider flex items-center justify-between">
+                            <span class="flex items-center gap-1.5">
+                                <i data-lucide="check-circle-2" class="h-3.5 w-3.5 text-emerald-600"></i>
+                                <span>Approved Packages</span>
+                            </span>
+                        </div>
+                        <div class="text-3xl font-black text-emerald-700 mt-2 tracking-tight group-hover:scale-105 transition-transform origin-left" id="kpiApprovedPackages">
+                            {{ metrics.approved_packages }}
+                        </div>
+                        <div class="flex items-center gap-1.5 text-[11px] text-emerald-800 font-bold mt-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                            <span>40/40 Docs in CRM Desk</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Optimal Estimators -->
+                    <div class="relative overflow-hidden rounded-2xl bg-white border border-slate-200/90 p-4 sm:p-5 shadow-xs hover:shadow-lg transition-all duration-300 group">
+                        <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-cyan-400 to-emerald-500"></div>
+                        <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+                            <span>Estimator Capacity</span>
+                            <i data-lucide="user-check" class="w-4 h-4 text-emerald-500"></i>
+                        </div>
+                        <div class="text-3xl font-black text-emerald-600 mt-2 tracking-tight group-hover:scale-105 transition-transform origin-left">
+                            <span id="kpiOptimalEstimators">{{ metrics.optimal_estimators }}</span>
+                            <span class="text-sm font-semibold text-slate-400">/ {{ metrics.total_estimators }}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-[11px] text-slate-400 mt-1.5 font-medium">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            <span>Optimal & ready for tenders</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 5: Awaiting MD Approval -->
+                    <div class="relative overflow-hidden rounded-2xl bg-white border border-slate-200/90 p-4 sm:p-5 shadow-xs hover:shadow-lg transition-all duration-300 group kpi-card-5">
+                        <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-purple-400 to-rose-500"></div>
+                        <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+                            <span>MD Sign-Off</span>
+                            <i data-lucide="shield-check" class="w-4 h-4 text-rose-500"></i>
+                        </div>
+                        <div class="text-3xl font-black text-rose-600 mt-2 tracking-tight group-hover:scale-105 transition-transform origin-left" id="kpiPendingMd">
+                            {{ metrics.pending_md }}
+                        </div>
+                        <div class="flex items-center gap-1.5 text-[11px] text-slate-400 mt-1.5 font-medium">
+                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                            <span>Sent for executive sign-off</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Toolbar -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-4">
+                    <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                        <div class="relative flex-1 max-w-md">
+                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"></i>
+                            <input
+                                type="text"
+                                id="searchInput"
+                                oninput="handleSearch(this.value)"
+                                placeholder="Search by project name, WO #, serial, client or location..."
+                                class="w-full pl-9 pr-4 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-900"
+                            />
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-semibold text-slate-600 whitespace-nowrap">
+                                Filter by Estimator:
+                            </span>
+                            <select
+                                id="estimatorFilter"
+                                onchange="handleEstimatorFilter(this.value)"
+                                class="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-300 bg-white text-slate-800 outline-none"
+                            >
+                                <option value="ALL">All Estimators ({{ estimators|length }})</option>
+                                <option value="UNASSIGNED">Unassigned Only</option>
+                                {% for est in estimators %}
+                                    <option value="{{ est.id }}">
+                                        {{ est.name }} ({{ est.activeTenders }} Active - {{ est.capacityStatus }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Clean Status Tabs -->
+                    <div class="flex items-center gap-1.5 overflow-x-auto border-t border-slate-100 pt-3" id="statusTabsContainer">
+                        <!-- Dynamically rendered via JS -->
+                    </div>
+                </div>
+
+                <!-- Projects List Section -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between text-xs font-semibold text-slate-500 px-1">
+                        <span id="projectsCountLabel">SHOWING {{ projects|length }} PROJECTS</span>
+                        <span>LIST REGISTER</span>
+                    </div>
+
+                    <div id="projectsListContainer" class="space-y-3">
+                        <!-- Dynamically rendered via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================================================= -->
+            <!-- VIEW 3: DEADLINES & PRE-BID CALENDAR VIEW                                 -->
+            <!-- ========================================================================= -->
+            <div id="view-deadlines" class="space-y-4 hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-black text-slate-900 tracking-tight">Closing Deadlines & Pre-Bid Milestone Calendar</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Time-critical submission windows, bid security bond validity, and client clarification cutoffs.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-4" id="deadlinesListContainer">
+                    <!-- Injected dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- ========================================================================= -->
+            <!-- VIEW 4: CLIENTS & CONSULTANTS DIRECTORY VIEW                              -->
+            <!-- ========================================================================= -->
+            <div id="view-clients" class="space-y-4 hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-black text-slate-900 tracking-tight">Clients, Developers & Consultant PMCs</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Registered Aramco, SABIC, NEOM, and private developers with key commercial contacts.</p>
+                    </div>
+                    <button
+                        type="button"
+                        onclick="openRegisterModal()"
+                        class="px-4 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs"
+                    >
+                        + Add Client Entity
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="clientsListContainer">
+                    <!-- Injected dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- ========================================================================= -->
+            <!-- VIEW 5: ESTIMATORS & BD WORKLOAD VIEW                                     -->
+            <!-- ========================================================================= -->
+            <div id="view-team" class="space-y-4 hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-black text-slate-900 tracking-tight">Engineering Estimator Pool & BD Load Balancing</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Live workload allocation, active tenders per engineer, and capacity availability status.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="teamListContainer">
+                    <!-- Injected dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- ========================================================================= -->
+            <!-- VIEW 6: WIN/LOSS & COMMERCIAL MARGINS VIEW                                -->
+            <!-- ========================================================================= -->
+            <div id="view-analytics" class="space-y-6 hidden">
+                <div>
+                    <h2 class="text-lg font-black text-slate-900 tracking-tight">Commercial Analytics & Win/Loss Margin Ratios</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Contract award success metrics, target bidding margins, and post-tender debriefs.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
+                        <span class="text-slate-400 text-xs font-bold uppercase">Overall Win Rate</span>
+                        <div class="text-3xl font-black text-emerald-600 font-mono">36.4%</div>
+                        <p class="text-[11px] text-slate-500">Above Saudi EPC industry median (28%)</p>
+                    </div>
+
+                    <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
+                        <span class="text-slate-400 text-xs font-bold uppercase">Average Gross Margin</span>
+                        <div class="text-3xl font-black text-slate-900 font-mono">18.5%</div>
+                        <p class="text-[11px] text-slate-500">Pre-award target calculated on BOQ</p>
+                    </div>
+
+                    <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
+                        <span class="text-slate-400 text-xs font-bold uppercase">Active Bid Bonds Exposure</span>
+                        <div class="text-3xl font-black text-amber-600 font-mono">SAR 1.45M</div>
+                        <p class="text-[11px] text-slate-500">Issued bank guarantees across 5 tenders</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- AI CONFIG MODAL (COMPONENTS/LAYOUT/AICONFIGMODAL.TSX)                     -->
+    <!-- ========================================================================= -->
+    <div id="aiConfigModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-6 overflow-y-auto">
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-xl overflow-hidden my-auto flex flex-col max-h-[92vh]">
+            
+            <!-- Header -->
+            <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-blue-500/30">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-sm font-extrabold text-white">OpenAI & Model Configuration</h3>
+                            <span class="bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full">
+                                Live Engine
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-0.5">Manage your API Key, custom endpoint, and real-time pull limit quotas.</p>
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    onclick="closeAiConfigModal()"
+                    class="p-1.5 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition"
+                >
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6 overflow-y-auto space-y-4 text-xs">
+                
+                <!-- Live Status Banner -->
+                <div class="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-slate-800 space-y-3">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <div class="flex items-center gap-2 font-bold text-slate-900">
+                            <i data-lucide="zap" class="w-4 h-4 text-emerald-600"></i>
+                            <span>Live API Engine & Quota Status</span>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <span id="modalAiKeyStatusBadge" class="bg-emerald-100 text-emerald-800 border border-emerald-200 text-[11px] font-bold px-2.5 py-0.5 rounded-lg">
+                                Active • Connected & Ready
+                            </span>
+                            <button
+                                type="button"
+                                onclick="handleTestAiConnection()"
+                                id="modalAiCheckBalanceBtn"
+                                class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                            >
+                                <i data-lucide="refresh-cw" class="w-3 h-3 text-slate-500"></i>
+                                <span>Check Live Balance</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-slate-600 leading-relaxed" id="modalAiStatusMsg">
+                        Connected to API endpoint. Calls are processed directly via secure browser proxy.
+                    </p>
+
+                    <div class="pt-2 border-t border-emerald-200/60 flex items-center justify-between text-[11px] text-slate-500 flex-wrap gap-2 font-mono">
+                        <span>Target: <strong class="text-slate-900" id="modalAiTargetUrl">https://api.openai.com/v1</strong></span>
+                        <span>Model: <strong class="text-slate-900" id="modalAiTargetModel">gpt-4o-mini</strong></span>
+                        <span>Calls Used: <strong class="text-slate-900" id="modalAiCallsUsed">0 / 15</strong></span>
+                    </div>
+                </div>
+
+                <!-- API Key Input -->
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <label class="font-extrabold text-slate-800 text-xs flex items-center gap-1.5">
+                            <i data-lucide="key" class="w-3.5 h-3.5 text-blue-600"></i>
+                            <span>OpenAI API Key</span>
+                        </label>
+                        <span class="text-[11px] text-slate-400">Stored securely in browser session</span>
+                    </div>
+                    <div class="relative flex items-center">
+                        <input
+                            type="password"
+                            id="modalApiKeyInput"
+                            placeholder="sk-proj-xxxxxxxxxxxxxxxxxxxx"
+                            class="w-full px-3.5 py-2.5 pr-20 rounded-xl border border-slate-300 font-mono text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <button
+                            type="button"
+                            onclick="toggleApiKeyVisibility()"
+                            id="modalToggleKeyBtn"
+                            class="absolute right-2 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-[11px] font-bold"
+                        >
+                            Show
+                        </button>
+                    </div>
+                    <span class="text-[11px] text-slate-400">Enter your secret key (sk-...). Calls are made directly to the AI endpoint.</span>
+                </div>
+
+                <!-- Endpoint URL -->
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <label class="font-extrabold text-slate-800 text-xs flex items-center gap-1.5">
+                            <i data-lucide="link-2" class="w-3.5 h-3.5 text-indigo-600"></i>
+                            <span>API Endpoint Link (Base URL)</span>
+                        </label>
+                        <span class="text-[11px] text-slate-400 font-mono">Default: https://api.openai.com/v1</span>
+                    </div>
+                    <input
+                        type="text"
+                        id="modalApiEndpointInput"
+                        value="https://api.openai.com/v1"
+                        placeholder="https://api.openai.com/v1"
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-mono text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <span class="text-[11px] text-slate-400">Supports custom OpenAI proxies, Azure endpoints, or self-hosted vLLM gateways.</span>
+                </div>
+
+                <!-- Model & Max Pulls Row -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="space-y-1.5">
+                        <label class="font-extrabold text-slate-800 text-xs flex items-center gap-1.5">
+                            <i data-lucide="cpu" class="w-3.5 h-3.5 text-purple-600"></i>
+                            <span>AI Model</span>
+                        </label>
+                        <select
+                            id="modalAiModelSelect"
+                            class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-slate-800 text-xs font-bold outline-none cursor-pointer"
+                        >
+                            <option value="gpt-4o-mini" selected>gpt-4o-mini (Fast & Recommended)</option>
+                            <option value="gpt-4o">gpt-4o (High-Precision EPC Reasoning)</option>
+                            <option value="gpt-3.5-turbo">gpt-3.5-turbo (Legacy Free Tier)</option>
+                            <option value="o3-mini">o3-mini (Complex Reasoning)</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="font-extrabold text-slate-800 text-xs flex items-center gap-1.5">
+                            <i data-lucide="sliders" class="w-3.5 h-3.5 text-slate-600"></i>
+                            <span>Session Call Limit (Pulls)</span>
+                        </label>
+                        <input
+                            type="number"
+                            id="modalMaxPullsInput"
+                            min="1"
+                            max="1000"
+                            value="15"
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-mono text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                </div>
+
+                <!-- Test Connection Feedback Message Box -->
+                <div id="modalTestResultBox" class="hidden p-3.5 rounded-xl border text-xs flex items-start gap-2.5">
+                    <i id="modalTestResultIcon" data-lucide="check-circle-2" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                    <span id="modalTestResultText" class="font-semibold leading-relaxed"></span>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3 shrink-0 flex-wrap">
+                <button
+                    type="button"
+                    onclick="handleResetAiCounter()"
+                    class="px-3.5 py-2 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                >
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                    <span>Reset Counter</span>
+                </button>
+
+                <div class="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onclick="closeAiConfigModal()"
+                        class="px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold transition"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        onclick="handleSaveAiConfig()"
+                        class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md transition cursor-pointer"
+                    >
+                        Configure & Apply API
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- PRESERVED EXISTING MODALS (REGISTER, ASSIGN, DETAIL, DOSSIER)              -->
+    <!-- ========================================================================= -->
+
+    <!-- MODAL 1: REGISTER CLIENT & INBOUND RFQ TENDER MODAL (MATCHING NEXT.JS FRONTEND) -->
+    <div id="registerModal" class="fixed inset-0 z-50 hidden items-center justify-center p-2 sm:p-5 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-150">
+        <div class="relative w-full max-w-5xl max-h-[96vh] sm:max-h-[92vh] flex flex-col rounded-2xl sm:rounded-xl bg-white border border-slate-200 shadow-xl overflow-hidden">
+            
+            <!-- Header Bar -->
+            <div class="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 bg-white">
+                <div>
+                    <h2 class="text-sm sm:text-base font-bold text-slate-900">
+                        Register Client & Inbound RFQ Tender
+                    </h2>
+                    <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5">
+                        Fill in client tender details and allocate an estimator from the capacity pool.
+                    </p>
+                </div>
+                <button
+                    onclick="closeRegisterModal()"
+                    type="button"
+                    class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                >
+                    <i data-lucide="x" class="h-5 w-5"></i>
+                </button>
+            </div>
+
+            <!-- Scrollable Form Body -->
+            <form method="POST" action="/crm/" id="registerClientForm" onsubmit="return handleRegisterClientSubmit(event)" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6 bg-white modal-body-scroll">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="register_client">
+                <input type="hidden" id="regAssignedEstimatorId" name="assignedEstimatorId" value="">
+                <input type="hidden" id="regWorkOrderNo" name="workOrderNo" value="">
+                <input type="hidden" id="hiddenSowScopes" name="sowScopes" value="[]">
+                <input type="hidden" id="hiddenAttachedFiles" name="attachedFiles" value="[]">
+                <input type="hidden" id="hiddenManagementReviewers" name="managementReviewers" value='["Managing Director (MD)"]'>
+
+                <!-- Main 2-Column Grid matching Screenshot -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                    
+                    <!-- === LEFT COLUMN === -->
+                    <div class="space-y-4">
+                        
+                        <!-- Enquiry Serial Number with Auto Generate -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                Enquiry Serial Number
+                            </label>
+                            <div class="flex gap-2">
+                                <input
+                                    type="text"
+                                    id="regEnquirySerialNo"
+                                    name="enquirySerialNo"
+                                    placeholder="RGC-RFQ-2026-0942"
+                                    class="flex-1 px-3 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 bg-white text-slate-900 font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onclick="handleAutoGenerateSerial()"
+                                    class="px-3.5 py-2 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition cursor-pointer shrink-0"
+                                >
+                                    Auto Generate
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- RFQ No. (Client) -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                RFQ No. (Client)
+                            </label>
+                            <input
+                                type="text"
+                                id="regClientRfqNo"
+                                name="clientRfqNo"
+                                placeholder="e.g. ghj12345"
+                                class="w-full px-3 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+
+                        <!-- Client Short Name -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                Client Short Name
+                            </label>
+                            <input
+                                type="text"
+                                id="regClientShortName"
+                                name="clientShortName"
+                                placeholder="e.g. MA'ADEN"
+                                class="w-full px-3 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+
+                        <!-- Proposed Project Name -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                Proposed Project Name
+                            </label>
+                            <input
+                                type="text"
+                                id="regProposedProjectName"
+                                name="proposedProjectName"
+                                placeholder="omar sohan's opportunity"
+                                class="w-full px-3 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                required
+                            />
+                        </div>
+
+                        <!-- Project Location -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                Project Location
+                            </label>
+                            <input
+                                type="text"
+                                id="regProjectLocation"
+                                name="projectLocation"
+                                placeholder="e.g. Jubail Industrial City"
+                                class="w-full px-3 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+
+                        <!-- RFQ Received Through -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                RFQ Received Through
+                            </label>
+                            <input
+                                type="text"
+                                id="regRfqReceivedThrough"
+                                name="rfqReceivedThrough"
+                                value="Email"
+                                placeholder="Email"
+                                class="w-full px-3 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+
+                        <!-- 11. Scope of Work (SOW) -->
+                        <div class="pt-1">
+                            <label class="block text-xs font-semibold text-slate-800 mb-1.5">
+                                11. Scope of Work (SOW)
+                            </label>
+                            <div class="p-3.5 rounded-lg border border-slate-200 bg-slate-50/50 space-y-2.5">
+                                <div class="grid grid-cols-2 gap-2" id="regSowGrid">
+                                    <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer select-none">
+                                        <input type="checkbox" onchange="handleToggleSow('Civil')" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4">
+                                        <span>Civil</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer select-none">
+                                        <input type="checkbox" onchange="handleToggleSow('Electrical')" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4">
+                                        <span>Electrical</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer select-none">
+                                        <input type="checkbox" onchange="handleToggleSow('Mechanical')" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4">
+                                        <span>Mechanical</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer select-none">
+                                        <input type="checkbox" onchange="handleToggleSow('HVAC')" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4">
+                                        <span>HVAC</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer select-none">
+                                        <input type="checkbox" onchange="handleToggleSow('Plumbing')" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4">
+                                        <span>Plumbing</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer select-none">
+                                        <input type="checkbox" onchange="handleToggleSow('Structural')" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4">
+                                        <span>Structural</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer select-none col-span-2">
+                                        <input type="checkbox" onchange="handleToggleSow('Specialized Sub-Scopes')" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4">
+                                        <span>Specialized Sub-Scopes</span>
+                                    </label>
+                                </div>
+
+                                <!-- SOW Caveats & Notes -->
+                                <div class="mt-2 pt-2 border-t border-slate-200">
+                                    <label class="block text-[11px] font-medium text-slate-600 mb-1">
+                                        SOW Caveats & Notes
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="regSowCaveatsNotes"
+                                        name="sowCaveatsNotes"
+                                        placeholder="Enter any caveats or notes here..."
+                                        class="w-full px-3 py-1.5 text-xs rounded border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bid Close Date -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                Bid Close Date
+                            </label>
+                            <input
+                                type="date"
+                                id="regBidCloseDate"
+                                name="bidCloseDate"
+                                class="w-full px-3 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                required
+                            />
+                        </div>
+
+                        <!-- Bid Submission Type -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                Bid Submission Type
+                            </label>
+                            <input
+                                type="text"
+                                id="regBidSubmissionType"
+                                name="bidSubmissionType"
+                                value="Email Submission"
+                                placeholder="Email Submission"
+                                class="w-full px-3 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+
+                    </div>
+
+                    <!-- === RIGHT COLUMN === -->
+                    <div class="space-y-4">
+                        
+                        <!-- Inquiry / RFQ Received Date -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                Inquiry / RFQ Received Date
+                            </label>
+                            <input
+                                type="date"
+                                id="regReceivedDate"
+                                name="receivedDate"
+                                class="w-full px-3 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                required
+                            />
+                        </div>
+
+                        <!-- Client Name with Tooltip -->
+                        <div>
+                            <div class="flex items-center gap-1.5 mb-1">
+                                <label class="text-xs font-semibold text-slate-700">
+                                    Client Name
+                                </label>
+                                <span class="text-blue-500 text-xs cursor-help font-bold" title="Primary client or developer company">
+                                    ?
+                                </span>
+                            </div>
+                            <input
+                                type="text"
+                                id="regClientNameInput"
+                                name="clientName"
+                                placeholder="omar sohan"
+                                class="w-full px-3 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                required
+                            />
+                        </div>
+
+                        <!-- Site Name -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                Site Name
+                            </label>
+                            <input
+                                type="text"
+                                id="regSiteName"
+                                name="siteName"
+                                placeholder="Ras-al-Khair"
+                                class="w-full px-3 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+
+                        <!-- Client Sender / Buyer Name & Email ID / Mob -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                Client Sender / Buyer Name & Email ID / Mob
+                            </label>
+                            <input
+                                type="text"
+                                id="regClientSenderContact"
+                                name="clientSenderContact"
+                                placeholder="omar@gmail.com"
+                                class="w-full px-3 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+
+                        <!-- RFQ Came to Whose (Name) -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                RFQ Came to Whose (Name)
+                            </label>
+                            <input
+                                type="text"
+                                id="regRfqCameToWhoseName"
+                                name="rfqCameToWhoseName"
+                                placeholder="Fatima Ali (Office Secretar"
+                                class="w-full px-3 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+
+                        <!-- Project Work Description -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                Project Work Description
+                            </label>
+                            <textarea
+                                rows="3"
+                                id="regProjectWorkDescription"
+                                name="projectWorkDescription"
+                                placeholder="erwdfguhkjmbvfcghjkljhmgfcvx"
+                                class="w-full px-3 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            ></textarea>
+                        </div>
+
+                        <!-- Bid Extension Date -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                Bid Extension Date
+                            </label>
+                            <input
+                                type="date"
+                                id="regBidExtensionDate"
+                                name="bidExtensionDate"
+                                class="w-full px-3 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+
+                        <!-- Attach Files (PDF, DOC, XLS, ZIP, CAD) -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                Attach Files (PDF, DOC, XLS, ZIP, CAD)
+                            </label>
+                            
+                            <div class="p-4 rounded-lg border-2 border-dashed border-slate-200 bg-slate-50/50 text-center space-y-2">
+                                <input type="file" id="regFileInput" class="hidden" multiple onchange="handleRealFileUpload(event)">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button
+                                        type="button"
+                                        onclick="document.getElementById('regFileInput').click()"
+                                        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-xs transition cursor-pointer"
+                                    >
+                                        <i data-lucide="upload-cloud" class="h-4 w-4"></i>
+                                        <span>Upload PDF / Tender Documents</span>
+                                    </button>
+                                </div>
+                                <p class="text-[11px] text-slate-400">
+                                    Supports PDF, DOC, XLS, ZIP, CAD (DWG/DXF) up to 50 MB
+                                </p>
+
+                                <!-- List of Attached Files -->
+                                <div id="regAttachedFilesList" class="pt-2 space-y-1.5 text-left">
+                                    <!-- Injected via JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- === ESTIMATOR ASSIGNMENT SECTION === -->
+                <div class="pt-4 border-t border-slate-200">
+                    <div class="rounded-xl p-4 border border-slate-200 bg-slate-50/40 space-y-3.5">
+                        
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-900">
+                                    Estimator Name
+                                </h3>
+                                <p class="text-xs text-slate-500">
+                                    Allocate an estimator before submitting for MD review.
+                                </p>
+                            </div>
+
+                            <!-- Auto-Assign by Capacity Button -->
+                            <button
+                                type="button"
+                                onclick="handleAutoAssignEstimator()"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100 transition cursor-pointer shrink-0"
+                            >
+                                <i data-lucide="zap" class="h-3.5 w-3.5 text-blue-600"></i>
+                                <span>Auto-Assign by Capacity</span>
+                            </button>
+                        </div>
+
+                        <!-- Dropdown Select Estimator -->
+                        <div>
+                            <select
+                                id="regEstimatorSelect"
+                                onchange="handleEstimatorDropdownChange(this.value)"
+                                class="w-full px-3 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                                <option value="">Select Estimator...</option>
+                                {% for est in estimators %}
+                                    <option value="{{ est.id }}">
+                                        {{ est.name }} — {{ est.role }} ({{ est.activeTenders }} Active Tenders - {{ est.capacityStatus }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- ESTIMATOR POOL CAPACITY List -->
+                        <div>
+                            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                                ESTIMATOR POOL CAPACITY:
+                            </div>
+
+                            <div class="space-y-2" id="regEstimatorCardsList">
+                                {% for est in estimators %}
+                                    <div
+                                        onclick="selectRegEstimator('{{ est.id }}')"
+                                        id="regEstItem-{{ est.id }}"
+                                        class="flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all bg-white border-slate-200 hover:border-slate-300"
+                                    >
+                                        <div class="flex items-center gap-3">
+                                            <div class="h-9 w-9 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0 border border-slate-200">
+                                                {{ est.initials }}
+                                            </div>
+                                            <div>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-xs sm:text-sm font-bold text-slate-900">
+                                                        {{ est.name }}
+                                                    </span>
+                                                    {% if est.activeTenders == 0 or est.capacityStatus == 'Optimal Capacity' %}
+                                                        <span class="text-[10px] font-medium px-2 py-0.5 rounded border border-blue-200 text-blue-700 bg-blue-50">
+                                                            Optimal Capacity
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                                <p class="text-xs text-slate-500">
+                                                    {{ est.role }}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-xs font-medium px-3 py-1 rounded border border-slate-200 bg-white text-slate-700">
+                                                {{ est.activeTenders }} Active Tenders
+                                            </span>
+
+                                            <div id="regEstRadio-{{ est.id }}" class="h-4 w-4 rounded-full flex items-center justify-center border border-slate-300 bg-white transition">
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- REVIEW FROM MANAGEMENT (Email CC style) -->
+                <div class="pt-2">
+                    <div class="rounded-xl p-4 border border-slate-200 bg-slate-50/50 space-y-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                            <div>
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                                    <i data-lucide="mail" class="h-3.5 w-3.5 text-slate-500"></i>
+                                    <span>Review from Management / Send For Review (CC)</span>
+                                </h3>
+                                <p class="text-xs text-slate-500 mt-0.5">
+                                    Type management recipients or CC reviewers who should receive this tender dossier for review & bidding authorization.
+                                </p>
+                            </div>
+                            <span class="text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full w-fit">
+                                Routes to MD Dashboard
+                            </span>
+                        </div>
+
+                        <!-- Email CC Style Input Box with Tag Chips -->
+                        <div class="p-2.5 rounded-lg border border-slate-300 bg-white flex flex-wrap items-center gap-2 focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500 transition min-h-[44px]">
+                            <span class="text-xs font-semibold text-slate-400 select-none px-1">
+                                Send To / CC:
+                            </span>
+
+                            <div id="regReviewersChips" class="flex flex-wrap items-center gap-2">
+                                <!-- Chips dynamically injected via JavaScript -->
+                            </div>
+
+                            <input
+                                type="text"
+                                id="regReviewerInput"
+                                onkeydown="handleReviewerKeyDown(event)"
+                                placeholder="Type another name / CC and press Enter..."
+                                class="flex-1 min-w-[200px] border-none bg-transparent text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none py-1"
+                            />
+
+                            <button
+                                type="button"
+                                onclick="handleAddReviewerFromInput()"
+                                class="px-2.5 py-1 rounded bg-slate-900 text-white text-xs font-medium hover:bg-slate-800 transition cursor-pointer"
+                            >
+                                Add
+                            </button>
+                        </div>
+
+                        <!-- Quick Add Suggestions -->
+                        <div class="flex items-center gap-1.5 flex-wrap pt-0.5 text-xs text-slate-500">
+                            <span class="text-[11px] text-slate-400 font-medium">Quick suggestions:</span>
+                            <div id="regQuickSuggestions" class="flex items-center gap-1.5 flex-wrap">
+                                <!-- Suggestions injected via JS -->
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Form Actions Footer -->
+                <div class="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-slate-200">
+                    <div class="text-xs text-slate-500 text-center sm:text-left" id="regFooterNotice">
+                        Estimator can be assigned now or updated by MD.
+                    </div>
+
+                    <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                        <button
+                            type="button"
+                            onclick="closeRegisterModal()"
+                            class="flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 transition cursor-pointer text-center"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            class="flex-1 sm:flex-none px-5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800 shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer text-center"
+                        >
+                            <span>Send for MD / Review</span>
+                            <i data-lucide="chevron-right" class="h-4 w-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+    <!-- MODAL 2: ASSIGN ESTIMATOR MODAL -->
+    <div id="assignModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
+        <div class="relative w-full max-w-xl rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center gap-3">
+                    <div class="h-9 w-9 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center">
+                        <i data-lucide="user-check" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900">Assign Technical Estimator</h3>
+                        <p class="text-xs text-slate-500" id="assignModalProjectTitle">Work Order</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeAssignModal()" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form method="POST" action="/crm/" id="assignForm" class="p-6 space-y-4">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="assign_estimator">
+                <input type="hidden" id="assignProjectId" name="projectId" value="">
+                <input type="hidden" id="selectedEstimatorId" name="estimatorId" value="">
+
+                <div class="space-y-2 max-h-72 overflow-y-auto">
+                    {% for est in estimators %}
+                        <div
+                            onclick="selectEstimatorToAssign('{{ est.id }}')"
+                            id="assignCard-{{ est.id }}"
+                            class="p-3.5 rounded-xl border border-slate-200 hover:border-blue-500 cursor-pointer transition flex items-center justify-between gap-3 text-xs"
+                        >
+                            <div class="flex items-center gap-3">
+                                <div class="h-9 w-9 rounded-full bg-slate-100 font-bold flex items-center justify-center text-slate-700">
+                                    {{ est.initials }}
+                                </div>
+                                <div>
+                                    <div class="font-bold text-slate-900">{{ est.name }}</div>
+                                    <div class="text-[11px] text-slate-500">{{ est.role }} &bull; {{ est.specialty }}</div>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                                {{ est.activeTenders }} Active
+                            </span>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-200">
+                    <button type="button" onclick="closeAssignModal()" class="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold">
+                        Confirm Assignment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 3: PROJECT DETAIL MODAL -->
+    <div id="detailModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
+        <div class="relative w-full max-w-2xl rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden p-6 space-y-4">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h3 class="font-black text-sm text-slate-900" id="detailModalTitle">Project Details</h3>
+                <button type="button" onclick="closeDetailModal()" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="detailModalContent" class="text-xs space-y-3 max-h-96 overflow-y-auto"></div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: BID PACKAGE DOSSIER MODAL -->
+    <div id="bidPackageModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
+        <div class="relative w-full max-w-3xl rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden p-6 space-y-4 flex flex-col max-h-[90vh]">
+            <div class="flex items-center justify-between border-b pb-3 shrink-0">
+                <div>
+                    <h3 class="font-black text-sm text-slate-900" id="bidPackageModalTitle">Compiled 40-Document Bid Package</h3>
+                    <p class="text-xs text-slate-500 font-mono" id="bidPackageModalWO">WO-2026-101</p>
+                </div>
+                <button type="button" onclick="closeBidPackageModal()" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="bidPackageModalContent" class="flex-1 overflow-y-auto text-xs space-y-2"></div>
+            <div class="flex items-center justify-end gap-3 pt-3 border-t shrink-0">
+                <button type="button" onclick="closeBidPackageModal()" class="px-4 py-2 rounded-xl border text-xs font-semibold">
+                    Close
+                </button>
+                <button type="button" id="printBidPackageBtn" class="px-5 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold flex items-center gap-1.5">
+                    <i data-lucide="printer" class="w-4 h-4"></i>
+                    <span>Print Master Dossier PDF</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Injection -->
+    <script>
+        const DJANGO_PROJECTS = {{ projects_json|safe }};
+        const DJANGO_ESTIMATORS = {{ estimators_json|safe }};
+        const DJANGO_CLIENTS = {{ clients_json|safe }};
+    </script>
+
+    <!-- Master Application Script -->
+    <script>
+    // =========================================================================
+    // RADWA ERP MASTER LAYOUT & CRM LOGIC ENGINE
+    // =========================================================================
+
+    // ERP Operational Dashboards (Navbar.tsx ERP_DASHBOARDS)
+    const ERP_DASHBOARDS = [
+        {
+            id: 'crm',
+            title: 'CRM & Tendering Admin',
+            desc: 'Leads, Bidding, BOQ Estimations, Client Accounts & Bid Bonds',
+            icon: 'briefcase',
+            color: 'amber',
+            badge: 'Active Module'
+        },
+        {
+            id: 'pm',
+            title: 'Site Project Management',
+            desc: 'Daily Site Logs, Gantt Milestones, Labor/Machinery on site, Work progress',
+            icon: 'hard-hat',
+            color: 'blue',
+            badge: 'Next in Pipeline'
+        },
+        {
+            id: 'procurement',
+            title: 'Procurement & Materials',
+            desc: 'Material Indents (PR), POs, Goods Received (GRN), Site Inventory & Suppliers',
+            icon: 'truck',
+            color: 'emerald',
+            badge: 'Integrated'
+        },
+        {
+            id: 'finance',
+            title: 'BOQ, Commercial & Billing',
+            desc: 'Budget vs Actual, Cost Codes, Client RA Invoices & Subcontractor billing',
+            icon: 'dollar-sign',
+            color: 'purple',
+            badge: 'Integrated'
+        },
+        {
+            id: 'hse',
+            title: 'HSE & Quality Control',
+            desc: 'Site Safety Audits, Incident Reports, Inspection Requests (RFI/MIR)',
+            icon: 'shield-check',
+            color: 'teal',
+            badge: 'Integrated'
+        }
+    ];
+
+    // Pipeline Kanban Stages (mockCrmData.ts)
+    const PIPELINE_STAGES = [
+        { id: 'qualification', label: '1. Lead & PQ', color: 'slate' },
+        { id: 'site_visit', label: '2. Site Survey', color: 'blue' },
+        { id: 'boq_estimation', label: '3. BOQ Costing', color: 'amber' },
+        { id: 'bid_submitted', label: '4. Bid Submitted', color: 'purple' },
+        { id: 'negotiation', label: '5. Negotiation', color: 'emerald' },
+        { id: 'won', label: '6. Won / Awarded', color: 'green' },
+        { id: 'lost', label: '7. Declined / Lost', color: 'rose' }
+    ];
+
+    // State Variables
+    let activeDashboard = 'crm';
+    let activeSidebarTab = 'table'; // 'kanban' | 'table' | 'deadlines' | 'clients' | 'team' | 'analytics'
+    let globalSearchQuery = '';
+    let selectedStatusTab = 'ALL';
+    let selectedEstimatorFilter = 'ALL';
+    let showDashboardMenu = false;
+    let showNotifications = false;
+
+    // AI Configuration State (AiConfigModal.tsx)
+    const DEFAULT_AI_CONFIG = {
+        apiKey: '',
+        apiEndpoint: 'https://api.openai.com/v1',
+        model: 'gpt-4o-mini',
+        maxPulls: 15,
+        pullsUsed: 0,
+        apiStatus: 'active',
+        apiStatusMessage: 'Connected to API endpoint.'
+    };
+
+    function getStoredAiConfig() {
+        try {
+            const raw = localStorage.getItem('radwa_ai_config');
+            if (raw) return JSON.parse(raw);
+        } catch(e) {}
+        return DEFAULT_AI_CONFIG;
+    }
+
+    let aiConfig = getStoredAiConfig();
+
+    // -------------------------------------------------------------------------
+    // Toast Notification System
+    // -------------------------------------------------------------------------
+    function showToast(msg, type = 'success') {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = 'max-w-sm bg-slate-900 text-white rounded-xl shadow-2xl p-4 border border-slate-800 flex items-start gap-3 animate-fade-in pointer-events-auto';
+        toast.innerHTML = `
+            <div class="h-7 w-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                <i data-lucide="check-circle-2" class="h-4 w-4"></i>
+            </div>
+            <div class="text-xs font-semibold leading-relaxed flex-1">${msg}</div>
+        `;
+        container.appendChild(toast);
+        lucide.createIcons();
+        setTimeout(() => {
+            toast.style.transition = 'opacity 0.3s, transform 0.3s';
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(10px)';
+            setTimeout(() => toast.remove(), 350);
+        }, 4000);
+    }
+
+    // -------------------------------------------------------------------------
+    // Dashboard Module Switcher Dropdown (Navbar.tsx)
+    // -------------------------------------------------------------------------
+    function toggleDashboardMenu() {
+        showDashboardMenu = !showDashboardMenu;
+        const menu = document.getElementById('dashboardMenuDropdown');
+        if (showDashboardMenu) {
+            menu.classList.remove('hidden');
+            renderDashboardMenuList();
+        } else {
+            menu.classList.add('hidden');
+        }
+    }
+
+    function renderDashboardMenuList() {
+        const list = document.getElementById('dashboardMenuList');
+        list.innerHTML = ERP_DASHBOARDS.map(dash => {
+            const isActive = dash.id === activeDashboard;
+            return `
+                <button
+                    type="button"
+                    onclick="selectDashboardModule('${dash.id}')"
+                    class="w-full flex items-start gap-3 p-2.5 rounded-xl text-left transition cursor-pointer ${
+                        isActive
+                            ? 'bg-amber-500/15 border border-amber-500/30 font-bold'
+                            : 'hover:bg-slate-50 border border-transparent'
+                    }"
+                >
+                    <div class="mt-0.5 p-2 rounded-lg ${isActive ? 'bg-amber-500 text-slate-950' : 'bg-slate-100 text-slate-600'}">
+                        <i data-lucide="${dash.icon}" class="h-4 w-4"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold truncate ${isActive ? 'text-amber-800' : 'text-slate-800'}">
+                                ${dash.title}
+                            </span>
+                            <span class="text-[9px] font-bold ${isActive ? 'bg-amber-500 text-slate-950 px-1.5 py-0.2 rounded' : 'text-slate-400'}">
+                                ${isActive ? 'CURRENT' : dash.badge}
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 line-clamp-1 mt-0.5">${dash.desc}</p>
+                    </div>
+                </button>
+            `;
+        }).join('');
+        lucide.createIcons();
+    }
+
+    function selectDashboardModule(moduleId) {
+        activeDashboard = moduleId;
+        const target = ERP_DASHBOARDS.find(d => d.id === moduleId);
+        document.getElementById('activeDashboardTitle').innerText = target.title;
+        showDashboardMenu = false;
+        document.getElementById('dashboardMenuDropdown').classList.add('hidden');
+
+        // Show Module Preview Banner if non-crm
+        const banner = document.getElementById('modulePreviewBanner');
+        if (moduleId !== 'crm') {
+            banner.classList.remove('hidden');
+            document.getElementById('moduleBannerTitle').innerText = target.title;
+            document.getElementById('moduleBannerDesc').innerText = `${target.desc}. This module is connected to CRM Admin: won tenders flow directly here with full bill of quantities and specifications.`;
+            document.getElementById('moduleBannerTag').innerText = `ERP MODULE: ${target.badge}`;
+            document.getElementById('moduleBannerIcon').setAttribute('data-lucide', target.icon);
+        } else {
+            banner.classList.add('hidden');
+        }
+        lucide.createIcons();
+    }
+
+    function resetToCrmModule() {
+        selectDashboardModule('crm');
+    }
+
+    // -------------------------------------------------------------------------
+    // Tender Alerts Notifications Dropdown (Navbar.tsx)
+    // -------------------------------------------------------------------------
+    function toggleNotificationsMenu() {
+        showNotifications = !showNotifications;
+        const drop = document.getElementById('notificationsDropdown');
+        if (showNotifications) {
+            drop.classList.remove('hidden');
+        } else {
+            drop.classList.add('hidden');
+        }
+    }
+
+    // Close dropdowns on outside click
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#dashboardSwitcherBtn') && !e.target.closest('#dashboardMenuDropdown')) {
+            showDashboardMenu = false;
+            document.getElementById('dashboardMenuDropdown')?.classList.add('hidden');
+        }
+        if (!e.target.closest('#notificationsBellBtn') && !e.target.closest('#notificationsDropdown')) {
+            showNotifications = false;
+            document.getElementById('notificationsDropdown')?.classList.add('hidden');
+        }
+    });
+
+    // -------------------------------------------------------------------------
+    // Search Handling (Navbar.tsx)
+    // -------------------------------------------------------------------------
+    function handleGlobalSearch(val) {
+        globalSearchQuery = val;
+        const clearBtn = document.getElementById('navSearchClearBtn');
+        if (val) clearBtn.classList.remove('hidden');
+        else clearBtn.classList.add('hidden');
+
+        // Sync with page table search
+        const tableSearchInput = document.getElementById('searchInput');
+        if (tableSearchInput) tableSearchInput.value = val;
+
+        renderProjects();
+        renderKanban();
+    }
+
+    function clearGlobalSearch() {
+        document.getElementById('navSearchInput').value = '';
+        handleGlobalSearch('');
+    }
+
+    function handleSearch(val) {
+        globalSearchQuery = val;
+        renderProjects();
+        renderKanban();
+    }
+
+    // -------------------------------------------------------------------------
+    // Sidebar Tabs Switching (Sidebar.tsx)
+    // -------------------------------------------------------------------------
+    function switchSidebarTab(tabId) {
+        activeSidebarTab = tabId;
+        const allTabs = ['kanban', 'table', 'deadlines', 'clients', 'team', 'analytics'];
+
+        allTabs.forEach(t => {
+            const btn = document.getElementById(`sideTab-${t}`);
+            const view = document.getElementById(`view-${t}`);
+            if (t === tabId) {
+                btn.className = 'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left transition font-bold bg-amber-500/15 text-amber-700 border border-amber-500/30 shadow-xs cursor-pointer';
+                const icon = btn.querySelector('i');
+                if (icon) icon.className = 'h-4 w-4 text-amber-600';
+                if (view) view.classList.remove('hidden');
+            } else {
+                btn.className = 'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left transition font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 cursor-pointer';
+                const icon = btn.querySelector('i');
+                if (icon) icon.className = 'h-4 w-4 text-slate-400';
+                if (view) view.classList.add('hidden');
+            }
+        });
+
+        if (tabId === 'kanban') renderKanban();
+        else if (tabId === 'deadlines') renderDeadlines();
+        else if (tabId === 'clients') renderClients();
+        else if (tabId === 'team') renderTeam();
+
+        lucide.createIcons();
+    }
+
+    // -------------------------------------------------------------------------
+    // AI Status Pill & Config Modal (AiStatusPill.tsx, AiConfigModal.tsx)
+    // -------------------------------------------------------------------------
+    function updateAiPillView() {
+        const textEl = document.getElementById('aiPillText');
+        const endEl = document.getElementById('aiPillEndpoint');
+        const dotEl = document.getElementById('aiPillDot');
+
+        let host = 'api.openai.com';
+        try {
+            if (aiConfig.apiEndpoint) {
+                host = new URL(aiConfig.apiEndpoint).hostname;
+            }
+        } catch(e) {}
+
+        if (!aiConfig.apiKey) {
+            textEl.innerText = 'AI Engine: Standalone';
+            endEl.innerText = 'No Key Set';
+            dotEl.className = 'w-2 h-2 rounded-full bg-slate-400 shrink-0';
+        } else {
+            textEl.innerText = 'AI Engine: Active';
+            endEl.innerText = host;
+            dotEl.className = 'w-2 h-2 rounded-full bg-emerald-500 shrink-0';
+        }
+    }
+
+    function openAiConfigModal() {
+        aiConfig = getStoredAiConfig();
+        document.getElementById('modalApiKeyInput').value = aiConfig.apiKey || '';
+        document.getElementById('modalApiEndpointInput').value = aiConfig.apiEndpoint || 'https://api.openai.com/v1';
+        document.getElementById('modalAiModelSelect').value = aiConfig.model || 'gpt-4o-mini';
+        document.getElementById('modalMaxPullsInput').value = aiConfig.maxPulls || 15;
+        document.getElementById('modalAiTargetUrl').innerText = aiConfig.apiEndpoint || 'https://api.openai.com/v1';
+        document.getElementById('modalAiTargetModel').innerText = aiConfig.model || 'gpt-4o-mini';
+        document.getElementById('modalAiCallsUsed').innerText = `${aiConfig.pullsUsed || 0} / ${aiConfig.maxPulls || 15}`;
+
+        document.getElementById('modalTestResultBox').classList.add('hidden');
+        document.getElementById('aiConfigModal').classList.remove('hidden');
+        document.getElementById('aiConfigModal').classList.add('flex');
+        lucide.createIcons();
+    }
+
+    function closeAiConfigModal() {
+        document.getElementById('aiConfigModal').classList.add('hidden');
+        document.getElementById('aiConfigModal').classList.remove('flex');
+    }
+
+    let isApiKeyVisible = false;
+    function toggleApiKeyVisibility() {
+        isApiKeyVisible = !isApiKeyVisible;
+        const input = document.getElementById('modalApiKeyInput');
+        const btn = document.getElementById('modalToggleKeyBtn');
+        input.type = isApiKeyVisible ? 'text' : 'password';
+        btn.innerText = isApiKeyVisible ? 'Hide' : 'Show';
+    }
+
+    async function handleTestAiConnection() {
+        const key = document.getElementById('modalApiKeyInput').value.trim();
+        const endpoint = document.getElementById('modalApiEndpointInput').value.trim();
+        const model = document.getElementById('modalAiModelSelect').value;
+
+        const box = document.getElementById('modalTestResultBox');
+        const txt = document.getElementById('modalTestResultText');
+        const icon = document.getElementById('modalTestResultIcon');
+
+        box.classList.remove('hidden');
+        box.className = 'p-3.5 rounded-xl border text-xs flex items-start gap-2.5 bg-blue-50 border-blue-200 text-blue-900';
+        txt.innerText = 'Testing connection to AI endpoint...';
+        icon.setAttribute('data-lucide', 'refresh-cw');
+        lucide.createIcons();
+
+        try {
+            const res = await fetch('/api/test-ai-connection/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ apiKey: key, apiEndpoint: endpoint, model: model })
+            });
+            const data = await res.json();
+            if (data.success) {
+                box.className = 'p-3.5 rounded-xl border text-xs flex items-start gap-2.5 bg-emerald-50 border-emerald-200 text-emerald-900';
+                txt.innerText = data.message;
+                icon.setAttribute('data-lucide', 'check-circle-2');
+            } else {
+                box.className = 'p-3.5 rounded-xl border text-xs flex items-start gap-2.5 bg-rose-50 border-rose-200 text-rose-900';
+                txt.innerText = data.message;
+                icon.setAttribute('data-lucide', 'alert-triangle');
+            }
+        } catch(e) {
+            box.className = 'p-3.5 rounded-xl border text-xs flex items-start gap-2.5 bg-rose-50 border-rose-200 text-rose-900';
+            txt.innerText = `Network error: ${e.message}`;
+            icon.setAttribute('data-lucide', 'alert-triangle');
+        }
+        lucide.createIcons();
+    }
+
+    function handleResetAiCounter() {
+        aiConfig.pullsUsed = 0;
+        localStorage.setItem('radwa_ai_config', JSON.stringify(aiConfig));
+        document.getElementById('modalAiCallsUsed').innerText = `0 / ${aiConfig.maxPulls}`;
+        showToast('Session quota reset to 0 calls used.');
+    }
+
+    function handleSaveAiConfig() {
+        const key = document.getElementById('modalApiKeyInput').value.trim();
+        const endpoint = document.getElementById('modalApiEndpointInput').value.trim() || 'https://api.openai.com/v1';
+        const model = document.getElementById('modalAiModelSelect').value;
+        const maxPulls = Number(document.getElementById('modalMaxPullsInput').value) || 15;
+
+        aiConfig = {
+            ...aiConfig,
+            apiKey: key,
+            apiEndpoint: endpoint,
+            model: model,
+            maxPulls: maxPulls,
+            apiStatus: key ? 'active' : 'standalone',
+            apiStatusMessage: key ? 'Connected and ready for AI operations.' : 'Standalone mode (no key configured).'
+        };
+
+        localStorage.setItem('radwa_ai_config', JSON.stringify(aiConfig));
+        updateAiPillView();
+        showToast('AI Model & API Configuration applied successfully!');
+        closeAiConfigModal();
+    }
+
+    // -------------------------------------------------------------------------
+    // View 1: Pipeline Kanban Renderer
+    // -------------------------------------------------------------------------
+    function renderKanban() {
+        const container = document.getElementById('kanbanColumnsContainer');
+        if (!container) return;
+
+        container.innerHTML = PIPELINE_STAGES.map(stage => {
+            const stageProjects = DJANGO_PROJECTS.filter(p => {
+                const s = (p.status || '').toLowerCase();
+                if (stage.id === 'qualification') return s.includes('new') || s.includes('qual');
+                if (stage.id === 'site_visit') return s.includes('survey');
+                if (stage.id === 'boq_estimation') return s.includes('estimation') || s.includes('approved for bidding') || s.includes('boq');
+                if (stage.id === 'bid_submitted') return s.includes('submitted');
+                if (stage.id === 'negotiation') return s.includes('negotiation');
+                if (stage.id === 'won') return s.includes('won') || s.includes('active');
+                if (stage.id === 'lost') return s.includes('lost') || s.includes('declined') || s.includes('withdrawn');
+                return false;
+            });
+
+            return `
+                <div class="w-80 shrink-0 bg-slate-100/70 border border-slate-200 rounded-3xl p-4 flex flex-col max-h-[78vh]">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                        <span class="font-extrabold text-xs text-slate-800">${stage.label}</span>
+                        <span class="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-slate-700 shadow-2xs border">
+                            ${stageProjects.length}
+                        </span>
+                    </div>
+
+                    <div class="mt-3 overflow-y-auto space-y-3 flex-1 pr-1">
+                        ${stageProjects.length === 0 ? `
+                            <div class="text-center py-8 text-slate-400 text-xs italic">
+                                No tenders in this stage
+                            </div>
+                        ` : stageProjects.map(proj => `
+                            <div class="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-amber-400 hover:shadow-md transition cursor-pointer space-y-2">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="font-mono text-[10px] font-black px-2 py-0.5 rounded bg-blue-50 text-blue-900 border border-blue-200">
+                                        ${proj.workOrderNo}
+                                    </span>
+                                    <span class="font-mono text-xs font-black text-slate-900">
+                                        SAR ${(Number(proj.estimatedValue) || 0).toLocaleString()}
+                                    </span>
+                                </div>
+
+                                <h4 class="font-bold text-xs text-slate-900 line-clamp-2 leading-snug">
+                                    ${proj.proposedProjectName}
+                                </h4>
+
+                                <div class="text-[11px] text-slate-500 flex items-center justify-between pt-2 border-t border-slate-100">
+                                    <span class="truncate">${proj.clientShortName || proj.clientName}</span>
+                                    <span class="text-slate-400 font-mono text-[10px]">${proj.bidCloseDate || 'TBD'}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        lucide.createIcons();
+    }
+
+    // -------------------------------------------------------------------------
+    // View 3: Deadlines & Pre-Bid Renderer
+    // -------------------------------------------------------------------------
+    function renderDeadlines() {
+        const container = document.getElementById('deadlinesListContainer');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="space-y-3">
+                ${DJANGO_PROJECTS.map(proj => `
+                    <div class="p-4 rounded-2xl border border-slate-200 hover:border-amber-400 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs bg-slate-50/50">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-mono font-bold text-blue-700">${proj.workOrderNo}</span>
+                                <span class="font-bold text-slate-900">${proj.proposedProjectName}</span>
+                            </div>
+                            <div class="text-slate-500 text-[11px]">
+                                Client: <strong>${proj.clientName}</strong> &bull; Site: ${proj.projectLocation}
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4 shrink-0">
+                            <div class="text-right">
+                                <span class="text-[10px] text-slate-400 uppercase font-bold block">Closing Date</span>
+                                <span class="font-mono font-bold text-rose-600 text-xs">${proj.bidCloseDate}</span>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                ${proj.status}
+                            </span>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    // -------------------------------------------------------------------------
+    // View 4: Clients Directory Renderer
+    // -------------------------------------------------------------------------
+    function renderClients() {
+        const container = document.getElementById('clientsListContainer');
+        if (!container) return;
+
+        container.innerHTML = DJANGO_CLIENTS.map(c => `
+            <div class="p-5 rounded-3xl bg-white border border-slate-200 shadow-xs hover:border-amber-400 hover:shadow-lg transition space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-900 border border-blue-200">
+                        ${c.shortCode || 'CLIENT'}
+                    </span>
+                    <span class="text-[10px] text-slate-400 font-mono">CR: ${c.crNumber || 'N/A'}</span>
+                </div>
+
+                <div>
+                    <h3 class="font-extrabold text-sm text-slate-900">${c.companyName}</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">${c.city || 'Saudi Arabia'}</p>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 text-xs space-y-1 text-slate-600">
+                    <div class="flex items-center gap-1.5">
+                        <i data-lucide="user" class="w-3.5 h-3.5 text-slate-400"></i>
+                        <span>${c.contactPerson || 'Key Account Manager'}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <i data-lucide="mail" class="w-3.5 h-3.5 text-slate-400"></i>
+                        <span class="truncate">${c.contactEmail || 'commercial@client.sa'}</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        lucide.createIcons();
+    }
+
+    // -------------------------------------------------------------------------
+    // View 5: Estimators Team Renderer
+    // -------------------------------------------------------------------------
+    function renderTeam() {
+        const container = document.getElementById('teamListContainer');
+        if (!container) return;
+
+        container.innerHTML = DJANGO_ESTIMATORS.map(est => `
+            <div class="p-5 rounded-3xl bg-white border border-slate-200 shadow-xs hover:border-amber-400 hover:shadow-lg transition space-y-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-700 font-extrabold flex items-center justify-center text-sm shadow-inner">
+                        ${est.initials}
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-xs text-slate-900">${est.name}</h4>
+                        <span class="text-[11px] text-slate-500 block">${est.role}</span>
+                    </div>
+                </div>
+
+                <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-1.5">
+                    <div class="flex items-center justify-between text-[11px]">
+                        <span class="text-slate-500">Active Pricing Tenders</span>
+                        <span class="font-mono font-bold text-slate-900">${est.activeTenders} Bids</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px]">
+                        <span class="text-slate-500">Engineering Specialty</span>
+                        <span class="font-bold text-slate-800 truncate max-w-[130px]">${est.specialty || 'General EPC'}</span>
+                    </div>
+                </div>
+
+                <div class="pt-2 flex items-center justify-between text-xs">
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        est.activeTenders === 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                    }">
+                        ${est.capacityStatus}
+                    </span>
+                    <span class="text-[11px] text-blue-600 font-bold cursor-pointer hover:underline">
+                        View Queue →
+                    </span>
+                </div>
+            </div>
+        `).join('');
+        lucide.createIcons();
+    }
+
+    // -------------------------------------------------------------------------
+    // View 2: Master Register Projects Renderer (Preserved from crm_dashboard.html)
+    // -------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
+    // View 2: Master Register Projects Renderer (Matching CrmAdminDashboardView.tsx)
+    // -------------------------------------------------------------------------
+    function renderStatusTabs() {
+        const container = document.getElementById('statusTabsContainer');
+        if (!container) return;
+
+        const approvedBidPackagesCount = DJANGO_PROJECTS.filter(p => p.bidPackage && p.bidPackage.status === 'Approved').length;
+        const pendingMdCount = DJANGO_PROJECTS.filter(p => p.status === 'Pending MD Approval' || p.mdStatus === 'Pending Review').length;
+        const approvedByMdCount = DJANGO_PROJECTS.filter(p => p.status === 'Approved for Bidding' || p.mdStatus === 'Approved for Bidding').length;
+        const underEstimationCount = DJANGO_PROJECTS.filter(p => p.status === 'Under BOQ Estimation').length;
+        const bidSubmittedCount = DJANGO_PROJECTS.filter(p => p.status === 'Bid Submitted').length;
+        const wonCount = DJANGO_PROJECTS.filter(p => p.status === 'Won / Active Project').length;
+
+        const tabs = [
+            { id: 'ALL', label: 'All Projects', count: DJANGO_PROJECTS.length },
+            { id: 'Approved Bid Packages', label: '✅ Approved Bid Packages (40 Docs)', count: approvedBidPackagesCount },
+            { id: 'Pending MD Approval', label: 'Pending MD Approval', count: pendingMdCount },
+            { id: 'Approved for Bidding', label: 'Approved by MD', count: approvedByMdCount },
+            { id: 'Under BOQ Estimation', label: 'Under Estimation', count: underEstimationCount },
+            { id: 'Bid Submitted', label: 'Bid Submitted', count: bidSubmittedCount },
+            { id: 'Won / Active Project', label: 'Won / Awarded', count: wonCount }
+        ];
+
+        container.innerHTML = tabs.map(tab => {
+            const isActive = selectedStatusTab === tab.id;
+            return `
+                <button
+                    type="button"
+                    onclick="selectStatusTab('${tab.id}')"
+                    class="px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+                        isActive
+                            ? 'bg-slate-900 text-white font-semibold'
+                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                    }"
+                >
+                    <span>${tab.label}</span>
+                    <span class="text-[10px] px-1.5 py-0.2 rounded font-mono ${
+                        isActive ? 'bg-slate-800 text-slate-200' : 'bg-slate-100 text-slate-500'
+                    }">
+                        ${tab.count}
+                    </span>
+                </button>
+            `;
+        }).join('');
+    }
+
+    function selectStatusTab(tabId) {
+        selectedStatusTab = tabId;
+        renderStatusTabs();
+        renderProjects();
+    }
+
+    function handleEstimatorFilter(val) {
+        selectedEstimatorFilter = val;
+        renderProjects();
+    }
+
+    function getStatusBadge(status) {
+        switch (status) {
+            case 'New RFQ': return 'bg-blue-50 text-blue-700 border-blue-200';
+            case 'Pending MD Approval': return 'bg-amber-50 text-amber-700 border-amber-200';
+            case 'Approved for Bidding': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+            case 'Estimator Assigned': return 'bg-amber-50 text-amber-700 border-amber-200';
+            case 'Under BOQ Estimation': return 'bg-violet-50 text-violet-700 border-violet-200';
+            case 'Bid Submitted': return 'bg-sky-50 text-sky-700 border-sky-200';
+            case 'Under Negotiation': return 'bg-orange-50 text-orange-700 border-orange-200';
+            case 'Won / Active Project': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+            case 'Declined / Lost': return 'bg-rose-50 text-rose-700 border-rose-200';
+            default: return 'bg-slate-100 text-slate-700 border-slate-200';
+        }
+    }
+
+    function renderProjects() {
+        const container = document.getElementById('projectsListContainer');
+        const countLabel = document.getElementById('projectsCountLabel');
+        if (!container) return;
+
+        const q = globalSearchQuery.toLowerCase().trim();
+        const filtered = DJANGO_PROJECTS.filter(p => {
+            const matchesSearch = !q || (
+                (p.proposedProjectName || '').toLowerCase().includes(q) ||
+                (p.workOrderNo || '').toLowerCase().includes(q) ||
+                (p.enquirySerialNo || '').toLowerCase().includes(q) ||
+                (p.clientName || '').toLowerCase().includes(q) ||
+                (p.clientShortName || '').toLowerCase().includes(q) ||
+                (p.siteName || '').toLowerCase().includes(q) ||
+                (p.projectLocation || '').toLowerCase().includes(q) ||
+                (p.assignedEstimatorName && p.assignedEstimatorName.toLowerCase().includes(q))
+            );
+
+            const matchesStatus = selectedStatusTab === 'ALL'
+                ? true
+                : selectedStatusTab === 'Approved Bid Packages'
+                ? (p.bidPackage && p.bidPackage.status === 'Approved')
+                : selectedStatusTab === 'Pending MD Approval'
+                ? (p.status === 'Pending MD Approval' || p.mdStatus === 'Pending Review')
+                : selectedStatusTab === 'Approved for Bidding'
+                ? (p.status === 'Approved for Bidding' || p.mdStatus === 'Approved for Bidding')
+                : (p.status === selectedStatusTab);
+
+            const matchesEstimator = selectedEstimatorFilter === 'ALL'
+                ? true
+                : selectedEstimatorFilter === 'UNASSIGNED'
+                ? !p.assignedEstimatorId
+                : (String(p.assignedEstimatorId) === String(selectedEstimatorFilter));
+
+            return matchesSearch && matchesStatus && matchesEstimator;
+        });
+
+        if (countLabel) countLabel.innerText = `SHOWING ${filtered.length} PROJECTS`;
+
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-16 px-4 bg-white rounded-xl border border-slate-200 space-y-3">
+                    <div class="h-10 w-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+                        <i data-lucide="building-2" class="h-5 w-5"></i>
+                    </div>
+                    <h3 class="text-sm font-semibold text-slate-900">No Projects Found</h3>
+                    <p class="text-xs text-slate-500 max-w-sm mx-auto">
+                        No tender records matched your filter criteria. Register a new client or reset the filter.
+                    </p>
+                    <button
+                        onclick="openRegisterModal()"
+                        type="button"
+                        class="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-slate-900 text-white hover:bg-slate-800 transition cursor-pointer"
+                    >
+                        <i data-lucide="plus" class="h-4 w-4"></i>
+                        <span>Register as a New Client</span>
+                    </button>
+                </div>
+            `;
+            lucide.createIcons();
+            return;
+        }
+
+        container.innerHTML = filtered.map(proj => {
+            const hasApprovedBidPkg = proj.bidPackage && proj.bidPackage.status === 'Approved';
+            const initials = proj.assignedEstimatorName ? proj.assignedEstimatorName.slice(0, 2).toUpperCase() : '?';
+
+            return `
+                <div class="bg-white rounded-xl border border-slate-200 hover:border-slate-300 shadow-xs hover:shadow-sm transition-all p-5 space-y-3.5">
+                    
+                    <!-- Top Row: Work Order & Serial Number + Status Badge -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div class="flex items-center gap-2.5 flex-wrap">
+                            <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200">
+                                ${proj.workOrderNo}
+                            </span>
+                            <span class="font-mono text-xs text-slate-500">
+                                ${proj.enquirySerialNo || ''}
+                            </span>
+                            ${proj.clientRfqNo ? `
+                                <span class="text-xs text-slate-400">
+                                    Client Ref: <span class="font-mono text-slate-600">${proj.clientRfqNo}</span>
+                                </span>
+                            ` : ''}
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-medium px-2.5 py-0.5 rounded-full border ${getStatusBadge(proj.status)}">
+                                ${proj.status}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Middle Row: 12-Column Responsive Layout -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                        
+                        <!-- Col 1: Project Name & Scope (6 cols) -->
+                        <div class="lg:col-span-6 space-y-1">
+                            <h2 
+                                onclick="openDetailModal('${proj.id}')"
+                                class="text-base font-bold text-slate-900 hover:text-blue-600 transition cursor-pointer"
+                            >
+                                ${proj.proposedProjectName}
+                            </h2>
+
+                            <div class="flex items-center gap-3 text-xs text-slate-600 flex-wrap">
+                                <span class="flex items-center gap-1 font-semibold text-slate-800">
+                                    <i data-lucide="building-2" class="h-3.5 w-3.5 text-slate-500"></i>
+                                    <span>${proj.clientName}</span>
+                                    ${proj.clientShortName ? `
+                                        <span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-500 font-mono">
+                                            ${proj.clientShortName}
+                                        </span>
+                                    ` : ''}
+                                </span>
+
+                                <span class="flex items-center gap-1 text-slate-500">
+                                    <i data-lucide="map-pin" class="h-3.5 w-3.5 text-slate-400"></i>
+                                    <span>${proj.siteName ? `${proj.siteName} • ` : ''}${proj.projectLocation || 'Kingdom-wide'}</span>
+                                </span>
+                            </div>
+
+                            <p class="text-xs text-slate-500 line-clamp-2 pt-1 leading-relaxed">
+                                ${proj.projectWorkDescription || 'Scope and requirements as per client tender package.'}
+                            </p>
+                        </div>
+
+                        <!-- Col 2: Assigned Estimator Box (3 cols) -->
+                        <div class="lg:col-span-3 p-3 rounded-lg bg-slate-50 border border-slate-200 space-y-1.5">
+                            <div class="text-[11px] font-semibold text-slate-500 flex items-center justify-between">
+                                <span>Assigned Estimator</span>
+                                <button
+                                    type="button"
+                                    onclick="openAssignModal('${proj.id}')"
+                                    class="text-[11px] text-blue-600 hover:underline font-medium cursor-pointer"
+                                >
+                                    ${proj.assignedEstimatorId ? 'Reassign' : 'Allocate'}
+                                </button>
+                            </div>
+
+                            ${proj.assignedEstimatorName ? `
+                                <div class="flex items-center gap-2.5">
+                                    <div class="h-8 w-8 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0">
+                                        ${initials}
+                                    </div>
+                                    <div class="truncate">
+                                        <div class="text-xs font-bold text-slate-900 truncate">
+                                            ${proj.assignedEstimatorName}
+                                        </div>
+                                        <div class="text-[11px] text-slate-500 truncate">
+                                            ${proj.assignedEstimatorRole || 'Estimating Engineer'}
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : `
+                                <div class="space-y-1">
+                                    <div class="text-xs font-medium text-slate-500">Not yet assigned</div>
+                                    <button
+                                        type="button"
+                                        onclick="openAssignModal('${proj.id}')"
+                                        class="w-full py-1 px-2 rounded border border-blue-200 bg-blue-50 text-blue-600 text-xs font-medium hover:bg-blue-100 transition cursor-pointer"
+                                    >
+                                        + Assign Estimator
+                                    </button>
+                                </div>
+                            `}
+                        </div>
+
+                        <!-- Col 3: Dates & SOW Disciplines (3 cols) -->
+                        <div class="lg:col-span-3 space-y-2 text-xs">
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-500 flex items-center gap-1">
+                                    <i data-lucide="calendar" class="h-3.5 w-3.5 text-slate-400"></i> Received:
+                                </span>
+                                <span class="font-medium text-slate-800">
+                                    ${proj.receivedDate || '—'}
+                                </span>
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-500 flex items-center gap-1">
+                                    <i data-lucide="clock" class="h-3.5 w-3.5 text-slate-400"></i> Bid Close:
+                                </span>
+                                <span class="font-semibold text-rose-600">
+                                    ${proj.bidCloseDate || proj.submissionDeadline || '—'}
+                                </span>
+                            </div>
+
+                            ${(proj.attachedFiles && proj.attachedFiles.length > 0) ? `
+                                <div class="flex items-center justify-between text-slate-500">
+                                    <span class="flex items-center gap-1">
+                                        <i data-lucide="paperclip" class="h-3.5 w-3.5 text-slate-400"></i> Attached:
+                                    </span>
+                                    <span class="font-mono text-[11px] text-slate-700">
+                                        ${proj.attachedFiles.length} file(s)
+                                    </span>
+                                </div>
+                            ` : ''}
+
+                            <div class="pt-1 flex flex-wrap gap-1">
+                                ${((proj.sowScopes && proj.sowScopes.length) ? proj.sowScopes : ['Civil & Infra']).map(scope => `
+                                    <span class="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-medium border border-slate-200">
+                                        ${scope}
+                                    </span>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Official 40-Doc Approved Bid Package Banner -->
+                    ${hasApprovedBidPkg ? `
+                        <div class="bg-gradient-to-r from-emerald-50 via-teal-50 to-indigo-50 border border-emerald-300 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                            <div class="flex items-center gap-3">
+                                <div class="h-9 w-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold shrink-0 shadow-2xs">
+                                    <i data-lucide="check-circle-2" class="h-5 w-5"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="text-xs font-bold text-emerald-950">
+                                            Official Bid Package Approved (40 of 40 Documents Received)
+                                        </span>
+                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-200/90 text-emerald-900 border border-emerald-300">
+                                            ✓ Direct in CRM Admin Desk
+                                        </span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-600 mt-0.5">
+                                        Certified by Estimator: QA/QC (10) • HSE (3) • Operations (12) • Procurement (4) • Legal & Commercial (11)
+                                    </p>
+                                </div>
+                            </div>
+
+                            <button
+                                type="button"
+                                onclick="openBidPackageModal('${proj.id}')"
+                                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs transition cursor-pointer shrink-0"
+                            >
+                                <i data-lucide="file-text" class="h-3.5 w-3.5"></i>
+                                <span>View 40 Bid Documents</span>
+                            </button>
+                        </div>
+                    ` : ''}
+
+                    <!-- Action Bar -->
+                    <div class="pt-2 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+                        <span class="text-slate-400">
+                            Logged into Radwa CRM Register
+                        </span>
+
+                        <div class="flex flex-wrap items-center gap-2">
+                            ${hasApprovedBidPkg ? `
+                                <button
+                                    type="button"
+                                    onclick="openBidPackageModal('${proj.id}')"
+                                    class="px-3 py-1.5 rounded-md bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold transition cursor-pointer flex items-center gap-1.5 text-xs shadow-2xs"
+                                >
+                                    <i data-lucide="check-circle-2" class="h-3.5 w-3.5 text-emerald-600"></i>
+                                    <span>40 Bid Docs Received</span>
+                                </button>
+                            ` : ''}
+
+                            <button
+                                type="button"
+                                onclick="openDetailModal('${proj.id}')"
+                                class="px-3 py-1.5 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium transition cursor-pointer flex items-center gap-1"
+                            >
+                                <i data-lucide="eye" class="h-3.5 w-3.5"></i>
+                                Full Dossier
+                            </button>
+
+                            <button
+                                type="button"
+                                onclick="openAssignModal('${proj.id}')"
+                                class="px-3 py-1.5 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium transition cursor-pointer flex items-center gap-1"
+                            >
+                                <i data-lucide="user-check" class="h-3.5 w-3.5"></i>
+                                Assign / Rebalance
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+        }).join('');
+
+        lucide.createIcons();
+    }
+
+    // =========================================================================
+    // REGISTER CLIENT & INBOUND RFQ TENDER MODAL STATE ENGINE
+    // =========================================================================
+    let regAttachedFiles = [];
+    let regSowScopes = [];
+    let regSelectedReviewers = ['Managing Director (MD)'];
+    let regSelectedEstimatorId = '';
+
+    const ALL_SOW_SCOPES = [
+        'Civil',
+        'Electrical',
+        'Mechanical',
+        'HVAC',
+        'Plumbing',
+        'Structural',
+        'Specialized Sub-Scopes'
+    ];
+
+    function handleAutoGenerateSerial() {
+        const randomSeq = Math.floor(100 + Math.random() * 900);
+        document.getElementById('regEnquirySerialNo').value = `RGC-RFQ-2026-0${randomSeq}`;
+        document.getElementById('regWorkOrderNo').value = `WO-2026-0${randomSeq}`;
+    }
+
+    function openRegisterModal() {
+        // Auto-generate serial and WO number
+        handleAutoGenerateSerial();
+
+        // Dates
+        const today = new Date().toISOString().slice(0, 10);
+        const receivedDateEl = document.getElementById('regReceivedDate');
+        if (receivedDateEl) receivedDateEl.value = today;
+
+        const d = new Date();
+        d.setDate(d.getDate() + 14);
+        const bidCloseEl = document.getElementById('regBidCloseDate');
+        if (bidCloseEl) bidCloseEl.value = d.toISOString().slice(0, 10);
+
+        // Reset state
+        regAttachedFiles = [];
+        regSowScopes = [];
+        regSelectedReviewers = ['Managing Director (MD)'];
+        regSelectedEstimatorId = '';
+
+        // Reset inputs
+        const clientRfqEl = document.getElementById('regClientRfqNo');
+        if (clientRfqEl) clientRfqEl.value = '';
+        const clientShortEl = document.getElementById('regClientShortName');
+        if (clientShortEl) clientShortEl.value = '';
+        const propProjEl = document.getElementById('regProposedProjectName');
+        if (propProjEl) propProjEl.value = '';
+        const projLocEl = document.getElementById('regProjectLocation');
+        if (projLocEl) projLocEl.value = '';
+        const rfqThroughEl = document.getElementById('regRfqReceivedThrough');
+        if (rfqThroughEl) rfqThroughEl.value = 'Email';
+        const sowNotesEl = document.getElementById('regSowCaveatsNotes');
+        if (sowNotesEl) sowNotesEl.value = '';
+        const bidExtEl = document.getElementById('regBidExtensionDate');
+        if (bidExtEl) bidExtEl.value = '';
+        const bidSubTypeEl = document.getElementById('regBidSubmissionType');
+        if (bidSubTypeEl) bidSubTypeEl.value = 'Email Submission';
+        const clientNameEl = document.getElementById('regClientNameInput');
+        if (clientNameEl) clientNameEl.value = '';
+        const siteNameEl = document.getElementById('regSiteName');
+        if (siteNameEl) siteNameEl.value = '';
+        const senderContactEl = document.getElementById('regClientSenderContact');
+        if (senderContactEl) senderContactEl.value = '';
+        const cameToWhomEl = document.getElementById('regRfqCameToWhoseName');
+        if (cameToWhomEl) cameToWhomEl.value = '';
+        const workDescEl = document.getElementById('regProjectWorkDescription');
+        if (workDescEl) workDescEl.value = '';
+
+        renderRegSowCheckboxes();
+        renderRegAttachments();
+        renderRegReviewers();
+        renderRegEstimators();
+        updateRegFooterNotice();
+
+        const modal = document.getElementById('registerModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        lucide.createIcons();
+    }
+
+    function closeRegisterModal() {
+        const modal = document.getElementById('registerModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    }
+
+    function handleToggleSow(scope) {
+        if (regSowScopes.includes(scope)) {
+            regSowScopes = regSowScopes.filter(s => s !== scope);
+        } else {
+            regSowScopes.push(scope);
+        }
+        renderRegSowCheckboxes();
+    }
+
+    function renderRegSowCheckboxes() {
+        const container = document.getElementById('regSowGrid');
+        if (!container) return;
+        container.innerHTML = ALL_SOW_SCOPES.map(scope => {
+            const isChecked = regSowScopes.includes(scope);
+            const isColSpan = scope === 'Specialized Sub-Scopes';
+            return `
+                <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer select-none ${isColSpan ? 'col-span-2' : ''}">
+                    <input
+                        type="checkbox"
+                        ${isChecked ? 'checked' : ''}
+                        onchange="handleToggleSow('${scope}')"
+                        class="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+                    />
+                    <span>${scope}</span>
+                </label>
+            `;
+        }).join('');
+    }
+
+    function handleAutoAssignEstimator() {
+        if (!DJANGO_ESTIMATORS || DJANGO_ESTIMATORS.length === 0) return;
+        const sorted = [...DJANGO_ESTIMATORS].sort((a, b) => (Number(a.activeTenders) || 0) - (Number(b.activeTenders) || 0));
+        const best = sorted[0];
+        if (best) {
+            selectRegEstimator(String(best.id));
+        }
+    }
+
+    function selectRegEstimator(estId) {
+        regSelectedEstimatorId = String(estId);
+        document.getElementById('regAssignedEstimatorId').value = regSelectedEstimatorId;
+        const select = document.getElementById('regEstimatorSelect');
+        if (select) select.value = regSelectedEstimatorId;
+        renderRegEstimators();
+        updateRegFooterNotice();
+    }
+
+    function handleEstimatorDropdownChange(val) {
+        selectRegEstimator(val);
+    }
+
+    function renderRegEstimators() {
+        const container = document.getElementById('regEstimatorCardsList');
+        if (!container) return;
+        container.innerHTML = DJANGO_ESTIMATORS.map(est => {
+            const isSelected = String(regSelectedEstimatorId) === String(est.id);
+            const isOptimal = (Number(est.activeTenders) === 0 || est.capacityStatus === 'Optimal Capacity');
+            const initials = est.initials || (est.name ? est.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase() : 'ES');
+            return `
+                <div
+                    onclick="selectRegEstimator('${est.id}')"
+                    id="regEstItem-${est.id}"
+                    class="flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${
+                        isSelected
+                            ? 'bg-blue-50/60 border-blue-500 ring-1 ring-blue-500'
+                            : 'bg-white border-slate-200 hover:border-slate-300'
+                    }"
+                >
+                    <div class="flex items-center gap-3">
+                        <div class="h-9 w-9 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0 border border-slate-200">
+                            ${initials}
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs sm:text-sm font-bold text-slate-900">${est.name}</span>
+                                ${isOptimal ? `
+                                    <span class="text-[10px] font-medium px-2 py-0.5 rounded border border-blue-200 text-blue-700 bg-blue-50">
+                                        Optimal Capacity
+                                    </span>
+                                ` : ''}
+                            </div>
+                            <p class="text-xs text-slate-500">${est.role || 'Senior Estimating Engineer'}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-medium px-3 py-1 rounded border border-slate-200 bg-white text-slate-700">
+                            ${est.activeTenders || 0} Active Tenders
+                        </span>
+                        <div class="h-4 w-4 rounded-full flex items-center justify-center border transition ${
+                            isSelected
+                                ? 'border-blue-600 bg-blue-600 text-white'
+                                : 'border-slate-300 bg-white'
+                        }">
+                            ${isSelected ? '<span class="h-1.5 w-1.5 rounded-full bg-white"></span>' : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function updateRegFooterNotice() {
+        const noticeEl = document.getElementById('regFooterNotice');
+        if (!noticeEl) return;
+        const est = DJANGO_ESTIMATORS.find(e => String(e.id) === String(regSelectedEstimatorId));
+        if (est) {
+            noticeEl.innerHTML = `Allocated Estimator: <strong class="text-slate-800">${est.name}</strong> (${est.role || 'Quantity Surveyor'})`;
+        } else {
+            noticeEl.innerText = 'Estimator can be assigned now or updated by MD.';
+        }
+    }
+
+    function handleRealFileUpload(event) {
+        const files = event.target.files;
+        if (!files || files.length === 0) return;
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+            regAttachedFiles.push({
+                id: `f-${Date.now()}-${i}`,
+                name: file.name,
+                size: `${sizeMB} MB`,
+                type: file.type || 'document',
+                uploadedAt: new Date().toISOString().slice(0, 10)
+            });
+        }
+        renderRegAttachments();
+    }
+
+    function handleRemoveAttachment(fileId) {
+        regAttachedFiles = regAttachedFiles.filter(f => f.id !== fileId);
+        renderRegAttachments();
+    }
+
+    function renderRegAttachments() {
+        const container = document.getElementById('regAttachedFilesList');
+        if (!container) return;
+        if (regAttachedFiles.length === 0) {
+            container.innerHTML = '';
+            return;
+        }
+        container.innerHTML = regAttachedFiles.map(file => `
+            <div class="flex items-center justify-between px-3 py-1.5 rounded bg-white border border-slate-200 text-xs">
+                <div class="flex items-center gap-2 truncate">
+                    <span class="text-slate-700 font-medium truncate">${file.name}</span>
+                    <span class="text-[10px] text-slate-400 shrink-0">(${file.size})</span>
+                </div>
+                <button
+                    type="button"
+                    onclick="handleRemoveAttachment('${file.id}')"
+                    class="p-1 text-slate-400 hover:text-rose-600 transition shrink-0 cursor-pointer"
+                    title="Remove file"
+                >
+                    <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                </button>
+            </div>
+        `).join('');
+        lucide.createIcons();
+    }
+
+    function handleAddReviewer(name) {
+        const clean = (name || '').trim();
+        if (!clean) return;
+        if (!regSelectedReviewers.includes(clean)) {
+            regSelectedReviewers.push(clean);
+        }
+        const input = document.getElementById('regReviewerInput');
+        if (input) input.value = '';
+        renderRegReviewers();
+    }
+
+    function handleAddReviewerFromInput() {
+        const input = document.getElementById('regReviewerInput');
+        if (input && input.value.trim()) {
+            handleAddReviewer(input.value.trim());
+        }
+    }
+
+    function handleRemoveReviewer(name) {
+        regSelectedReviewers = regSelectedReviewers.filter(r => r !== name);
+        renderRegReviewers();
+    }
+
+    function handleReviewerKeyDown(e) {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            handleAddReviewerFromInput();
+        }
+    }
+
+    function renderRegReviewers() {
+        const chipsContainer = document.getElementById('regReviewersChips');
+        if (!chipsContainer) return;
+        chipsContainer.innerHTML = regSelectedReviewers.map(r => `
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-800 border border-slate-200 shadow-2xs">
+                <span>${r}</span>
+                <button
+                    type="button"
+                    onclick="handleRemoveReviewer('${r}')"
+                    class="text-slate-400 hover:text-rose-600 transition p-0.5 rounded cursor-pointer"
+                    title="Remove"
+                >
+                    <i data-lucide="x" class="h-3 w-3"></i>
+                </button>
+            </span>
+        `).join('');
+
+        const suggestionsContainer = document.getElementById('regQuickSuggestions');
+        if (suggestionsContainer) {
+            const pool = [
+                'Managing Director (MD)',
+                'Commercial Director',
+                'Technical & Operations Director',
+                'CFO / Finance Director',
+                'Head of Contracts & Legal'
+            ];
+            const unselected = pool.filter(item => !regSelectedReviewers.includes(item));
+            suggestionsContainer.innerHTML = unselected.map(s => `
+                <button
+                    type="button"
+                    onclick="handleAddReviewer('${s}')"
+                    class="px-2 py-0.5 rounded border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-[11px] font-medium transition cursor-pointer flex items-center gap-1"
+                >
+                    <span>+</span>
+                    <span>${s}</span>
+                </button>
+            `).join('');
+        }
+        lucide.createIcons();
+    }
+
+    function handleRegisterClientSubmit(e) {
+        const clientNameVal = document.getElementById('regClientNameInput').value.trim();
+        const proposedProjVal = document.getElementById('regProposedProjectName').value.trim();
+        if (!clientNameVal || !proposedProjVal) {
+            alert('Client Name and Proposed Project Name are required.');
+            return false;
+        }
+
+        const shortNameInput = document.getElementById('regClientShortName');
+        if (!shortNameInput.value.trim() && clientNameVal) {
+            shortNameInput.value = clientNameVal.slice(0, 4).toUpperCase();
+        }
+
+        document.getElementById('hiddenSowScopes').value = JSON.stringify(regSowScopes.length > 0 ? regSowScopes : ['Civil']);
+        document.getElementById('hiddenAttachedFiles').value = JSON.stringify(regAttachedFiles);
+        document.getElementById('hiddenManagementReviewers').value = JSON.stringify(regSelectedReviewers);
+        document.getElementById('regAssignedEstimatorId').value = regSelectedEstimatorId || '';
+
+        return true;
+    }
+
+    function openAssignModal(projId) {
+        const proj = DJANGO_PROJECTS.find(p => p.id === projId);
+        if (!proj) return;
+        document.getElementById('assignProjectId').value = projId;
+        document.getElementById('assignModalProjectTitle').innerText = `${proj.workOrderNo} — ${proj.proposedProjectName}`;
+        document.getElementById('assignModal').classList.remove('hidden');
+        document.getElementById('assignModal').classList.add('flex');
+        lucide.createIcons();
+    }
+
+    function closeAssignModal() {
+        document.getElementById('assignModal').classList.add('hidden');
+        document.getElementById('assignModal').classList.remove('flex');
+    }
+
+    function selectEstimatorToAssign(estId) {
+        document.getElementById('selectedEstimatorId').value = estId;
+        DJANGO_ESTIMATORS.forEach(e => {
+            const card = document.getElementById(`assignCard-${e.id}`);
+            if (card) {
+                if (e.id === estId) card.className = 'p-3.5 rounded-xl border-2 border-blue-600 bg-blue-50/60 cursor-pointer transition flex items-center justify-between gap-3 text-xs';
+                else card.className = 'p-3.5 rounded-xl border border-slate-200 hover:border-blue-500 cursor-pointer transition flex items-center justify-between gap-3 text-xs';
+            }
+        });
+    }
+
+    function openDetailModal(projId) {
+        const p = DJANGO_PROJECTS.find(x => x.id === projId);
+        if (!p) return;
+        document.getElementById('detailModalTitle').innerText = `${p.workOrderNo} — ${p.proposedProjectName}`;
+        document.getElementById('detailModalContent').innerHTML = `
+            <div class="space-y-2">
+                <div><strong>Client:</strong> ${p.clientName}</div>
+                <div><strong>Location:</strong> ${p.projectLocation}</div>
+                <div><strong>Nature of Work:</strong> ${p.natureOfWork}</div>
+                <div><strong>Estimated Value:</strong> SAR ${(Number(p.estimatedValue) || 0).toLocaleString()}</div>
+                <div><strong>Status:</strong> ${p.status}</div>
+                <div><strong>Description:</strong> ${p.projectWorkDescription || 'Standard turnkey EPC engineering specifications.'}</div>
+            </div>
+        `;
+        document.getElementById('detailModal').classList.remove('hidden');
+        document.getElementById('detailModal').classList.add('flex');
+    }
+
+    function closeDetailModal() {
+        document.getElementById('detailModal').classList.add('hidden');
+        document.getElementById('detailModal').classList.remove('flex');
+    }
+
+    const STANDARD_40_DOCS = [
+        { name: "01. Commercial Tender Covering Letter & Scope Undertaking", department: "CRM Commercial" },
+        { name: "02. Valid Trade Commercial Registration (CR - Eastern Province)", department: "Legal / Compliance" },
+        { name: "03. Chamber of Commerce & Industry Membership Certificate", department: "Legal / Compliance" },
+        { name: "04. Valid General Organization for Social Insurance (GOSI) Compliance", department: "HR & Personnel" },
+        { name: "05. Ministry of Human Resources Saudization (Nitaqat) Platinum Certificate", department: "HR & Personnel" },
+        { name: "06. General Authority of Zakat, Tax and Customs (ZATCA) Certificate", department: "Finance & Accounts" },
+        { name: "07. Value Added Tax (VAT) Registration Certificate", department: "Finance & Accounts" },
+        { name: "08. Contractor Classification Certificate - Grade 1 Industrial & Buildings", department: "Corporate Affairs" },
+        { name: "09. Corporate Articles of Association & Commercial Powers of Attorney", department: "Legal / Executive" },
+        { name: "10. ISO 9001:2015 Quality Management System Accreditation", department: "QA/QC Management" },
+        { name: "11. ISO 14001:2015 Environmental Management System Certificate", department: "HSE Management" },
+        { name: "12. ISO 45001:2018 Occupational Health & Safety System Certificate", department: "HSE Management" },
+        { name: "13. Official Tender Bid Bond / Bank Guarantee Security", department: "Finance & Treasury" },
+        { name: "14. Audited Financial Statements for Past 3 Fiscal Years", department: "Finance & Accounts" },
+        { name: "15. Corporate Banking Facilities & Solvency Reference Letters", department: "Finance & Treasury" },
+        { name: "16. Signed Joint Venture & Consortium Agreements (if applicable)", department: "Corporate Affairs" },
+        { name: "17. Project Execution Strategy & Mobilization Methodology Statement", department: "Technical Estimating" },
+        { name: "18. Detailed Level 4 Primavera P6 Baseline Construction Schedule", department: "Project Planning" },
+        { name: "19. Detailed Resource-Loaded S-Curve & Cash Flow Forecast", department: "Project Planning" },
+        { name: "20. Key Project Management & Engineering CVs with Saudi Council Approval", department: "Human Resources" },
+        { name: "21. Project-Specific Quality Plan (PQMP) & Sample Inspection Test Plans (ITP)", department: "QA/QC Management" },
+        { name: "22. Project-Specific HSE Plan & Job Safety Environmental Analysis (JSEA)", department: "HSE Management" },
+        { name: "23. Comprehensive Site Logistics, Laydown Yard & Mobilization Route Plan", department: "Operations Logistics" },
+        { name: "24. Heavy Plant, Cranage & Earthmoving Equipment Deployment Schedule", department: "Plant & Machinery" },
+        { name: "25. Approved Subcontractor Prequalification Dossiers & SOW Scopes", department: "Procurement Desk" },
+        { name: "26. Major Long-Lead Equipment Vendor Prequalification (Aramco 9COM)", department: "Procurement Desk" },
+        { name: "27. Site Health & Safety Emergency Response & Medical Evacuation Plan", department: "HSE Management" },
+        { name: "28. Waste Management & Environmental Protection Plan", department: "HSE Management" },
+        { name: "29. Site Security Plan Compliant with High Commission for Industrial Security (HCIS)", department: "HSE Security" },
+        { name: "30. Corporate Past Performance Certificates for Similar Executed Works", department: "CRM Commercial" },
+        { name: "31. Client Reference Letters & Letters of Completion (Aramco / SABIC)", department: "CRM Commercial" },
+        { name: "32. Unpriced Technical Bill of Quantities (BOQ) with Full Scope Compliance", department: "Estimating Desk" },
+        { name: "33. Technical Exceptions, Commercial Clarifications & Scope Caveats Schedule", department: "Commercial Bidding" },
+        { name: "34. Local Content Strategy (IKTVA) Plan & Past Verified IKTVA Certificate", department: "Compliance Management" },
+        { name: "35. Material Prequalification Catalogues, Technical Data Sheets & Compliance", department: "Engineering Desk" },
+        { name: "36. Temporary Facilities, Power Generation & Dewatering Scheme", department: "Field Operations" },
+        { name: "37. Third-Party Calibration Records for Survey & Testing Equipment", department: "QA/QC Management" },
+        { name: "38. Organization Chart with Detailed Roles & Reporting Hierarchies", department: "Project Management" },
+        { name: "39. Cybersecurity Compliance Declaration (Aramco SACS-002)", department: "IT & Systems" },
+        { name: "40. Master Proposal Execution Verification & Executive Endorsement Sign-Off", department: "Managing Director" }
+    ];
+
+    function openBidPackageModal(projId) {
+        const p = DJANGO_PROJECTS.find(x => x.id === projId);
+        if (!p) return;
+        document.getElementById('bidPackageModalTitle').innerText = `Compiled 40-Document Bid Package — ${p.proposedProjectName}`;
+        document.getElementById('bidPackageModalWO').innerText = `${p.workOrderNo} • ${p.clientName}`;
+
+        const docs = (p.bidPackage && p.bidPackage.documents) ? p.bidPackage.documents : STANDARD_40_DOCS;
+        document.getElementById('bidPackageModalContent').innerHTML = docs.map((d, i) => `
+            <div class="p-2.5 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between">
+                <div>
+                    <span class="font-bold text-slate-800">${d.name}</span>
+                    <span class="text-[10px] text-slate-500 block">Department: ${d.department}</span>
+                </div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                    Verified
+                </span>
+            </div>
+        `).join('');
+
+        document.getElementById('printBidPackageBtn').onclick = () => printBidPackageDossier(p);
+        document.getElementById('bidPackageModal').classList.remove('hidden');
+        document.getElementById('bidPackageModal').classList.add('flex');
+    }
+
+    function closeBidPackageModal() {
+        document.getElementById('bidPackageModal').classList.add('hidden');
+        document.getElementById('bidPackageModal').classList.remove('flex');
+    }
+
+    function printBidPackageDossier(p) {
+        window.print();
+    }
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', () => {
+        updateAiPillView();
+        renderStatusTabs();
+        renderProjects();
+        lucide.createIcons();
+
+        // Auto-open Register Client & Inbound RFQ Tender modal if query param is set
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('register') === '1' || urlParams.get('open') === 'register' || urlParams.get('new_client') === '1' || urlParams.get('action') === 'register') {
+            openRegisterModal();
+        }
+    });
+    </script>
+</body>
+</html>

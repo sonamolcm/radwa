@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radwa ERP - QA/QC Quality & ITP Inspections</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+      .font-mono {
+        font-family: 'JetBrains Mono', monospace;
+      }
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: #f1f5f9; }
+      ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+      ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-900 antialiased flex flex-col">
+
+    <!-- Master Navigation Component -->
+    {% include "core/components/master_nav.html" with active_module="qaqc" active_label="QA/QC Quality Inspection" %}
+
+    <!-- Main Content Container -->
+    <div class="w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-4">
+        
+        <!-- ============================================================ -->
+        <!-- 1. QA/QC MODULE SUB-NAVIGATION (Clean Enterprise Layout)     -->
+        <!-- ============================================================ -->
+        <div class="bg-slate-900 text-white rounded-2xl px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 shadow-md border border-slate-800 select-none">
+            
+            <!-- Left: Module Title & Subnav Tabs -->
+            <div class="flex flex-wrap items-center gap-4 sm:gap-6">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center border border-purple-500/30">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm font-bold tracking-tight text-white flex items-center gap-2">
+                            <span>Radwa QA/QC Quality</span>
+                            <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                                ISO 9001 / ITP
+                            </span>
+                        </div>
+                        <div class="text-[11px] text-slate-400">
+                            Inspection Requests (RFI), Non-Conformance (NCR) & Punch Lists
+                        </div>
+                    </div>
+                </div>
+
+                <nav class="flex items-center gap-1.5 text-xs font-semibold overflow-x-auto">
+                    <button
+                        type="button"
+                        id="tab-btn-rfi"
+                        onclick="switchTab('rfi')"
+                        class="px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 bg-purple-600 text-white font-bold shadow-xs"
+                    >
+                        <i data-lucide="file-check-2" class="w-3.5 h-3.5"></i>
+                        <span>Inspection Requests (RFI)</span>
+                        <span id="tab-badge-rfi" class="px-1.5 py-0.2 rounded-full text-[10px] bg-purple-400 text-slate-950 font-black">
+                            0
+                        </span>
+                    </button>
+
+                    <button
+                        type="button"
+                        id="tab-btn-ncr"
+                        onclick="switchTab('ncr')"
+                        class="px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 text-slate-300 hover:text-white hover:bg-slate-800"
+                    >
+                        <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-300"></i>
+                        <span>Non-Conformance (NCR)</span>
+                        <span id="tab-badge-ncr" class="px-1.5 py-0.2 rounded-full text-[10px] bg-rose-400 text-slate-950 font-black">
+                            0
+                        </span>
+                    </button>
+
+                    <button
+                        type="button"
+                        id="tab-btn-punch_list"
+                        onclick="switchTab('punch_list')"
+                        class="px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 text-slate-300 hover:text-white hover:bg-slate-800"
+                    >
+                        <i data-lucide="layers" class="w-3.5 h-3.5 text-amber-300"></i>
+                        <span>Punch List / Snags</span>
+                        <span id="tab-badge-punch_list" class="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-400 text-slate-950 font-black">
+                            0
+                        </span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Right: Quality Badge -->
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-purple-950/80 text-purple-300 border border-purple-800/60">
+                    <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+                    <span>ITP Hold Points Active</span>
+                </span>
+            </div>
+
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- 2. SUB-HEADER BAR (Action Button + Search + Filters + Pager) -->
+        <!-- ============================================================ -->
+        <div id="sub-header-bar" class="bg-white border-b border-slate-200/80 px-4 sm:px-6 py-3 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+            
+            <div class="flex items-center gap-3">
+                <button
+                    type="button"
+                    id="btn-new-rfi"
+                    onclick="handleOpenNewRfi()"
+                    style="background-color: #5b4db7;"
+                    class="px-4 py-2 rounded-xl text-white font-bold text-xs hover:brightness-95 transition cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95"
+                >
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                    <span>New</span>
+                </button>
+
+                <div class="flex items-center gap-2 text-slate-800">
+                    <span id="sub-header-title" class="text-sm font-extrabold tracking-tight">
+                        Requests for Inspection (RFI)
+                    </span>
+                    <i data-lucide="settings" class="w-3.5 h-3.5 text-slate-400 hover:text-slate-700 cursor-pointer transition"></i>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 flex-wrap">
+                
+                <!-- Discipline Filter -->
+                <div id="discipline-filter-wrapper" class="hidden lg:flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-0.5 text-[11px]">
+                    <button
+                        type="button"
+                        id="filter-disc-all"
+                        onclick="setDisciplineFilter('all')"
+                        class="px-2.5 py-1 rounded-md font-semibold transition cursor-pointer bg-white shadow-2xs text-purple-700 font-bold"
+                    >
+                        All Disciplines
+                    </button>
+                    <button
+                        type="button"
+                        id="filter-disc-civil"
+                        onclick="setDisciplineFilter('Civil Concrete & Foundation Inspection')"
+                        class="px-2.5 py-1 rounded-md font-semibold transition cursor-pointer text-slate-600 hover:text-slate-900"
+                    >
+                        Civil
+                    </button>
+                    <button
+                        type="button"
+                        id="filter-disc-welding"
+                        onclick="setDisciplineFilter('Welding & NDT Inspection')"
+                        class="px-2.5 py-1 rounded-md font-semibold transition cursor-pointer text-slate-600 hover:text-slate-900"
+                    >
+                        Welding / NDT
+                    </button>
+                </div>
+
+                <!-- Search Input -->
+                <div class="relative">
+                    <input
+                        type="text"
+                        id="qaqcSearchInput"
+                        oninput="handleSearch(this.value)"
+                        placeholder="Search by Ref, Project, Location..."
+                        class="w-56 sm:w-72 pl-8 pr-3 py-1.5 rounded-lg border border-slate-300 bg-white text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-600/30 focus:border-purple-600 shadow-2xs"
+                    />
+                    <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none"></i>
+                </div>
+
+                <!-- Counter Pager -->
+                <div class="flex items-center gap-1 text-xs text-slate-600 pl-2 border-l border-slate-200">
+                    <span id="counter-pager-text" class="font-mono font-semibold">
+                        1-0 / 0
+                    </span>
+                    <div class="flex items-center gap-0.5 ml-1">
+                        <button type="button" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-800 disabled:opacity-30">
+                            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                        </button>
+                        <button type="button" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-800 disabled:opacity-30">
+                            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- 3. MAIN CONTENT AREA: LIST VIEW vs FORM VIEW                 -->
+        <!-- ============================================================ -->
+        <main class="space-y-4">
+            
+            <!-- EXECUTIVE KPI STATS CARDS (Top of List View on RFI tab) -->
+            <div id="kpi-cards-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+                
+                <!-- Total RFIs Card -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs hover:shadow-sm transition">
+                    <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                        <span>Total RFIs</span>
+                        <span class="p-1.5 rounded-lg bg-purple-50 text-purple-700">
+                            <i data-lucide="file-text" class="w-4 h-4"></i>
+                        </span>
+                    </div>
+                    <div id="kpi-total-rfis" class="text-2xl font-black text-slate-900 mt-2 font-mono">
+                        0
+                    </div>
+                    <div class="text-[11px] text-slate-500 mt-0.5 font-medium">
+                        Registered inspection points
+                    </div>
+                </div>
+
+                <!-- Code 1 Approved Card -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs hover:shadow-sm transition">
+                    <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                        <span>Code 1 Approved</span>
+                        <span class="p-1.5 rounded-lg bg-emerald-50 text-emerald-700">
+                            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                        </span>
+                    </div>
+                    <div class="text-2xl font-black text-emerald-700 mt-2 font-mono flex items-center gap-1.5">
+                        <span id="kpi-code1-approved">0</span>
+                        <span id="kpi-compliance-badge" class="text-xs font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800 font-sans">
+                            100%
+                        </span>
+                    </div>
+                    <div class="text-[11px] text-emerald-700 mt-0.5 font-medium">
+                        Certified compliant with specs
+                    </div>
+                </div>
+
+                <!-- Pending Inspections Card -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs hover:shadow-sm transition">
+                    <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                        <span>Pending Inspection</span>
+                        <span class="p-1.5 rounded-lg bg-purple-50 text-purple-700">
+                            <i data-lucide="clock" class="w-4 h-4"></i>
+                        </span>
+                    </div>
+                    <div id="kpi-pending-inspection" class="text-2xl font-black text-purple-700 mt-2 font-mono">
+                        0
+                    </div>
+                    <div class="text-[11px] text-purple-700 mt-0.5 font-medium">
+                        Awaiting witness / hold point sign-off
+                    </div>
+                </div>
+
+                <!-- Code 3 Non-Compliances Card -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs hover:shadow-sm transition">
+                    <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                        <span>Code 3 Rejected</span>
+                        <span class="p-1.5 rounded-lg bg-rose-50 text-rose-700">
+                            <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                        </span>
+                    </div>
+                    <div id="kpi-code3-rejected" class="text-2xl font-black text-rose-700 mt-2 font-mono">
+                        0
+                    </div>
+                    <div class="text-[11px] text-rose-700 mt-0.5 font-medium">
+                        Requires rectification & re-inspection
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ======================================================== -->
+            <!-- VIEW A: RFI LIST TABLE VIEW (Matching Image 4)           -->
+            <!-- ======================================================== -->
+            <div id="rfi-table-container" class="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="bg-slate-50/80 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider text-[11px]">
+                            <tr>
+                                <th class="py-3 px-3.5 w-8 text-center">
+                                    <input type="checkbox" class="rounded border-slate-300 text-purple-600 focus:ring-purple-500 cursor-pointer" />
+                                </th>
+                                <th class="py-3 px-4 whitespace-nowrap">RFI / MIR Ref</th>
+                                <th class="py-3 px-4 whitespace-nowrap">Project</th>
+                                <th class="py-3 px-4 whitespace-nowrap">WBS Task / Activity</th>
+                                <th class="py-3 px-4 whitespace-nowrap">Inspection Discipline</th>
+                                <th class="py-3 px-4 whitespace-nowrap">ITP Inspection Point</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rfi-table-tbody" class="divide-y divide-slate-100">
+                            <!-- Rows dynamically populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Table Footer -->
+                <div class="px-4 py-3 bg-slate-50/80 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+                    <span id="rfi-footer-count" class="font-medium">Showing 0 quality inspection records</span>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span class="font-medium">All QA/QC Records Verified with Client ITP Log</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ======================================================== -->
+            <!-- VIEW B: NCR TAB VIEW                                     -->
+            <!-- ======================================================== -->
+            <div id="ncr-list-container" class="hidden bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden p-6 space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900">Non-Conformance Reports (NCR Log)</h2>
+                        <p class="text-xs text-slate-500">Track and rectify project site quality non-compliances</p>
+                    </div>
+                    <span id="ncr-active-badge" class="px-3 py-1 rounded-full bg-rose-50 text-rose-800 border border-rose-200 text-xs font-bold">
+                        0 Active Non-Conformances
+                    </span>
+                </div>
+
+                <div id="ncr-cards-list" class="space-y-3">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- ======================================================== -->
+            <!-- VIEW C: PUNCH LIST TAB VIEW                              -->
+            <!-- ======================================================== -->
+            <div id="punch-list-container" class="hidden bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden p-6 space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900">Project Punch List & Site Snags</h2>
+                        <p class="text-xs text-slate-500">Pre-commissioning hold items and post-construction snag list</p>
+                    </div>
+                    <span id="punch-logged-badge" class="px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold">
+                        0 Items Logged
+                    </span>
+                </div>
+
+                <div id="punch-cards-list" class="space-y-3">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- ======================================================== -->
+            <!-- VIEW D: RFI DETAIL / EDIT / CREATE FORM (Image 2)        -->
+            <!-- ======================================================== -->
+            <div id="rfi-form-container" class="hidden bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden max-w-5xl mx-auto space-y-0">
+                
+                <!-- Form Top Breadcrumb Bar -->
+                <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
+                    <div class="flex items-center gap-2 text-xs">
+                        <button
+                            type="button"
+                            onclick="closeFormView()"
+                            class="font-bold text-purple-700 hover:underline cursor-pointer flex items-center gap-1.5"
+                        >
+                            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                            <span>Requests for Inspection (RFI)</span>
+                        </button>
+                        <span class="text-slate-400">/</span>
+                        <span id="form-breadcrumb-ref" class="font-bold text-slate-800 font-mono text-sm">RFI-NEW</span>
+                        <i data-lucide="settings" class="w-3.5 h-3.5 text-slate-400 ml-1 cursor-pointer hover:text-slate-700"></i>
+                    </div>
+
+                    <div class="flex items-center gap-2 text-xs text-slate-500">
+                        <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="text-[11px] font-semibold">ITP Registered</span>
+                    </div>
+                </div>
+
+                <!-- Actions Bar + Chevron Status Pipeline (Exact match to Image 2) -->
+                <div class="p-4 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white">
+                    
+                    <!-- Left Action Buttons -->
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <!-- Approve (CODE 1) Green Button -->
+                        <button
+                            type="button"
+                            onclick="handleApproveCode1()"
+                            style="background-color: #16a34a;"
+                            class="px-4 py-2 rounded-lg text-white font-bold text-xs hover:brightness-95 transition cursor-pointer flex items-center gap-1.5 shadow-xs active:scale-95"
+                        >
+                            <i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>
+                            <span>Approve (CODE 1)</span>
+                        </button>
+
+                        <!-- Reject (CODE 3) Red Button -->
+                        <button
+                            type="button"
+                            onclick="handleRejectCode3()"
+                            style="background-color: #dc2626;"
+                            class="px-4 py-2 rounded-lg text-white font-bold text-xs hover:brightness-95 transition cursor-pointer flex items-center gap-1.5 shadow-xs active:scale-95"
+                        >
+                            <i data-lucide="x" class="w-4 h-4 stroke-[3]"></i>
+                            <span>Reject (CODE 3)</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            onclick="handleSaveRfi()"
+                            style="background-color: #5b4db7;"
+                            class="px-4 py-2 rounded-lg text-white font-bold text-xs hover:brightness-95 transition cursor-pointer flex items-center gap-1.5 shadow-xs active:scale-95"
+                        >
+                            <i data-lucide="save" class="w-3.5 h-3.5"></i>
+                            <span>Save RFI</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            onclick="closeFormView()"
+                            class="px-3.5 py-2 rounded-lg border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-50 transition cursor-pointer shadow-2xs"
+                        >
+                            Back to List
+                        </button>
+                    </div>
+
+                    <!-- Right: Chevron Pipeline Tracker (Exact match to Image 2) -->
+                    <div class="flex items-center text-xs font-bold overflow-hidden rounded-lg border border-slate-200">
+                        
+                        <!-- Stage 1: Pending Inspection -->
+                        <div id="pipeline-stage-pending" class="px-3 py-1.5 flex items-center gap-1.5 transition bg-purple-100 text-purple-900 border-r border-purple-200">
+                            <span>Pending Inspection</span>
+                        </div>
+
+                        <!-- Stage 2: CODE 1: APPROVED / Compliant -->
+                        <div id="pipeline-stage-approved" class="px-3 py-1.5 flex items-center gap-1.5 transition bg-slate-50 text-slate-400 border-r border-slate-200">
+                            <span id="pipeline-check-icon" class="hidden">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-700 stroke-[3]"></i>
+                            </span>
+                            <span>CODE 1: APPROVED / Compliant</span>
+                        </div>
+
+                        <!-- Stage 3: CODE 3: REJECTED / Non-Compliant -->
+                        <div id="pipeline-stage-rejected" class="px-3 py-1.5 flex items-center gap-1.5 transition bg-slate-50 text-slate-400">
+                            <span id="pipeline-x-icon" class="hidden">
+                                <i data-lucide="x" class="w-3.5 h-3.5 text-rose-700 stroke-[3]"></i>
+                            </span>
+                            <span>CODE 3: REJECTED / Non-Compliant</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Form Main Body -->
+                <div class="p-6 sm:p-8 space-y-6">
+                    
+                    <!-- Form Title Heading -->
+                    <div>
+                        <input
+                            type="text"
+                            id="formRfiRef"
+                            class="text-3xl font-black text-slate-900 tracking-tight font-mono border-b border-transparent hover:border-slate-300 focus:border-purple-600 focus:outline-none w-full max-w-sm"
+                            placeholder="RFI-NEW"
+                        />
+                    </div>
+
+                    <!-- 2-Column Form Fields (Exact layout from Image 2) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-2">
+                        
+                        <!-- LEFT COLUMN: INSPECTION META -->
+                        <div class="space-y-4">
+                            <h3 class="text-xs font-black uppercase tracking-wider text-slate-900 pb-1 border-b border-slate-100 flex items-center gap-1.5">
+                                <i data-lucide="layers" class="w-3.5 h-3.5 text-purple-600"></i>
+                                <span>INSPECTION META</span>
+                            </h3>
+
+                            <!-- Project Dropdown (Matching Screenshot 1 & 3) -->
+                            <div class="relative">
+                                <label class="block text-xs font-bold text-slate-700 mb-1">
+                                    Project
+                                </label>
+                                <div class="relative">
+                                    <div
+                                        id="projectDropdownTrigger"
+                                        onclick="toggleProjectDropdown()"
+                                        class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-900 flex items-center justify-between cursor-pointer hover:border-purple-500 focus:ring-1 focus:ring-purple-600 shadow-2xs"
+                                    >
+                                        <span id="formProjectNameDisplay" class="truncate">Select Project...</span>
+                                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 shrink-0"></i>
+                                    </div>
+
+                                    <!-- Dropdown Menu (Exact design from Screenshot 1 & 3) -->
+                                    <div id="projectDropdownMenu" class="hidden absolute z-30 left-0 right-0 mt-1 bg-white rounded-xl shadow-2xl border border-slate-200 divide-y divide-slate-100 max-h-64 overflow-y-auto">
+                                        <div class="p-2 bg-slate-50">
+                                            <input
+                                                type="text"
+                                                id="projectSearchInput"
+                                                oninput="filterProjectDropdown(this.value)"
+                                                placeholder="Search project..."
+                                                class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-purple-600"
+                                                onclick="event.stopPropagation()"
+                                            />
+                                        </div>
+
+                                        <div id="projectDropdownList" class="py-1">
+                                            <!-- Injected by JS -->
+                                        </div>
+
+                                        <div class="p-2.5 bg-slate-50 text-center border-t border-slate-100">
+                                            <button
+                                                type="button"
+                                                onclick="promptCustomProject()"
+                                                class="text-xs font-bold text-purple-700 hover:underline cursor-pointer"
+                                            >
+                                                Search more...
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- WBS Task / Activity -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">
+                                    WBS Task / Activity
+                                </label>
+                                <input
+                                    type="text"
+                                    id="formWbsTask"
+                                    placeholder="Civil Concrete & Foundation Inspection"
+                                    class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-900 focus:outline-none focus:ring-1 focus:ring-purple-600 shadow-2xs"
+                                />
+                            </div>
+
+                            <!-- Inspection Discipline -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">
+                                    Inspection Discipline
+                                </label>
+                                <select
+                                    id="formDiscipline"
+                                    class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-900 focus:outline-none focus:ring-1 focus:ring-purple-600 shadow-2xs cursor-pointer"
+                                >
+                                    <option value="Civil Concrete & Foundation Inspection">Civil Concrete & Foundation Inspection</option>
+                                    <option value="Mechanical & Industrial Piping">Mechanical & Industrial Piping</option>
+                                    <option value="Welding & NDT Inspection">Welding & NDT Inspection</option>
+                                    <option value="Electrical & Instrumentation">Electrical & Instrumentation</option>
+                                    <option value="Protective Coating & Painting">Protective Coating & Painting</option>
+                                    <option value="Hydrostatic & Pressure Testing">Hydrostatic & Pressure Testing</option>
+                                </select>
+                            </div>
+
+                            <!-- ITP Inspection Point -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">
+                                    ITP Inspection Point
+                                </label>
+                                <select
+                                    id="formItpPoint"
+                                    class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-900 focus:outline-none focus:ring-1 focus:ring-purple-600 shadow-2xs cursor-pointer"
+                                >
+                                    <option value="HOLD POINT (Work Cannot Proceed Without Sign-off)">HOLD POINT (Work Cannot Proceed Without Sign-off)</option>
+                                    <option value="WITNESS POINT (Inspection Required Before Next Activity)">WITNESS POINT (Inspection Required Before Next Activity)</option>
+                                    <option value="SURVEILLANCE POINT (Random Quality Audit)">SURVEILLANCE POINT (Random Quality Audit)</option>
+                                    <option value="REVIEW POINT (Document / Certificate Verification)">REVIEW POINT (Document / Certificate Verification)</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <!-- RIGHT COLUMN: SCHEDULE & LOCATION -->
+                        <div class="space-y-4">
+                            <h3 class="text-xs font-black uppercase tracking-wider text-slate-900 pb-1 border-b border-slate-100 flex items-center gap-1.5">
+                                <i data-lucide="calendar" class="w-3.5 h-3.5 text-blue-600"></i>
+                                <span>SCHEDULE & LOCATION</span>
+                            </h3>
+
+                            <!-- Scheduled Date & Time -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">
+                                    Scheduled Date & Time
+                                </label>
+                                <input
+                                    type="text"
+                                    id="formScheduledDateTime"
+                                    placeholder="Oct 19, 10:32 AM"
+                                    class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-900 focus:outline-none focus:ring-1 focus:ring-purple-600 shadow-2xs"
+                                />
+                            </div>
+
+                            <!-- Exact Site Location / Grid Ref -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">
+                                    Exact Site Location / Grid Ref
+                                </label>
+                                <input
+                                    type="text"
+                                    id="formLocation"
+                                    placeholder="e.g. Zone B, Foundation Grid Ref: E-12/N-08"
+                                    class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-900 focus:outline-none focus:ring-1 focus:ring-purple-600 shadow-2xs font-mono"
+                                />
+                            </div>
+
+                            <!-- Radwa QA/QC Inspector -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">
+                                    Radwa QA/QC Inspector
+                                </label>
+                                <select
+                                    id="formRadwaInspector"
+                                    class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-900 focus:outline-none focus:ring-1 focus:ring-purple-600 shadow-2xs cursor-pointer"
+                                >
+                                    <option value="Eng. Youssef Nabil">Eng. Youssef Nabil (Senior QA/QC Quality Lead)</option>
+                                    <option value="Eng. Tariq Al-Otaibi">Eng. Tariq Al-Otaibi (QA/QC Manager)</option>
+                                    <option value="Mansour Al-Dossary">Mansour Al-Dossary (Lead QC Welding & Piping Inspector)</option>
+                                    <option value="Eng. Khalid Al-Zahrani">Eng. Khalid Al-Zahrani (Senior Project Director)</option>
+                                    <option value="Fahad Al-Shehri">Fahad Al-Shehri (Field Operations Supervisor)</option>
+                                </select>
+                            </div>
+
+                            <!-- Consultant / Aramco PID Inspector -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">
+                                    Consultant / Aramco PID Inspector
+                                </label>
+                                <input
+                                    type="text"
+                                    id="formConsultantInspector"
+                                    placeholder="Saudi Aramco PID: Eng. Fahad Al-Zamil"
+                                    class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-900 focus:outline-none focus:ring-1 focus:ring-purple-600 shadow-2xs"
+                                />
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Bottom Section: QA/QC Findings & Comments (Exact match to Image 2) -->
+                    <div class="pt-6 border-t border-slate-200 space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                            <button
+                                type="button"
+                                class="text-xs font-bold text-purple-700 border-b-2 border-purple-600 pb-1.5 px-1 flex items-center gap-1.5"
+                            >
+                                <i data-lucide="file-text" class="w-3.5 h-3.5 text-purple-600"></i>
+                                <span>QA/QC Findings & Comments</span>
+                            </button>
+
+                            <!-- Quick-Fill Presets for fast inspection entry -->
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase hidden sm:inline">
+                                    Quick Templates:
+                                </span>
+                                <button
+                                    type="button"
+                                    onclick="handleInsertPreset('Concrete Slump verified at 125mm. 7-day cube specimens sampled. 100% compliant with standard drawings.')"
+                                    class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer"
+                                >
+                                    + Slump Pass
+                                </button>
+                                <button
+                                    type="button"
+                                    onclick="handleInsertPreset('NDT RT 100% radiographic weld film reviewed. No crack, lack of fusion, or porosity. Accepted under ASME B31.3.')"
+                                    class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer"
+                                >
+                                    + NDT Pass
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <textarea
+                                id="formFindingsComments"
+                                rows="4"
+                                placeholder="Record concrete slump test results, NDT radiograph readings, or hydrotest pressure values..."
+                                class="w-full p-3.5 rounded-xl border border-slate-300 bg-white text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-600/30 focus:border-purple-600 shadow-2xs font-mono leading-relaxed"
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons Footer -->
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <button
+                            type="button"
+                            onclick="closeFormView()"
+                            class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-50 transition cursor-pointer shadow-2xs"
+                        >
+                            Cancel & Return
+                        </button>
+
+                        <div class="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onclick="handleSaveRfi()"
+                                style="background-color: #5b4db7;"
+                                class="px-5 py-2 rounded-xl text-white font-bold text-xs hover:brightness-95 transition cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95"
+                            >
+                                <i data-lucide="save" class="w-3.5 h-3.5"></i>
+                                <span>Save Inspection Request</span>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- Enterprise Toast Notification -->
+    <div id="toastNotification" class="fixed top-14 right-5 z-50 p-3.5 rounded-xl bg-slate-900 text-white text-xs font-bold shadow-2xl border border-slate-700 hidden items-center gap-2.5 transition-all">
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+        <span id="toastNotificationMessage">Notification text</span>
+    </div>
+
+    <!-- Django Context Payload -->
+    <script id="projects-data" type="application/json">
+        {{ projects_json|default:"[]"|safe }}
+    </script>
+
+    <!-- Master QA/QC Dashboard Script -->
+    <script>
+        // ============================================================================
+        // 1. MOCK DATA (Matching Next.js mockQaqcData.ts exactly)
+        // ============================================================================
+        const INITIAL_RFIS = [
+            {
+                id: 'rfi-01',
+                rfiRef: 'RFI-2026-0001',
+                rfiNumber: 'RFI-2026-0001',
+                projectId: 'proj-01',
+                projectName: 'Internal Facility Maintenance & Infrastructure',
+                clientName: 'Radwa Internal',
+                wbsTask: 'WBS-CIV-04: Concrete Foundation Inspection',
+                inspectionDiscipline: 'Civil Concrete & Foundation Inspection',
+                itpInspectionPoint: 'HOLD POINT (Work Cannot Proceed Without Sign-off)',
+                scheduledDateTime: 'Oct 21, 09:00 AM',
+                siteLocationGridRef: 'Main Building Bay 4',
+                status: 'CODE 1: APPROVED / Compliant',
+                findingsComments: 'Foundation concrete pouring and rebar cover verified compliant with standard specifications.'
+            },
+            {
+                id: 'rfi-02',
+                rfiRef: 'RFI-2026-0002',
+                rfiNumber: 'RFI-2026-0002',
+                projectId: 'proj-02',
+                projectName: 'Saudi Aramco — Berri Gas Plant Fuel Gas Tie-In',
+                clientName: 'Saudi Aramco',
+                wbsTask: 'WBS-PIP-02: 24-inch Carbon Steel Spool Inspection',
+                inspectionDiscipline: 'Welding & NDT Inspection',
+                itpInspectionPoint: 'HOLD POINT (Work Cannot Proceed Without Sign-off)',
+                scheduledDateTime: 'Oct 21, 11:30 AM',
+                siteLocationGridRef: 'Gas Header Tie-In Area',
+                status: 'Pending Inspection',
+                findingsComments: 'Awaiting PID witness for 100% RT film interpretation.'
+            },
+            {
+                id: 'rfi-03',
+                rfiRef: 'RFI-2026-0003',
+                rfiNumber: 'RFI-2026-0003',
+                projectId: 'proj-03',
+                projectName: 'MAADEN Phosphate Plant Slurry Pipeline EPC',
+                clientName: 'MAADEN Phosphate',
+                wbsTask: 'WBS-MEC-07: Slurry Pump Station Pressure Test',
+                inspectionDiscipline: 'Hydrostatic & Pressure Testing',
+                itpInspectionPoint: 'WITNESS POINT (Inspection Required Before Next Activity)',
+                scheduledDateTime: 'Oct 20, 02:00 PM',
+                siteLocationGridRef: 'Slurry Booster Station #2',
+                status: 'CODE 1: APPROVED / Compliant',
+                findingsComments: '4-hour hydrostatic hold pressure test at 24.5 bar completed with zero pressure drop.'
+            },
+            {
+                id: 'rfi-04',
+                rfiRef: 'RFI-2026-0004',
+                rfiNumber: 'RFI-2026-0004',
+                projectId: 'proj-04',
+                projectName: 'Yanbu Industrial City Cooling Water Main Extension',
+                clientName: 'Royal Commission',
+                wbsTask: 'WBS-ELE-03: Cathodic Protection Bonding',
+                inspectionDiscipline: 'Electrical & Instrumentation',
+                itpInspectionPoint: 'SURVEILLANCE POINT (Random Quality Audit)',
+                scheduledDateTime: 'Oct 19, 10:15 AM',
+                siteLocationGridRef: 'Cooling Canal Sector 3',
+                status: 'Pending Inspection',
+                findingsComments: 'Random audit on anode connection resistance and test station calibration.'
+            },
+            {
+                id: 'rfi-05',
+                rfiRef: 'RFI-2026-0005',
+                rfiNumber: 'RFI-2026-0005',
+                projectId: 'proj-05',
+                projectName: 'NEOM Coastal Infrastructure Tie-In Package 09',
+                clientName: 'NEOM Authority',
+                wbsTask: 'WBS-COA-01: Underground Pipe Coating Holiday Test',
+                inspectionDiscipline: 'Protective Coating & Painting',
+                itpInspectionPoint: 'HOLD POINT (Work Cannot Proceed Without Sign-off)',
+                scheduledDateTime: 'Oct 18, 04:00 PM',
+                siteLocationGridRef: 'Pipeline Trench Section 9B',
+                status: 'CODE 3: REJECTED / Non-Compliant',
+                findingsComments: 'Pinhole holiday defects detected at KM 14+200; re-coating and re-spark testing required.'
+            }
+        ];
+
+        const INITIAL_NCRS = [
+            {
+                id: 'ncr-01',
+                ncrRef: 'NCR-2026-014',
+                ncrNumber: 'NCR-2026-014',
+                workOrderNo: 'WO-2026-101',
+                title: 'Joint Bevel Root Tolerance Discrepancy',
+                projectName: 'Saudi Aramco — Berri Gas Plant Fuel Gas Tie-In',
+                issuedTo: 'Mechanical Fabrication Subcontractor',
+                discipline: 'Welding & Piping',
+                description: 'Bevel root face preparation on Joint J-44 exceeded WPS maximum tolerance by 1.2mm.',
+                severity: 'Minor',
+                status: 'Open',
+                correctiveAction: 'Root re-ground and re-beveled in accordance with WPS-CS-04; magnetic particle inspection (MPI) cleared.',
+                assignedEngineer: 'Eng. Tariq Al-Otaibi',
+                targetClosureDate: '2026-10-26',
+                dateIssued: '2026-10-18'
+            },
+            {
+                id: 'ncr-02',
+                ncrRef: 'NCR-2026-015',
+                ncrNumber: 'NCR-2026-015',
+                workOrderNo: 'WO-2026-102',
+                title: 'Coating Holiday Spark Test Pinholes',
+                projectName: 'NEOM Coastal Infrastructure Tie-In Package 09',
+                issuedTo: 'Protective Coating Contractor',
+                discipline: 'Painting & Coating',
+                description: '3 holiday defects discovered on Section 9B underground joint wrap.',
+                severity: 'Major',
+                status: 'Open',
+                correctiveAction: 'Full re-application of heat-shrink sleeve and witness spark re-test.',
+                assignedEngineer: 'Eng. Youssef Nabil',
+                targetClosureDate: '2026-10-28',
+                dateIssued: '2026-10-19'
+            }
+        ];
+
+        const INITIAL_PUNCH_LIST = [
+            {
+                id: 'punch-01',
+                itemNo: 'PUNCH-2026-0032',
+                punchNumber: 'PUNCH-2026-0032',
+                workOrderNo: 'WO-2026-102',
+                description: 'Missing SS 316 spring washers on 4 bonnet studs; replace with approved vendor pack.',
+                projectName: 'MAADEN Phosphate Plant Slurry Pipeline EPC',
+                location: 'Slurry Booster Station #2 Pump Manifold',
+                category: 'Category A (Pre-Commissioning)',
+                status: 'Pending',
+                assignedContractor: 'Mechanical Piping Lead',
+                dueDate: '2026-10-25'
+            }
+        ];
+
+        // ============================================================================
+        // 2. STATE INITIALIZATION & LOCAL STORAGE PERSISTENCE
+        // ============================================================================
+        let rfis = [];
+        let ncrs = [];
+        let punchList = [];
+
+        try {
+            const storedRfis = localStorage.getItem('radwa_qaqc_rfis');
+            rfis = (storedRfis && JSON.parse(storedRfis).length >= 5) ? JSON.parse(storedRfis) : INITIAL_RFIS;
+        } catch (e) {
+            rfis = INITIAL_RFIS;
+        }
+
+        try {
+            const storedNcrs = localStorage.getItem('radwa_qaqc_ncrs');
+            ncrs = (storedNcrs && JSON.parse(storedNcrs).length >= 2) ? JSON.parse(storedNcrs) : INITIAL_NCRS;
+        } catch (e) {
+            ncrs = INITIAL_NCRS;
+        }
+
+        try {
+            const storedPunch = localStorage.getItem('radwa_qaqc_punch');
+            punchList = storedPunch ? JSON.parse(storedPunch) : INITIAL_PUNCH_LIST;
+        } catch (e) {
+            punchList = INITIAL_PUNCH_LIST;
+        }
+
+        // Projects loaded from Django context
+        let projects = [];
+        try {
+            const rawProjects = document.getElementById('projects-data')?.textContent;
+            if (rawProjects) projects = JSON.parse(rawProjects);
+        } catch (e) {
+            projects = [];
+        }
+
+        // Available Projects compiled for Dropdown
+        const availableProjects = [
+            { id: 'proj-internal', name: 'Internal', client: 'Radwa Internal' },
+            { id: 'proj-maaden-1', name: 'maaden', client: 'Maaden' },
+            { id: 'proj-maaden-2', name: 'MAADEN', client: 'Maaden Phosphate' },
+            { id: 'proj-abhinav', name: "Abhinav Thaj's opportunity", client: 'Industrial Client' }
+        ];
+
+        projects.forEach(p => {
+            const name = `${p.clientShortName || p.clientName || 'Client'} — ${p.proposedProjectName || p.workOrderNo || 'Tender'}`;
+            if (!availableProjects.some(item => item.id === p.id)) {
+                availableProjects.push({
+                    id: String(p.id),
+                    name: name,
+                    client: p.clientName || 'Client'
+                });
+            }
+        });
+
+        // App States
+        let activeTab = 'rfi'; // 'rfi' | 'ncr' | 'punch_list'
+        let viewMode = 'list';  // 'list' | 'form'
+        let selectedRfi = null;
+
+        let searchQuery = '';
+        let disciplineFilter = 'all';
+
+        // Form state
+        let formStatus = 'Pending Inspection';
+        let formProjectId = availableProjects[0]?.id || '';
+        let formProjectName = availableProjects[0]?.name || 'Internal';
+
+        function saveRfis(updated) {
+            rfis = updated;
+            try { localStorage.setItem('radwa_qaqc_rfis', JSON.stringify(updated)); } catch (e) {}
+            renderAll();
+        }
+
+        // ============================================================================
+        // 3. TOAST NOTIFICATION
+        // ============================================================================
+        let toastTimeout = null;
+        function showToast(message) {
+            const toast = document.getElementById('toastNotification');
+            const toastText = document.getElementById('toastNotificationMessage');
+            if (!toast || !toastText) return;
+            toastText.textContent = message;
+            toast.classList.remove('hidden');
+            toast.classList.add('flex');
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('flex');
+            }, 4000);
+        }
+
+        // ============================================================================
+        // 4. TAB NAVIGATION & VIEW SWITCHING
+        // ============================================================================
+        function switchTab(tab) {
+            activeTab = tab;
+            viewMode = 'list';
+
+            const tabs = ['rfi', 'ncr', 'punch_list'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (t === tab) {
+                    btn.className = 'px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 bg-purple-600 text-white font-bold shadow-xs';
+                } else {
+                    btn.className = 'px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 text-slate-300 hover:text-white hover:bg-slate-800';
+                }
+            });
+
+            // Update sub-header title
+            const titleEl = document.getElementById('sub-header-title');
+            const newBtn = document.getElementById('btn-new-rfi');
+            const discWrapper = document.getElementById('discipline-filter-wrapper');
+
+            if (tab === 'rfi') {
+                titleEl.textContent = 'Requests for Inspection (RFI)';
+                newBtn.classList.remove('hidden');
+                discWrapper.classList.remove('hidden');
+            } else if (tab === 'ncr') {
+                titleEl.textContent = 'Non-Conformance Reports (NCR)';
+                newBtn.classList.add('hidden');
+                discWrapper.classList.add('hidden');
+            } else if (tab === 'punch_list') {
+                titleEl.textContent = 'Project Punch List / Snags';
+                newBtn.classList.add('hidden');
+                discWrapper.classList.add('hidden');
+            }
+
+            renderAll();
+        }
+
+        function setDisciplineFilter(disc) {
+            disciplineFilter = disc;
+            const btnAll = document.getElementById('filter-disc-all');
+            const btnCivil = document.getElementById('filter-disc-civil');
+            const btnWelding = document.getElementById('filter-disc-welding');
+
+            btnAll.className = disc === 'all'
+                ? 'px-2.5 py-1 rounded-md font-semibold transition cursor-pointer bg-white shadow-2xs text-purple-700 font-bold'
+                : 'px-2.5 py-1 rounded-md font-semibold transition cursor-pointer text-slate-600 hover:text-slate-900';
+            btnCivil.className = disc.includes('Civil')
+                ? 'px-2.5 py-1 rounded-md font-semibold transition cursor-pointer bg-white shadow-2xs text-purple-700 font-bold'
+                : 'px-2.5 py-1 rounded-md font-semibold transition cursor-pointer text-slate-600 hover:text-slate-900';
+            btnWelding.className = disc.includes('Welding')
+                ? 'px-2.5 py-1 rounded-md font-semibold transition cursor-pointer bg-white shadow-2xs text-purple-700 font-bold'
+                : 'px-2.5 py-1 rounded-md font-semibold transition cursor-pointer text-slate-600 hover:text-slate-900';
+
+            renderRfiTable();
+        }
+
+        function handleSearch(val) {
+            searchQuery = val.trim().toLowerCase();
+            renderAll();
+        }
+
+        // ============================================================================
+        // 5. RENDER ALL
+        // ============================================================================
+        function renderAll() {
+            // Update badges in tabs
+            document.getElementById('tab-badge-rfi').textContent = rfis.length;
+            document.getElementById('tab-badge-ncr').textContent = ncrs.filter(n => n.status !== 'Closed' && n.status !== 'Verified & Closed').length;
+            document.getElementById('tab-badge-punch_list').textContent = punchList.filter(p => p.status === 'Pending' || p.status === 'Open').length;
+
+            const subHeader = document.getElementById('sub-header-bar');
+            const kpiGrid = document.getElementById('kpi-cards-grid');
+            const rfiContainer = document.getElementById('rfi-table-container');
+            const ncrContainer = document.getElementById('ncr-list-container');
+            const punchContainer = document.getElementById('punch-list-container');
+            const formContainer = document.getElementById('rfi-form-container');
+
+            if (viewMode === 'form') {
+                subHeader.classList.add('hidden');
+                kpiGrid.classList.add('hidden');
+                rfiContainer.classList.add('hidden');
+                ncrContainer.classList.add('hidden');
+                punchContainer.classList.add('hidden');
+                formContainer.classList.remove('hidden');
+            } else {
+                subHeader.classList.remove('hidden');
+                formContainer.classList.add('hidden');
+
+                if (activeTab === 'rfi') {
+                    kpiGrid.classList.remove('hidden');
+                    rfiContainer.classList.remove('hidden');
+                    ncrContainer.classList.add('hidden');
+                    punchContainer.classList.add('hidden');
+                    renderKpiCards();
+                    renderRfiTable();
+                } else if (activeTab === 'ncr') {
+                    kpiGrid.classList.add('hidden');
+                    rfiContainer.classList.add('hidden');
+                    ncrContainer.classList.remove('hidden');
+                    punchContainer.classList.add('hidden');
+                    renderNcrList();
+                } else if (activeTab === 'punch_list') {
+                    kpiGrid.classList.add('hidden');
+                    rfiContainer.classList.add('hidden');
+                    ncrContainer.classList.add('hidden');
+                    punchContainer.classList.remove('hidden');
+                    renderPunchList();
+                }
+            }
+
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        // ============================================================================
+        // 6. RENDER KPI CARDS
+        // ============================================================================
+        function renderKpiCards() {
+            const total = rfis.length;
+            const approved = rfis.filter(r => r.status === 'CODE 1: APPROVED / Compliant').length;
+            const pending = rfis.filter(r => r.status === 'Pending Inspection').length;
+            const rejected = rfis.filter(r => r.status === 'CODE 3: REJECTED / Non-Compliant').length;
+            const complianceRate = total > 0 ? ((approved / total) * 100).toFixed(1) : '100.0';
+
+            document.getElementById('kpi-total-rfis').textContent = total;
+            document.getElementById('kpi-code1-approved').textContent = approved;
+            document.getElementById('kpi-compliance-badge').textContent = `${complianceRate}%`;
+            document.getElementById('kpi-pending-inspection').textContent = pending;
+            document.getElementById('kpi-code3-rejected').textContent = rejected;
+        }
+
+        // ============================================================================
+        // 7. RENDER RFI TABLE
+        // ============================================================================
+        function getFilteredRfis() {
+            return rfis.filter(r => {
+                const matchesSearch = !searchQuery ||
+                    (r.rfiRef || '').toLowerCase().includes(searchQuery) ||
+                    (r.projectName || '').toLowerCase().includes(searchQuery) ||
+                    (r.wbsTask || '').toLowerCase().includes(searchQuery) ||
+                    (r.siteLocationGridRef || '').toLowerCase().includes(searchQuery);
+
+                const matchesDisc = disciplineFilter === 'all' || r.inspectionDiscipline === disciplineFilter;
+                return matchesSearch && matchesDisc;
+            });
+        }
+
+        function renderRfiTable() {
+            const filtered = getFilteredRfis();
+            const tbody = document.getElementById('rfi-table-tbody');
+            document.getElementById('rfi-footer-count').textContent = `Showing ${filtered.length} quality inspection records`;
+            document.getElementById('counter-pager-text').textContent = `1-${filtered.length} / ${filtered.length}`;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="py-12 text-center text-slate-500">
+                            <i data-lucide="alert-triangle" class="w-8 h-8 text-amber-400 mx-auto mb-2"></i>
+                            <div class="font-bold text-sm text-slate-800">No Inspection Requests Found</div>
+                            <p class="text-xs text-slate-400 mt-1">
+                                No RFIs matched your filters. Click &quot;New&quot; to register an inspection.
+                            </p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(rfi => {
+                const isHold = (rfi.itpInspectionPoint || '').includes('HOLD');
+                const isApproved = rfi.status === 'CODE 1: APPROVED / Compliant';
+                const isRejected = rfi.status === 'CODE 3: REJECTED / Non-Compliant';
+
+                let itpBadgeClass = 'bg-rose-50 text-rose-700 border border-rose-200';
+                if ((rfi.itpInspectionPoint || '').includes('WITNESS')) {
+                    itpBadgeClass = 'bg-blue-50 text-blue-700 border border-blue-200';
+                } else if ((rfi.itpInspectionPoint || '').includes('SURVEILLANCE')) {
+                    itpBadgeClass = 'bg-sky-50 text-sky-700 border border-sky-200';
+                }
+
+                return `
+                    <tr
+                        onclick="handleOpenExistingRfi('${rfi.id}')"
+                        class="hover:bg-purple-50/40 transition-colors cursor-pointer group"
+                    >
+                        <td class="py-3.5 px-3.5 text-center" onclick="event.stopPropagation()">
+                            <input type="checkbox" class="rounded border-slate-300 text-purple-600 focus:ring-purple-500 cursor-pointer" />
+                        </td>
+
+                        <td class="py-3.5 px-4 font-black text-slate-900 group-hover:text-purple-700 whitespace-nowrap font-mono text-xs">
+                            ${rfi.rfiRef}
+                        </td>
+
+                        <td class="py-3.5 px-4 font-medium text-slate-800 whitespace-nowrap">
+                            ${rfi.projectName}
+                        </td>
+
+                        <td class="py-3.5 px-4 text-slate-700 max-w-[240px] truncate font-medium" title="${rfi.wbsTask}">
+                            ${rfi.wbsTask}
+                        </td>
+
+                        <td class="py-3.5 px-4 whitespace-nowrap font-medium text-slate-700">
+                            ${rfi.inspectionDiscipline}
+                        </td>
+
+                        <td class="py-3.5 px-4 text-slate-600 whitespace-nowrap">
+                            <span class="text-[11px] font-semibold px-2 py-0.5 rounded ${itpBadgeClass}">
+                                ${rfi.itpInspectionPoint}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // ============================================================================
+        // 8. RENDER NCR & PUNCH LISTS
+        // ============================================================================
+        function renderNcrList() {
+            const activeNcrs = ncrs.filter(n => n.status !== 'Closed' && n.status !== 'Verified & Closed');
+            document.getElementById('ncr-active-badge').textContent = `${activeNcrs.length} Active Non-Conformances`;
+
+            const container = document.getElementById('ncr-cards-list');
+            container.innerHTML = ncrs.map(ncr => `
+                <div class="p-4 rounded-xl border border-slate-200 hover:border-slate-300 transition space-y-2 bg-slate-50/40">
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono font-bold text-xs px-2 py-0.5 rounded bg-slate-200 text-slate-800">
+                                ${ncr.ncrRef || ncr.ncrNumber}
+                            </span>
+                            <h3 class="text-xs sm:text-sm font-bold text-slate-900">${ncr.title || ncr.description}</h3>
+                        </div>
+                        <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                            ncr.severity === 'Critical' ? 'bg-rose-100 text-rose-800 border-rose-300' : 'bg-amber-100 text-amber-800 border-amber-300'
+                        }">
+                            ${ncr.severity}
+                        </span>
+                    </div>
+
+                    <p class="text-xs text-slate-600">
+                        <strong class="text-slate-800">Project:</strong> ${ncr.projectName} | <strong class="text-slate-800">Discipline:</strong> ${ncr.discipline || 'Mechanical'}
+                    </p>
+                    
+                    <div class="p-2.5 rounded-lg bg-white border border-slate-200 text-xs text-slate-700">
+                        <strong class="text-slate-900">Corrective Action:</strong> ${ncr.correctiveAction}
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs text-slate-500 pt-1">
+                        <span>Assigned Lead: <strong>${ncr.assignedEngineer || ncr.issuedTo}</strong></span>
+                        <span>Target Closure: <strong>${ncr.targetClosureDate || ncr.closedDate || '2026-10-30'}</strong></span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderPunchList() {
+            document.getElementById('punch-logged-badge').textContent = `${punchList.length} Items Logged`;
+            const container = document.getElementById('punch-cards-list');
+            container.innerHTML = punchList.map(item => `
+                <div class="p-4 rounded-xl border border-slate-200 hover:border-slate-300 transition space-y-2 bg-slate-50/40">
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono font-bold text-xs px-2 py-0.5 rounded bg-slate-200 text-slate-800">
+                                ${item.itemNo || item.punchNumber}
+                            </span>
+                            <h3 class="text-xs sm:text-sm font-bold text-slate-900">${item.description || item.itemDescription}</h3>
+                        </div>
+                        <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                            item.status === 'Completed' || item.status === 'Resolved' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-amber-100 text-amber-800 border-amber-300'
+                        }">
+                            ${item.status}
+                        </span>
+                    </div>
+
+                    <p class="text-xs text-slate-600">
+                        <strong class="text-slate-800">Project:</strong> ${item.projectName} | <strong class="text-slate-800">Location:</strong> ${item.location}
+                    </p>
+                    
+                    <div class="flex items-center justify-between text-xs text-slate-500 pt-1">
+                        <span>Category: <strong>${item.category}</strong></span>
+                        <span>Assigned Crew: <strong>${item.assignedContractor || item.assignedTo}</strong></span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ============================================================================
+        // 9. RFI FORM VIEW (NEW & EDIT)
+        // ============================================================================
+        function handleOpenNewRfi() {
+            selectedRfi = null;
+            const newRef = `RFI-2026-000${rfis.length + 1}`;
+
+            document.getElementById('formRfiRef').value = newRef;
+            document.getElementById('form-breadcrumb-ref').textContent = newRef;
+
+            formProjectId = availableProjects[0]?.id || '';
+            formProjectName = availableProjects[0]?.name || 'Internal';
+            document.getElementById('formProjectNameDisplay').textContent = formProjectName;
+
+            document.getElementById('formWbsTask').value = 'Civil Concrete & Foundation Inspection';
+            document.getElementById('formDiscipline').value = 'Civil Concrete & Foundation Inspection';
+            document.getElementById('formItpPoint').value = 'HOLD POINT (Work Cannot Proceed Without Sign-off)';
+            document.getElementById('formScheduledDateTime').value = 'Oct 19, 10:32 AM';
+            document.getElementById('formLocation').value = 'Zone B, Foundation Grid Ref: E-12/N-08';
+            document.getElementById('formRadwaInspector').value = 'Eng. Youssef Nabil';
+            document.getElementById('formConsultantInspector').value = 'Saudi Aramco PID: Eng. Fahad Al-Zamil';
+            document.getElementById('formFindingsComments').value = '';
+
+            formStatus = 'Pending Inspection';
+            updatePipelineStatus('Pending Inspection');
+
+            populateProjectDropdownList(availableProjects);
+            viewMode = 'form';
+            renderAll();
+        }
+
+        function handleOpenExistingRfi(rfiId) {
+            const rfi = rfis.find(r => r.id === rfiId);
+            if (!rfi) return;
+            selectedRfi = rfi;
+
+            document.getElementById('formRfiRef').value = rfi.rfiRef;
+            document.getElementById('form-breadcrumb-ref').textContent = rfi.rfiRef;
+
+            formProjectId = rfi.projectId || '';
+            formProjectName = rfi.projectName || '';
+            document.getElementById('formProjectNameDisplay').textContent = formProjectName;
+
+            document.getElementById('formWbsTask').value = rfi.wbsTask || '';
+            document.getElementById('formDiscipline').value = rfi.inspectionDiscipline || 'Civil Concrete & Foundation Inspection';
+            document.getElementById('formItpPoint').value = rfi.itpInspectionPoint || 'HOLD POINT (Work Cannot Proceed Without Sign-off)';
+            document.getElementById('formScheduledDateTime').value = rfi.scheduledDateTime || '';
+            document.getElementById('formLocation').value = rfi.siteLocationGridRef || '';
+            document.getElementById('formRadwaInspector').value = rfi.radwaInspector || 'Eng. Youssef Nabil';
+            document.getElementById('formConsultantInspector').value = rfi.consultantInspector || '';
+            document.getElementById('formFindingsComments').value = rfi.findingsComments || '';
+
+            formStatus = rfi.status || 'Pending Inspection';
+            updatePipelineStatus(formStatus);
+
+            populateProjectDropdownList(availableProjects);
+            viewMode = 'form';
+            renderAll();
+        }
+
+        function closeFormView() {
+            viewMode = 'list';
+            renderAll();
+        }
+
+        function updatePipelineStatus(status) {
+            formStatus = status;
+            const stagePending = document.getElementById('pipeline-stage-pending');
+            const stageApproved = document.getElementById('pipeline-stage-approved');
+            const stageRejected = document.getElementById('pipeline-stage-rejected');
+            const checkIcon = document.getElementById('pipeline-check-icon');
+            const xIcon = document.getElementById('pipeline-x-icon');
+
+            if (status === 'CODE 1: APPROVED / Compliant') {
+                stagePending.className = 'px-3 py-1.5 flex items-center gap-1.5 transition bg-slate-50 text-slate-400 border-r border-slate-200';
+                stageApproved.className = 'px-3 py-1.5 flex items-center gap-1.5 transition bg-emerald-100 text-emerald-900 border-r border-emerald-300';
+                stageRejected.className = 'px-3 py-1.5 flex items-center gap-1.5 transition bg-slate-50 text-slate-400';
+                checkIcon.classList.remove('hidden');
+                xIcon.classList.add('hidden');
+            } else if (status === 'CODE 3: REJECTED / Non-Compliant') {
+                stagePending.className = 'px-3 py-1.5 flex items-center gap-1.5 transition bg-slate-50 text-slate-400 border-r border-slate-200';
+                stageApproved.className = 'px-3 py-1.5 flex items-center gap-1.5 transition bg-slate-50 text-slate-400 border-r border-slate-200';
+                stageRejected.className = 'px-3 py-1.5 flex items-center gap-1.5 transition bg-rose-100 text-rose-900';
+                checkIcon.classList.add('hidden');
+                xIcon.classList.remove('hidden');
+            } else {
+                stagePending.className = 'px-3 py-1.5 flex items-center gap-1.5 transition bg-purple-100 text-purple-900 border-r border-purple-200';
+                stageApproved.className = 'px-3 py-1.5 flex items-center gap-1.5 transition bg-slate-50 text-slate-400 border-r border-slate-200';
+                stageRejected.className = 'px-3 py-1.5 flex items-center gap-1.5 transition bg-slate-50 text-slate-400';
+                checkIcon.classList.add('hidden');
+                xIcon.classList.add('hidden');
+            }
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        function handleApproveCode1() {
+            updatePipelineStatus('CODE 1: APPROVED / Compliant');
+            if (selectedRfi) {
+                const updated = rfis.map(item => item.id === selectedRfi.id ? {
+                    ...item,
+                    status: 'CODE 1: APPROVED / Compliant'
+                } : item);
+                saveRfis(updated);
+            }
+            showToast(`✅ RFI ${document.getElementById('formRfiRef').value} SIGNED OFF as CODE 1: APPROVED / Compliant`);
+        }
+
+        function handleRejectCode3() {
+            updatePipelineStatus('CODE 3: REJECTED / Non-Compliant');
+            if (selectedRfi) {
+                const updated = rfis.map(item => item.id === selectedRfi.id ? {
+                    ...item,
+                    status: 'CODE 3: REJECTED / Non-Compliant'
+                } : item);
+                saveRfis(updated);
+            }
+            showToast(`❌ RFI ${document.getElementById('formRfiRef').value} marked as CODE 3: REJECTED / Non-Compliant`);
+        }
+
+        function handleInsertPreset(text) {
+            const textarea = document.getElementById('formFindingsComments');
+            textarea.value = textarea.value ? `${textarea.value}\n\n${text}` : text;
+        }
+
+        function handleSaveRfi() {
+            const rfiRef = document.getElementById('formRfiRef').value.trim() || 'RFI-NEW';
+            if (!formProjectName.trim()) {
+                alert('Please select or specify a project for this RFI.');
+                return;
+            }
+
+            const wbsTask = document.getElementById('formWbsTask').value.trim() || 'General Quality Inspection';
+            const discipline = document.getElementById('formDiscipline').value;
+            const itpPoint = document.getElementById('formItpPoint').value;
+            const scheduledDateTime = document.getElementById('formScheduledDateTime').value.trim() || 'Oct 20, 10:00 AM';
+            const location = document.getElementById('formLocation').value.trim() || 'Site Work Area';
+            const radwaInspector = document.getElementById('formRadwaInspector').value;
+            const consultantInspector = document.getElementById('formConsultantInspector').value.trim();
+            const comments = document.getElementById('formFindingsComments').value.trim();
+
+            if (selectedRfi) {
+                const updated = rfis.map(item => item.id === selectedRfi.id ? {
+                    ...item,
+                    rfiRef: rfiRef,
+                    projectId: formProjectId,
+                    projectName: formProjectName,
+                    wbsTask: wbsTask,
+                    inspectionDiscipline: discipline,
+                    itpInspectionPoint: itpPoint,
+                    scheduledDateTime: scheduledDateTime,
+                    siteLocationGridRef: location,
+                    radwaInspector: radwaInspector,
+                    consultantInspector: consultantInspector,
+                    status: formStatus,
+                    findingsComments: comments
+                } : item);
+                saveRfis(updated);
+                showToast(`✅ RFI ${rfiRef} saved successfully.`);
+            } else {
+                const newRfi = {
+                    id: `rfi-${Date.now()}`,
+                    rfiRef: rfiRef,
+                    projectId: formProjectId || 'proj-custom',
+                    projectName: formProjectName,
+                    clientName: availableProjects.find(p => p.id === formProjectId)?.client || 'Commercial Client',
+                    wbsTask: wbsTask,
+                    inspectionDiscipline: discipline,
+                    itpInspectionPoint: itpPoint,
+                    scheduledDateTime: scheduledDateTime,
+                    siteLocationGridRef: location,
+                    radwaInspector: radwaInspector,
+                    consultantInspector: consultantInspector,
+                    status: formStatus,
+                    findingsComments: comments,
+                    createdAt: new Date().toISOString()
+                };
+                saveRfis([newRfi, ...rfis]);
+                showToast(`✅ New RFI ${rfiRef} created successfully.`);
+            }
+
+            viewMode = 'list';
+            renderAll();
+        }
+
+        // ============================================================================
+        // 10. PROJECT DROPDOWN
+        // ============================================================================
+        function toggleProjectDropdown() {
+            const menu = document.getElementById('projectDropdownMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        function populateProjectDropdownList(list) {
+            const container = document.getElementById('projectDropdownList');
+            if (!container) return;
+            container.innerHTML = list.map(proj => `
+                <div
+                    onclick="selectProject('${proj.id}', '${proj.name.replace(/'/g, "\\'")}')"
+                    class="px-3 py-2.5 text-xs font-semibold hover:bg-purple-50 cursor-pointer flex items-center justify-between ${
+                        formProjectName === proj.name ? 'bg-purple-50 text-purple-700 font-bold' : 'text-slate-800'
+                    }"
+                >
+                    <span>${proj.name}</span>
+                    ${formProjectName === proj.name ? '<i data-lucide="check" class="w-3.5 h-3.5 text-purple-600"></i>' : ''}
+                </div>
+            `).join('');
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        function filterProjectDropdown(q) {
+            const filtered = availableProjects.filter(p =>
+                p.name.toLowerCase().includes(q.toLowerCase()) ||
+                (p.client && p.client.toLowerCase().includes(q.toLowerCase()))
+            );
+            populateProjectDropdownList(filtered);
+        }
+
+        function selectProject(id, name) {
+            formProjectId = id;
+            formProjectName = name;
+            document.getElementById('formProjectNameDisplay').textContent = name;
+            document.getElementById('projectDropdownMenu').classList.add('hidden');
+        }
+
+        function promptCustomProject() {
+            const custom = prompt('Enter custom project name:');
+            if (custom) {
+                formProjectId = `proj-${Date.now()}`;
+                formProjectName = custom;
+                document.getElementById('formProjectNameDisplay').textContent = custom;
+                document.getElementById('projectDropdownMenu').classList.add('hidden');
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const trigger = document.getElementById('projectDropdownTrigger');
+            const menu = document.getElementById('projectDropdownMenu');
+            if (trigger && menu && !trigger.contains(e.target) && !menu.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        // ============================================================================
+        // 11. BOOTSTRAP INITIALIZATION
+        // ============================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAll();
+        });
+    </script>
+</body>
+</html>

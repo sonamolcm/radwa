@@ -1,0 +1,1958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radwa Construction ERP | CRM & Tendering Admin</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #0b0b0d;
+        color: #f4f4f5;
+      }
+      .font-luxury {
+        font-family: 'Cinzel', 'Playfair Display', Georgia, serif;
+      }
+      .font-mono {
+        font-family: 'JetBrains Mono', monospace;
+      }
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: #0b0b0d; }
+      ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+      ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+      .fade-in { animation: fadeIn 0.2s ease-in-out; }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @media (max-width: 768px) {
+        html, body {
+          max-width: 100vw;
+          overflow-x: hidden;
+        }
+      }
+    </style>
+</head>
+<body class="min-h-screen w-full bg-[#F8FAFC] text-slate-900 flex flex-col font-sans select-none relative overflow-x-hidden antialiased">
+
+    <!-- Decorative ambient gradients -->
+    <div class="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-blue-50/70 via-indigo-50/30 to-transparent pointer-events-none"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-80 bg-[radial-gradient(ellipse_70%_50%_at_50%_0%,rgba(56,189,248,0.18),transparent_75%)] pointer-events-none"></div>
+
+    <!-- Light Top Odoo Navigation Header -->
+    <header class="sticky top-0 z-30 w-full px-3 sm:px-8 py-3 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-2xs flex items-center justify-between gap-2 sm:gap-4">
+        
+        <!-- Left: Brand Identity with Odoo 4-square App Launcher Icon -->
+        <a href="/" class="flex items-center gap-2 sm:gap-3.5 group shrink-0">
+            <div class="w-9 h-9 rounded-xl bg-slate-900 text-white p-1.5 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
+                <div class="grid grid-cols-2 gap-0.5 w-full h-full">
+                    <div class="bg-white rounded-xs"></div>
+                    <div class="bg-cyan-400 rounded-xs"></div>
+                    <div class="bg-cyan-400 rounded-xs"></div>
+                    <div class="bg-white rounded-xs"></div>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="font-extrabold text-sm sm:text-base tracking-tight text-slate-900 uppercase">
+                        RADWA ERP
+                    </span>
+                    <span class="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 hidden sm:inline-block">
+                        Main Menu
+                    </span>
+                </div>
+                <p class="text-[11px] text-slate-500 hidden sm:block">
+                    Radwa Contracting & Trading • Enterprise Applications
+                </p>
+            </div>
+        </a>
+
+        <!-- Center: Live App Search Bar (visible when logged in) -->
+        <div id="headerSearchBar" class="relative max-w-xs sm:max-w-md w-full hidden">
+            <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"></i>
+            <input
+                type="text"
+                id="searchAppInput"
+                oninput="handleSearchApps(this.value)"
+                placeholder="Search applications..."
+                class="w-full pl-9 pr-4 py-1.5 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900 transition"
+            />
+        </div>
+
+        <!-- Right: AI Status Pill & User Profile Switcher -->
+        <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            
+            <!-- AI Engine Pill -->
+            <button
+                type="button"
+                id="mainMenuAiPillBtn"
+                onclick="openAiConfigModal()"
+                class="px-2 sm:px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer flex items-center gap-1 sm:gap-2 shadow-2xs bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100 shrink-0"
+                title="Configure Radwa AI Engine"
+            >
+                <span id="mainMenuAiDot" class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                <div class="flex items-center gap-1 sm:gap-1.5">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i>
+                    <span id="mainMenuAiStatusText" class="font-extrabold tracking-tight hidden sm:inline">AI Engine: Active</span>
+                    <span class="sm:hidden font-extrabold text-[10px]">AI</span>
+                </div>
+                <span id="mainMenuAiEndpointText" class="text-[10px] font-semibold text-slate-500 hidden lg:inline-block border-l border-slate-300/60 pl-1.5 font-mono">
+                    api.openai.com
+                </span>
+            </button>
+
+            <!-- Unauthenticated State: Not signed in -->
+            <div id="headerNotSignedIn" class="flex items-center gap-2">
+                <span class="text-xs text-slate-500 font-medium hidden sm:inline">Not signed in</span>
+            </div>
+
+            <!-- Authenticated State: User Profile Card (Super Admin Default) -->
+            <div id="headerUserCard" class="hidden flex items-center gap-1.5 sm:gap-3 bg-slate-50 border border-slate-200 rounded-xl px-2 sm:px-3 py-1.5 shadow-2xs">
+                <div id="headerUserAvatar" class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs shadow-xs shrink-0">
+                    SA
+                </div>
+
+                <div class="hidden sm:block text-left">
+                    <div class="text-xs font-bold text-slate-900 leading-tight">
+                        <span id="headerUserName">System Administrator</span>
+                    </div>
+                    <div id="headerUserRoleTitle" class="text-[10px] text-slate-500">
+                        Enterprise Super Administrator
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-1.5 pl-1">
+                    <i id="headerAdminCrown" data-lucide="crown" class="w-4 h-4 text-amber-500 shrink-0"></i>
+                    <span id="headerRoleBadge" class="hidden sm:inline-block text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider bg-rose-50 text-rose-600 border-rose-200">
+                        SUPER ADMIN
+                    </span>
+                </div>
+
+                <button
+                    type="button"
+                    id="headerSwitchRoleBtn"
+                    onclick="openRoleSwitchModal()"
+                    title="Switch User Role"
+                    class="ml-1 p-1 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-200 transition cursor-pointer text-xs flex items-center gap-1"
+                >
+                    <span class="hidden lg:inline text-[11px] font-medium">Switch Role</span>
+                    <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                </button>
+
+                <button
+                    type="button"
+                    onclick="handleSignOut()"
+                    title="Sign Out"
+                    class="p-1.5 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                >
+                    <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                </button>
+            </div>
+
+        </div>
+
+    </header>
+
+    <!-- Main Full-Screen Body -->
+    <main class="flex-1 w-full flex flex-col justify-center items-center px-4 sm:px-8 py-8 sm:py-12 max-w-7xl mx-auto">
+        
+        <!-- CASE 1: Role-Gated Application Launcher (Landing Page when signed out) -->
+        <div id="unauthenticatedRoleView" class="w-full max-w-[460px] mx-auto space-y-6 animate-in fade-in duration-200">
+            
+            <!-- Login Error Banner (if needed) -->
+            <div id="loginErrorMessage" class="hidden p-3 rounded-xl bg-rose-950/40 border border-rose-900/60 text-rose-300 text-xs flex items-center gap-2.5">
+                <i data-lucide="alert-circle" class="w-4 h-4 text-rose-400 shrink-0"></i>
+                <span id="loginErrorText"></span>
+            </div>
+
+            <!-- Main Luxury Dark Monochrome Card -->
+            <div class="bg-[#121214] border border-white/[0.08] rounded-[32px] p-8 sm:p-10 shadow-2xl shadow-black/80 transition-all">
+                
+                <!-- SIGN IN FORM (Matching Reference Image 1) -->
+                <div id="authSignInContainer" class="space-y-6">
+                    <!-- Brand Eyebrow -->
+                    <div class="text-center">
+                        <p class="text-[11px] font-medium tracking-[0.26em] text-zinc-400 uppercase">
+                            RADWA CONTRACTING & TRADING
+                        </p>
+                        <h1 class="font-luxury text-3xl sm:text-4xl text-white tracking-[0.04em] font-normal uppercase mt-3 mb-1">
+                            WELCOME BACK
+                        </h1>
+                        <p class="text-xs sm:text-sm text-zinc-400">
+                            Please enter your details to connect
+                        </p>
+                    </div>
+
+                    <form onsubmit="handleManualLoginForm(event)" class="space-y-5">
+                        <div>
+                            <label class="block text-[11px] font-semibold tracking-[0.14em] text-zinc-300 uppercase mb-2">
+                                EMAIL ADDRESS OR USERNAME
+                            </label>
+                            <div class="relative flex items-center">
+                                <i data-lucide="mail" class="w-4 h-4 text-zinc-500 absolute left-4 pointer-events-none"></i>
+                                <input
+                                    type="text"
+                                    id="loginEmailInput"
+                                    placeholder="name@radwa.sa or username (e.g. admin, crm, md)"
+                                    required
+                                    autocomplete="username"
+                                    class="w-full bg-[#0a0a0c] border border-zinc-800 focus:border-zinc-400 focus:outline-none rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 pl-11 pr-4 py-3.5 transition"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-semibold tracking-[0.14em] text-zinc-300 uppercase mb-2">
+                                PASSWORD
+                            </label>
+                            <div class="relative flex items-center">
+                                <i data-lucide="lock" class="w-4 h-4 text-zinc-500 absolute left-4 pointer-events-none"></i>
+                                <input
+                                    type="password"
+                                    id="loginPasswordInput"
+                                    placeholder="••••••••••••"
+                                    required
+                                    class="w-full bg-[#0a0a0c] border border-zinc-800 focus:border-zinc-400 focus:outline-none rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 pl-11 pr-11 py-3.5 transition"
+                                />
+                                <button 
+                                    type="button" 
+                                    onclick="togglePasswordVisibility('loginPasswordInput', 'mainLoginPwdEye')"
+                                    class="absolute right-4 text-zinc-500 hover:text-zinc-200 transition cursor-pointer p-1"
+                                    title="Toggle Password"
+                                >
+                                    <i data-lucide="eye" id="mainLoginPwdEye" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Remember me & Forgot Password -->
+                        <div class="flex items-center justify-between text-xs text-zinc-300 pt-1">
+                            <label class="flex items-center gap-2 cursor-pointer select-none hover:text-white transition">
+                                <input 
+                                    type="checkbox" 
+                                    checked 
+                                    class="w-4 h-4 rounded bg-[#0a0a0c] border-zinc-700 text-white accent-white cursor-pointer"
+                                />
+                                <span>Remember me</span>
+                            </label>
+                            <button 
+                                type="button" 
+                                onclick="alert('Please contact Radwa Enterprise IT Administrator at it@radwa.sa for credentials reset.')"
+                                class="hover:text-white underline underline-offset-4 transition cursor-pointer text-zinc-300"
+                            >
+                                Forgot password?
+                            </button>
+                        </div>
+
+                        <!-- Pure White Primary Button -->
+                        <button
+                            type="submit"
+                            id="formSubmitBtn"
+                            class="w-full py-3.5 px-6 rounded-2xl bg-white hover:bg-zinc-200 text-black font-semibold text-xs tracking-[0.18em] uppercase transition duration-200 shadow-lg cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] mt-2"
+                        >
+                            <span id="formSubmitBtnText">SIGN IN</span>
+                        </button>
+                    </form>
+
+                    <!-- Toggle to Sign Up -->
+                    <div class="text-center pt-2">
+                        <p class="text-xs text-zinc-400">
+                            Don't have an account?
+                            <button 
+                                type="button" 
+                                onclick="switchAuthMode('signup')" 
+                                class="text-white hover:text-zinc-300 font-medium underline underline-offset-4 cursor-pointer ml-1 transition"
+                            >
+                                Sign up
+                            </button>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- SIGN UP FORM (Matching Reference Image 2) -->
+                <div id="authSignUpContainer" class="hidden space-y-6">
+                    <!-- Brand Eyebrow -->
+                    <div class="text-center">
+                        <p class="text-[11px] font-medium tracking-[0.26em] text-zinc-400 uppercase">
+                            RADWA CONTRACTING & TRADING
+                        </p>
+                        <h1 class="font-luxury text-3xl sm:text-4xl text-white tracking-[0.04em] font-normal uppercase mt-3 mb-1">
+                            CREATE ACCOUNT
+                        </h1>
+                        <p class="text-xs sm:text-sm text-zinc-400">
+                            Begin your exclusive journey
+                        </p>
+                    </div>
+
+                    <form onsubmit="handleManualSignUpForm(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-[11px] font-semibold tracking-[0.14em] text-zinc-300 uppercase mb-2">
+                                FULL NAME
+                            </label>
+                            <div class="relative flex items-center">
+                                <i data-lucide="user" class="w-4 h-4 text-zinc-500 absolute left-4 pointer-events-none"></i>
+                                <input
+                                    type="text"
+                                    id="signupNameInput"
+                                    placeholder="Eng. Ahmed Al-Ghamdi"
+                                    required
+                                    class="w-full bg-[#0a0a0c] border border-zinc-800 focus:border-zinc-400 focus:outline-none rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 pl-11 pr-4 py-3.5 transition"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-semibold tracking-[0.14em] text-zinc-300 uppercase mb-2">
+                                EMAIL ADDRESS
+                            </label>
+                            <div class="relative flex items-center">
+                                <i data-lucide="mail" class="w-4 h-4 text-zinc-500 absolute left-4 pointer-events-none"></i>
+                                <input
+                                    type="email"
+                                    id="signupEmailInput"
+                                    placeholder="name@radwa.sa"
+                                    required
+                                    class="w-full bg-[#0a0a0c] border border-zinc-800 focus:border-zinc-400 focus:outline-none rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 pl-11 pr-4 py-3.5 transition"
+                                />
+                            </div>
+                        </div>
+
+
+
+                        <div>
+                            <label class="block text-[11px] font-semibold tracking-[0.14em] text-zinc-300 uppercase mb-2">
+                                PASSWORD
+                            </label>
+                            <div class="relative flex items-center">
+                                <i data-lucide="lock" class="w-4 h-4 text-zinc-500 absolute left-4 pointer-events-none"></i>
+                                <input
+                                    type="password"
+                                    id="signupPasswordInput"
+                                    placeholder="••••••••••••"
+                                    required
+                                    class="w-full bg-[#0a0a0c] border border-zinc-800 focus:border-zinc-400 focus:outline-none rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 pl-11 pr-11 py-3.5 transition"
+                                />
+                                <button 
+                                    type="button" 
+                                    onclick="togglePasswordVisibility('signupPasswordInput', 'mainSignupPwdEye')"
+                                    class="absolute right-4 text-zinc-500 hover:text-zinc-200 transition cursor-pointer p-1"
+                                    title="Toggle Password"
+                                >
+                                    <i data-lucide="eye" id="mainSignupPwdEye" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button
+                            type="submit"
+                            id="mainSignUpSubmitBtn"
+                            class="w-full py-3.5 px-6 rounded-2xl bg-white hover:bg-zinc-200 text-black font-semibold text-xs tracking-[0.18em] uppercase transition duration-200 shadow-lg cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] mt-3"
+                        >
+                            <span>CREATE ACCOUNT</span>
+                        </button>
+                    </form>
+
+                    <!-- Toggle to Sign In -->
+                    <div class="text-center pt-2">
+                        <p class="text-xs text-zinc-400">
+                            Already have an account?
+                            <button 
+                                type="button" 
+                                onclick="switchAuthMode('signin')" 
+                                class="text-white hover:text-zinc-300 font-medium underline underline-offset-4 cursor-pointer ml-1 transition"
+                            >
+                                Sign in
+                            </button>
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- CASE 2: Authenticated Role Workspace (Super Admin Default) -->
+        <div id="authenticatedMainView" class="w-full flex flex-col items-center space-y-8 animate-in fade-in duration-200 hidden">
+            
+            <!-- Header Scope Pill & Executive Headline -->
+            <div class="text-center space-y-3">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200/90 text-slate-800 text-xs shadow-xs font-semibold">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span id="roleScopePillText">
+                        Super Admin Mode — All Enterprise Workspaces Unlocked (11/11)
+                    </span>
+                </div>
+
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">
+                    Radwa Enterprise Applications
+                </h1>
+                <p id="roleSubtitleText" class="text-xs sm:text-sm text-slate-600 max-w-2xl mx-auto leading-relaxed">
+                    Unified Kingdom of Saudi Arabia civil contracting, tender estimation takeoffs, field operations, quality assurance, and HSE safety systems.
+                </p>
+
+                <!-- Executive Quick Status Chips -->
+                <div class="pt-1 flex flex-wrap items-center justify-center gap-2 text-xs">
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 shadow-2xs">
+                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                        <span class="font-semibold text-slate-800">11 Enterprise Modules</span>
+                    </div>
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 shadow-2xs">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span class="font-semibold text-slate-800">Zero LTI Safety Standard</span>
+                    </div>
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 shadow-2xs">
+                        <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                        <span class="font-semibold text-slate-800">ISO 9001 / ITP Quality</span>
+                    </div>
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 shadow-2xs">
+                        <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                        <span class="font-semibold text-slate-800">Saudi GOSI & Aramco Ready</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Responsive Executive App Launcher Grid (4 columns, left aligned) -->
+            <div id="appsGridContainer" class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-2">
+                <!-- Dynamically populated via renderApps() -->
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- Role Switcher Modal -->
+    <div id="roleSwitchModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs fade-in">
+        <div class="relative w-full max-w-2xl bg-white border border-slate-200 rounded-2xl shadow-xl p-6 sm:p-7 space-y-5">
+            
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-xs">
+                        R
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900">
+                            Switch Application Role & Profile
+                        </h3>
+                        <p class="text-[11px] text-slate-500">
+                            Select a credential profile below to filter visible apps
+                        </p>
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    onclick="closeRoleSwitchModal()"
+                    class="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                >
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Role Selector Options -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 max-h-[60vh] overflow-y-auto p-1" id="roleModalGrid">
+                <!-- Injected via javascript -->
+            </div>
+
+            <!-- Modal Footer: Return to Application Launcher / Sign Out -->
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                <span class="text-xs text-slate-500 font-medium">Want to switch credential accounts?</span>
+                <button
+                    type="button"
+                    onclick="closeRoleSwitchModal(); handleSignOut();"
+                    class="px-3.5 py-1.5 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                >
+                    <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                    <span>Return to Application Launcher</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- AI Engine Configuration Modal (components/layout/AiConfigModal.tsx) -->
+    <div id="aiConfigModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs fade-in">
+        <div class="relative w-full max-w-xl bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            
+            <!-- Header -->
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center">
+                        <i data-lucide="bot" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-extrabold text-slate-900">AI Engine Configuration</h3>
+                        <p class="text-[11px] text-slate-500">Radwa Enterprise Neural Model & API Key Settings</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeAiConfigModal()" class="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6 overflow-y-auto space-y-5 flex-1">
+                <!-- Status Callout -->
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Current AI Engine State</span>
+                        <div class="flex items-center gap-2 mt-0.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <span id="modalAiEngineStatusLabel" class="text-xs font-bold text-slate-800">Active & Ready</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Pulls Used</span>
+                        <div id="modalAiCallsUsed" class="text-xs font-mono font-bold text-slate-800">4 / 15</div>
+                    </div>
+                </div>
+
+                <!-- API Key -->
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-700">OpenAI / Gemini API Key</label>
+                    <div class="relative">
+                        <input
+                            type="password"
+                            id="modalApiKeyInput"
+                            placeholder="sk-proj-..."
+                            class="w-full px-3.5 py-2 pr-10 text-xs rounded-xl border border-slate-300 font-mono focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-600"
+                        />
+                        <button
+                            type="button"
+                            onclick="toggleApiKeyVisibility()"
+                            class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                        >
+                            <i id="apiKeyEyeIcon" data-lucide="eye" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-slate-400">Stored locally in your browser storage. Never transmitted to third parties.</p>
+                </div>
+
+                <!-- Custom Endpoint -->
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-700">API Endpoint Base URL</label>
+                    <input
+                        type="text"
+                        id="modalApiEndpointInput"
+                        value="https://api.openai.com/v1"
+                        class="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 font-mono focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-600"
+                    />
+                </div>
+
+                <!-- Model Selection -->
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-700">Inference Model</label>
+                    <select
+                        id="modalAiModelSelect"
+                        class="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 bg-white font-medium focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-600"
+                    >
+                        <option value="gpt-4o-mini">gpt-4o-mini (Recommended - Fast & Economical)</option>
+                        <option value="gpt-4o">gpt-4o (High-Precision SOW & BOQ Extraction)</option>
+                        <option value="gemini-1.5-flash">gemini-1.5-flash (Ultra Low Latency)</option>
+                        <option value="gemini-1.5-pro">gemini-1.5-pro (Long Tender Dossier Context)</option>
+                        <option value="claude-3-5-sonnet">claude-3-5-sonnet (Complex Specifications)</option>
+                    </select>
+                </div>
+
+                <!-- Rate Limit Pulls Slider -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold text-slate-700">Max Auto-Extraction Pulls / Hour</label>
+                        <span id="modalMaxPullsVal" class="text-xs font-mono font-bold text-purple-700">15 pulls/hr</span>
+                    </div>
+                    <input
+                        type="range"
+                        id="modalMaxPullsInput"
+                        min="1"
+                        max="50"
+                        value="15"
+                        oninput="document.getElementById('modalMaxPullsVal').innerText = this.value + ' pulls/hr'"
+                        class="w-full accent-purple-600 cursor-pointer"
+                    />
+                </div>
+
+                <!-- Test Connection Button -->
+                <div class="pt-2">
+                    <button
+                        type="button"
+                        onclick="handleTestAiConnection()"
+                        class="w-full py-2.5 px-4 rounded-xl border border-purple-200 bg-purple-50/70 hover:bg-purple-100/70 text-purple-800 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                        <i data-lucide="activity" class="w-4 h-4"></i>
+                        <span>Test API Latency & Model Connection</span>
+                    </button>
+                </div>
+
+                <!-- Test Result Container -->
+                <div id="modalTestResultBox" class="hidden p-3.5 rounded-xl border text-xs flex items-start gap-2.5">
+                    <i id="modalTestResultIcon" data-lucide="check-circle-2" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                    <span id="modalTestResultText" class="font-semibold leading-relaxed"></span>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-3 shrink-0 flex-wrap">
+                <button
+                    type="button"
+                    onclick="handleResetAiCounter()"
+                    class="px-3.5 py-2 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                >
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                    <span>Reset Counter</span>
+                </button>
+
+                <div class="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onclick="closeAiConfigModal()"
+                        class="px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold transition cursor-pointer"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        onclick="handleSaveAiConfig()"
+                        class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-md transition cursor-pointer"
+                    >
+                        Save & Apply
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Application Icons SVG Definitions (Offscreen but rendered in DOM for gradients) -->
+    <svg width="0" height="0" style="position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none;" aria-hidden="true">
+        <defs>
+            <linearGradient id="crm-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0284C7" />
+                <stop offset="1" stop-color="#0369A1" />
+            </linearGradient>
+            <linearGradient id="md-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#059669" />
+                <stop offset="1" stop-color="#047857" />
+            </linearGradient>
+            <linearGradient id="est-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#4F46E5" />
+                <stop offset="1" stop-color="#4338CA" />
+            </linearGradient>
+            <linearGradient id="ops-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#D97706" />
+                <stop offset="1" stop-color="#B45309" />
+            </linearGradient>
+            <linearGradient id="surv-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0D9488" />
+                <stop offset="1" stop-color="#0F766E" />
+            </linearGradient>
+            <linearGradient id="qaqc-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#6366F1" />
+                <stop offset="1" stop-color="#4338CA" />
+            </linearGradient>
+            <linearGradient id="hse-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0D9488" />
+                <stop offset="1" stop-color="#115E59" />
+            </linearGradient>
+            <linearGradient id="hr-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#E11D48" />
+                <stop offset="1" stop-color="#9F1239" />
+            </linearGradient>
+            <linearGradient id="inv-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#059669" />
+                <stop offset="1" stop-color="#047857" />
+            </linearGradient>
+            <linearGradient id="mr-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#2563EB" />
+                <stop offset="1" stop-color="#1E40AF" />
+            </linearGradient>
+            <linearGradient id="pur-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0891B2" />
+                <stop offset="1" stop-color="#0E7490" />
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <!-- JavaScript Application State & Launcher Logic -->
+    <script>
+        // Preset users catalog matching types/auth.ts
+        const PRESET_USERS = {
+            admin: {
+                id: 'usr-admin-01',
+                name: 'System Administrator',
+                email: 'admin@radwa.sa',
+                role: 'admin',
+                roleTitle: 'System Administrator',
+                avatarInitials: 'SA',
+                roleBadge: 'SUPER ADMIN',
+                badgeColor: 'bg-rose-50 text-rose-600 border-rose-200'
+            },
+            crm: {
+                id: 'usr-crm-01',
+                name: 'Fatima Ali',
+                email: 'crm@radwa.sa',
+                role: 'crm',
+                roleTitle: 'CRM & Tendering Administrator',
+                avatarInitials: 'FA',
+                roleBadge: 'CRM ADMIN',
+                badgeColor: 'bg-blue-50 text-blue-700 border-blue-200'
+            },
+            md: {
+                id: 'usr-md-01',
+                name: 'Eng. Tariq Al-Mansour',
+                email: 'md@radwa.sa',
+                role: 'md',
+                roleTitle: 'Managing Director',
+                avatarInitials: 'TM',
+                roleBadge: 'EXECUTIVE',
+                badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200'
+            },
+            estimator: {
+                id: 'usr-est-01',
+                name: 'Farhan Qureshi',
+                email: 'estimator@radwa.sa',
+                role: 'estimator',
+                roleTitle: 'Lead Piping and EPC Estimator',
+                avatarInitials: 'FQ',
+                roleBadge: 'LEAD ESTIMATOR',
+                badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200'
+            },
+            operations: {
+                id: 'usr-ops-01',
+                name: 'Sultan Al-Otaibi',
+                email: 'operations@radwa.sa',
+                role: 'operations',
+                roleTitle: 'Head of Operations and Site Feasibility',
+                avatarInitials: 'SO',
+                roleBadge: 'SITE OPS',
+                badgeColor: 'bg-amber-50 text-amber-700 border-amber-200'
+            },
+            surveyor: {
+                id: 'usr-surv-01',
+                name: 'Tariq Al-Ghamdi',
+                email: 'surveyor@radwa.sa',
+                role: 'surveyor',
+                roleTitle: 'Senior Field Surveyor',
+                avatarInitials: 'TG',
+                roleBadge: 'FIELD SURVEYOR',
+                badgeColor: 'bg-teal-50 text-teal-700 border-teal-200'
+            },
+            qaqc: {
+                id: 'usr-qaqc-01',
+                name: 'Majed Al-Harbi',
+                email: 'qaqc@radwa.sa',
+                role: 'qaqc',
+                roleTitle: 'QA/QC Quality Director',
+                avatarInitials: 'MH',
+                roleBadge: 'QA/QC QUALITY',
+                badgeColor: 'bg-purple-50 text-purple-700 border-purple-200'
+            },
+            hse: {
+                id: 'usr-hse-01',
+                name: 'Hamad Al-Ghamdi',
+                email: 'hse@radwa.sa',
+                role: 'hse',
+                roleTitle: 'Head of HSE & Safety Compliance',
+                avatarInitials: 'HG',
+                roleBadge: 'HSE SAFETY',
+                badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200'
+            },
+            hr: {
+                id: 'usr-hr-01',
+                name: 'Nouf Al-Shehri',
+                email: 'hr@radwa.sa',
+                role: 'hr',
+                roleTitle: 'HR & Personal Director',
+                avatarInitials: 'NS',
+                roleBadge: 'HR DIRECTOR',
+                badgeColor: 'bg-rose-50 text-rose-700 border-rose-200'
+            },
+            purchase: {
+                id: 'usr-pur-01',
+                name: 'Eng. Khalid Al-Ghamdi',
+                email: 'purchase@radwa.sa',
+                role: 'purchase',
+                roleTitle: 'Head of Procurement & Purchase Desk',
+                avatarInitials: 'KG',
+                roleBadge: 'PURCHASE & PROCUREMENT',
+                badgeColor: 'bg-cyan-50 text-cyan-700 border-cyan-200'
+            },
+            inventory: {
+                id: 'usr-inv-01',
+                name: 'Fahad Al-Dossary',
+                email: 'inventory@radwa.sa',
+                role: 'inventory',
+                roleTitle: 'Central Warehouse & Inventory Controller',
+                avatarInitials: 'FD',
+                roleBadge: 'WAREHOUSE CONTROLLER',
+                badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200'
+            },
+            mr: {
+                id: 'usr-mr-01',
+                name: 'Eng. Tariq Al-Mansour',
+                email: 'mr@radwa.sa',
+                role: 'mr',
+                roleTitle: 'Material Requests & QA Engineer',
+                avatarInitials: 'MR',
+                roleBadge: 'MATERIAL REQUESTS',
+                badgeColor: 'bg-blue-50 text-blue-700 border-blue-200'
+            }
+        };
+
+        // Dynamic counts passed from Django backend context with exact frontend fallbacks
+        const DJANGO_COUNTS = {
+            pendingMd: Number("{{ pending_md_count|default:0 }}"),
+            inEstimation: Number("{{ in_estimation_count|default:1 }}"),
+            approvedForEstimator: Number("{{ approved_for_estimator_count|default:4 }}"),
+            pendingSurveys: Number("{{ pending_surveys_count|default:2 }}"),
+            totalProjects: Number("{{ total_projects|default:11 }}")
+        };
+
+        // All 11 Applications matching OdooMainMenu.tsx & screenshot
+        const ALL_APPS = [
+            {
+                id: 'crm',
+                name: 'CRM Admin Portal',
+                subtitle: 'Client Intake & Work Orders',
+                description: 'Registers inbound tenders, manages client intake, tracks SOW scopes, and assigns estimating capacity.',
+                allowedRoles: ['admin', 'crm'],
+                badge: (DJANGO_COUNTS.inEstimation > 0 ? DJANGO_COUNTS.inEstimation : 1) + ' Active',
+                badgeColor: 'bg-blue-600 text-white font-bold',
+                accentLine: 'from-sky-400 via-blue-500 to-indigo-600',
+                ambientGlow: 'bg-sky-500',
+                tag: 'COMMERCIAL INTAKE',
+                kpiMetric: (DJANGO_COUNTS.inEstimation > 0 ? DJANGO_COUNTS.inEstimation : 1) + ' Active Inbound Tenders',
+                cardBorder: 'hover:border-sky-500 hover:ring-2 hover:ring-sky-500/20',
+                launchUrl: '/crm/',
+                renderIcon: () => `
+                    <svg viewBox="0 0 56 56" class="w-14 h-14 sm:w-16 sm:h-16" fill="none">
+                      <rect width="56" height="56" rx="18" fill="url(#crm-light-grad)" />
+                      <path d="M16 30C16 23.3726 21.3726 18 28 18C34.6274 18 40 23.3726 40 30" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" />
+                      <circle cx="28" cy="14" r="4.5" fill="#E0F2FE" />
+                      <rect x="21" y="28" width="14" height="15" rx="3" fill="#0369A1" />
+                      <path d="M24.5 33H31.5M24.5 37H29" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" />
+                      <defs>
+                        <linearGradient id="crm-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                          <stop stop-color="#0284C7" />
+                          <stop offset="1" stop-color="#0369A1" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                `
+            },
+            {
+                id: 'md',
+                name: 'Managing Director Console',
+                subtitle: 'Executive Review & Sign-Off',
+                description: 'Inspects tender dossiers, balances estimating pool capacity, and authorizes commercial bidding sign-off.',
+                allowedRoles: ['admin', 'md'],
+                badge: DJANGO_COUNTS.pendingMd > 0 ? DJANGO_COUNTS.pendingMd + ' Pending' : undefined,
+                badgeColor: 'bg-amber-500 text-slate-950 font-bold',
+                accentLine: 'from-emerald-400 via-teal-500 to-cyan-600',
+                ambientGlow: 'bg-emerald-500',
+                tag: 'EXECUTIVE GOVERNANCE',
+                kpiMetric: DJANGO_COUNTS.pendingMd > 0 ? DJANGO_COUNTS.pendingMd + ' Pending Authorizations' : 'Commercial Sign-Off Clear',
+                cardBorder: 'hover:border-emerald-500 hover:ring-2 hover:ring-emerald-500/20',
+                launchUrl: '/md/',
+                renderIcon: () => `
+                    <svg viewBox="0 0 56 56" class="w-14 h-14 sm:w-16 sm:h-16" fill="none">
+                      <rect width="56" height="56" rx="18" fill="url(#md-light-grad)" />
+                      <path d="M28 13L39 18.5V28C39 35 34.5 41 28 43.5C21.5 41 17 35 17 28V18.5L28 13Z" fill="#10B981" />
+                      <path d="M23 28L26.5 31.5L33 24.5" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                      <defs>
+                        <linearGradient id="md-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                          <stop stop-color="#059669" />
+                          <stop offset="1" stop-color="#047857" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                `
+            },
+            {
+                id: 'estimator',
+                name: 'Estimator Workspace',
+                subtitle: 'AI BOQ & Quantity Surveying',
+                description: 'Inspects tenders, requests site surveys, runs AI BOQ cost takeoffs, and prepares final proposal bids.',
+                allowedRoles: ['admin', 'estimator'],
+                badge: '4 Docs',
+                badgeColor: 'bg-blue-600 text-white font-bold',
+                accentLine: 'from-indigo-400 via-purple-500 to-violet-600',
+                ambientGlow: 'bg-indigo-500',
+                tag: 'AI BOQ & TAKEOFFS',
+                kpiMetric: (DJANGO_COUNTS.approvedForEstimator > 0 ? DJANGO_COUNTS.approvedForEstimator : 4) + ' Tenders in Estimation',
+                cardBorder: 'hover:border-indigo-500 hover:ring-2 hover:ring-indigo-500/20',
+                launchUrl: '/estimator/?view=workspace',
+                renderIcon: () => `
+                    <svg viewBox="0 0 56 56" class="w-14 h-14 sm:w-16 sm:h-16" fill="none">
+                      <rect width="56" height="56" rx="18" fill="url(#est-light-grad)" />
+                      <path d="M17 16C17 14.8954 17.8954 14 19 14H37C38.1046 14 39 14.8954 39 16V40C39 41.1046 38.1046 42 37 42H19C17.8954 42 17 41.1046 17 40V16Z" fill="#6366F1" />
+                      <rect x="21" y="18" width="14" height="6" rx="1.5" fill="#1E1B4B" />
+                      <circle cx="23" cy="29" r="1.8" fill="#FFFFFF" />
+                      <circle cx="28" cy="29" r="1.8" fill="#FFFFFF" />
+                      <circle cx="33" cy="29" r="1.8" fill="#FFFFFF" />
+                      <circle cx="23" cy="35" r="1.8" fill="#FFFFFF" />
+                      <circle cx="28" cy="35" r="1.8" fill="#FFFFFF" />
+                      <rect x="31.8" y="33.8" width="2.4" height="4" rx="0.8" fill="#A5B4FC" />
+                      <defs>
+                        <linearGradient id="est-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                          <stop stop-color="#4F46E5" />
+                          <stop offset="1" stop-color="#4338CA" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                `
+            },
+            {
+                id: 'operations',
+                name: 'Operations Console',
+                subtitle: 'Site Survey & Field Feasibility',
+                description: 'Receives survey requests from Estimators, runs AI site checklist generation, and dispatches field surveyors.',
+                allowedRoles: ['admin', 'operations'],
+                badge: (DJANGO_COUNTS.pendingSurveys > 0 ? DJANGO_COUNTS.pendingSurveys : 2) + ' Requests',
+                badgeColor: 'bg-amber-600 text-white font-bold',
+                accentLine: 'from-amber-400 via-orange-500 to-rose-500',
+                ambientGlow: 'bg-amber-500',
+                tag: 'SITE FEASIBILITY',
+                kpiMetric: (DJANGO_COUNTS.pendingSurveys > 0 ? DJANGO_COUNTS.pendingSurveys : 2) + ' Field Surveys Pending',
+                cardBorder: 'hover:border-amber-500 hover:ring-2 hover:ring-amber-500/20',
+                launchUrl: '/operations/',
+                renderIcon: () => `
+                    <svg viewBox="0 0 56 56" class="w-14 h-14 sm:w-16 sm:h-16" fill="none">
+                      <rect width="56" height="56" rx="18" fill="url(#ops-light-grad)" />
+                      <circle cx="28" cy="28" r="14" stroke="#FFFFFF" stroke-width="2.5" />
+                      <polygon points="28,17 32,28 28,39 24,28" fill="#FEF3C7" />
+                      <polygon points="28,17 32,28 28,28" fill="#F59E0B" />
+                      <circle cx="28" cy="28" r="3" fill="#D97706" />
+                      <defs>
+                        <linearGradient id="ops-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                          <stop stop-color="#D97706" />
+                          <stop offset="1" stop-color="#B45309" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                `
+            },
+            {
+                id: 'surveyor',
+                name: 'Field Surveyor Portal',
+                subtitle: 'Site Inspections & Ground Reports',
+                description: 'Executes physical site inspections, downloads PDF checklists, records ground findings, and submits verified reports.',
+                allowedRoles: ['admin', 'surveyor'],
+                badge: undefined,
+                badgeColor: 'bg-teal-600 text-white font-bold',
+                accentLine: 'from-teal-400 via-emerald-500 to-teal-600',
+                ambientGlow: 'bg-teal-500',
+                tag: 'GROUND INSPECTION',
+                kpiMetric: 'Checklists & Site Observations',
+                cardBorder: 'hover:border-teal-500 hover:ring-2 hover:ring-teal-500/20',
+                launchUrl: '/surveyor/',
+                renderIcon: () => `
+                    <svg viewBox="0 0 56 56" class="w-14 h-14 sm:w-16 sm:h-16" fill="none">
+                      <rect width="56" height="56" rx="18" fill="url(#surv-light-grad)" />
+                      <path d="M28 15C22.4772 15 18 19.4772 18 25C18 32.5 28 42 28 42C28 42 38 32.5 38 25C38 19.4772 33.5228 15 28 15Z" fill="#FFFFFF" />
+                      <circle cx="28" cy="25" r="4" fill="#0D9488" />
+                      <defs>
+                        <linearGradient id="surv-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                          <stop stop-color="#0D9488" />
+                          <stop offset="1" stop-color="#0F766E" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                `
+            },
+            {
+                id: 'qaqc',
+                name: 'Radwa QA/QC Quality',
+                subtitle: 'Inspection Requests (RFI) & Standards',
+                description: 'Manages Requests for Inspection (RFI), ITP Hold Points, Non-Conformance Reports (NCR), and Punch Lists across awarded projects.',
+                allowedRoles: ['admin', 'qaqc'],
+                badge: 'Enterprise QA',
+                badgeColor: 'bg-purple-600 text-white font-bold',
+                accentLine: 'from-purple-500 via-indigo-500 to-blue-600',
+                ambientGlow: 'bg-purple-500',
+                tag: 'QUALITY & ITP STANDARDS',
+                kpiMetric: 'ITP Approval & CODE 1/CODE 2',
+                cardBorder: 'hover:border-purple-500 hover:ring-2 hover:ring-purple-500/20',
+                launchUrl: '/qaqc/',
+                renderIcon: () => `
+                    <svg viewBox="0 0 56 56" class="w-14 h-14 sm:w-16 sm:h-16" fill="none">
+                      <rect width="56" height="56" rx="18" fill="url(#qaqc-light-grad)" />
+                      <path d="M28 14L16 20V28C16 36 21.5 43 28 45C34.5 43 40 36 40 28V20L28 14Z" fill="#FFFFFF" fill-opacity="0.9" />
+                      <path d="M25 28.5L22 25.5L20 27.5L25 32.5L36 21.5L34 19.5L25 28.5Z" fill="#4338CA" />
+                      <defs>
+                        <linearGradient id="qaqc-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                          <stop stop-color="#6366F1" />
+                          <stop offset="1" stop-color="#4338CA" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                `
+            },
+            {
+                id: 'hse',
+                name: 'Radwa HSE Safety',
+                subtitle: 'Safety KPIs, LTIFR/TRIFR & Incidents',
+                description: 'Monitors site safe man-hours, auto-calculates LTIFR & TRIFR rates, tracks Incident CAPA plans, and logs daily Toolbox Talks.',
+                allowedRoles: ['admin', 'hse'],
+                badge: 'Zero LTI',
+                badgeColor: 'bg-teal-600 text-white font-bold',
+                accentLine: 'from-emerald-500 via-teal-500 to-green-600',
+                ambientGlow: 'bg-teal-500',
+                tag: 'SAFETY & FREQUENCY RATES',
+                kpiMetric: 'Zero LTI • 0.00 LTIFR Tracked',
+                cardBorder: 'hover:border-teal-500 hover:ring-2 hover:ring-teal-500/20',
+                launchUrl: '/hse/',
+                renderIcon: () => `
+                    <svg viewBox="0 0 56 56" class="w-14 h-14 sm:w-16 sm:h-16" fill="none">
+                      <rect width="56" height="56" rx="18" fill="url(#hse-light-grad)" />
+                      <circle cx="28" cy="28" r="13" stroke="#FFFFFF" stroke-width="2.5" fill="none" />
+                      <path d="M28 20V29M28 34V35" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" />
+                      <defs>
+                        <linearGradient id="hse-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                          <stop stop-color="#0D9488" />
+                          <stop offset="1" stop-color="#115E59" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                `
+            },
+            {
+                id: 'hr',
+                name: 'Radwa HR & Personnel',
+                subtitle: 'Workforce, Payroll & Muqeem/GOSI',
+                description: 'Employee contracts, Iqama expiry tracking, Saudi nationalization (Nitaqat), leave management, and site worker allocations.',
+                allowedRoles: ['admin', 'hr'],
+                badge: 'HR & Nitaqat',
+                badgeColor: 'bg-rose-600 text-white font-bold',
+                accentLine: 'from-rose-500 via-pink-500 to-red-600',
+                ambientGlow: 'bg-rose-500',
+                tag: 'WORKFORCE & NITAQAT',
+                kpiMetric: 'Iqama & Saudi Nationalization',
+                cardBorder: 'hover:border-rose-500 hover:ring-2 hover:ring-rose-500/20',
+                launchUrl: '/hr/',
+                renderIcon: () => `
+                    <svg viewBox="0 0 56 56" class="w-14 h-14 sm:w-16 sm:h-16" fill="none">
+                      <rect width="56" height="56" rx="18" fill="url(#hr-light-grad)" />
+                      <path d="M28 26C31.3137 26 34 23.3137 34 20C34 16.6863 31.3137 14 28 14C24.6863 14 22 16.6863 22 20C22 23.3137 24.6863 26 28 26Z" fill="#FFFFFF" />
+                      <path d="M18 38C18 33.5817 21.5817 30 26 30H30C34.4183 30 38 33.5817 38 38V40H18V38Z" fill="#FFFFFF" fill-opacity="0.85" />
+                      <defs>
+                        <linearGradient id="hr-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                          <stop stop-color="#E11D48" />
+                          <stop offset="1" stop-color="#9F1239" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                `
+            },
+            {
+                id: 'inventory',
+                name: 'Radwa Inventory & Warehouse',
+                subtitle: 'Central Stock & Project BOQ Reconciler',
+                description: 'Central multi-yard stock catalog, automated project BOQ reconciliation against warehouse inventory, and shortfall identification.',
+                allowedRoles: ['admin', 'inventory'],
+                badge: 'Stage 1: Yard Stock',
+                badgeColor: 'bg-emerald-600 text-white font-bold',
+                accentLine: 'from-emerald-400 via-teal-500 to-green-600',
+                ambientGlow: 'bg-emerald-500',
+                tag: 'WAREHOUSE LOGISTICS & SKUS',
+                kpiMetric: 'Multi-Yard Real-Time Inventory',
+                cardBorder: 'hover:border-emerald-500 hover:ring-2 hover:ring-emerald-500/20',
+                launchUrl: '/inventory/',
+                renderIcon: () => `
+                    <svg viewBox="0 0 56 56" class="w-14 h-14 sm:w-16 sm:h-16" fill="none">
+                      <rect width="56" height="56" rx="18" fill="url(#inv-light-grad)" />
+                      <path d="M28 15L39 21V35L28 41L17 35V21L28 15Z" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                      <path d="M28 15V41M17 21L39 35M39 21L17 35" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" />
+                      <defs>
+                        <linearGradient id="inv-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                          <stop stop-color="#059669" />
+                          <stop offset="1" stop-color="#047857" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                `
+            },
+            {
+                id: 'material-requests',
+                name: 'Radwa Material Requests (MR)',
+                subtitle: 'Project Shortfall Intake & QA Verification',
+                description: 'Prevent site shortfall material intake, technical engineering verification, and direct transfer to the Purchase Department.',
+                allowedRoles: ['admin', 'mr', 'estimator'],
+                badge: 'Stage 2: MR Site',
+                badgeColor: 'bg-blue-600 text-white font-bold',
+                accentLine: 'from-blue-500 via-indigo-500 to-cyan-500',
+                ambientGlow: 'bg-blue-500',
+                tag: 'PROJECT SHORTFALLS & MR VERIFICATION',
+                kpiMetric: 'Project Requisition Verification',
+                cardBorder: 'hover:border-blue-500 hover:ring-2 hover:ring-blue-500/20',
+                launchUrl: '/material-requests/',
+                renderIcon: () => `
+                    <svg viewBox="0 0 56 56" class="w-14 h-14 sm:w-16 sm:h-16" fill="none">
+                      <rect width="56" height="56" rx="18" fill="url(#mr-light-grad)" />
+                      <path d="M19 18H37V38H19V18Z" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                      <path d="M24 24H32M24 29H32M24 34H28" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" />
+                      <path d="M33 32L36 35L42 27" stroke="#38BDF8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                      <defs>
+                        <linearGradient id="mr-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                          <stop stop-color="#2563EB" />
+                          <stop offset="1" stop-color="#1E40AF" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                `
+            },
+            {
+                id: 'purchase',
+                name: 'Radwa Purchase & Procurement',
+                subtitle: 'Vendor PO Issuance & Supply Logistics',
+                description: 'Issues official vendor purchase orders from verified MRs, tracks supplier delivery milestones, and ships goods to warehouse.',
+                allowedRoles: ['admin', 'purchase'],
+                badge: 'Stage 3: Vendor POs',
+                badgeColor: 'bg-cyan-600 text-white font-bold',
+                accentLine: 'from-cyan-400 via-blue-500 to-indigo-600',
+                ambientGlow: 'bg-cyan-500',
+                tag: 'PURCHASE ORDERS & VENDOR SUPPLY',
+                kpiMetric: 'Vendor POs & Delivery Logistics',
+                cardBorder: 'hover:border-cyan-500 hover:ring-2 hover:ring-cyan-500/20',
+                launchUrl: '/purchase/',
+                renderIcon: () => `
+                    <svg viewBox="0 0 56 56" class="w-14 h-14 sm:w-16 sm:h-16" fill="none">
+                      <rect width="56" height="56" rx="18" fill="url(#pur-light-grad)" />
+                      <path d="M16 19H20L23.5 33H36.5L39.5 23H22" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                      <circle cx="25" cy="38" r="2.5" fill="#FFFFFF" />
+                      <circle cx="35" cy="38" r="2.5" fill="#FFFFFF" />
+                      <defs>
+                        <linearGradient id="pur-light-grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                          <stop stop-color="#0891B2" />
+                          <stop offset="1" stop-color="#0E7490" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                `
+            }
+        ];
+
+        // Visual styles & scopes for all 11 roles (matching screenshot and Next.js frontend)
+        const ROLE_VISUALS = {
+            admin: {
+                badge: 'SUPER ADMIN',
+                color: 'text-rose-600 bg-rose-50 border-rose-200',
+                scope: 'All Enterprise Portals',
+                btnClass: 'bg-slate-900 hover:bg-slate-800 text-white',
+                icon: 'crown'
+            },
+            crm: {
+                badge: 'CRM DESK',
+                color: 'text-blue-600 bg-blue-50 border-blue-200',
+                scope: 'CRM Admin Portal Only',
+                btnClass: 'bg-blue-600 hover:bg-blue-500 text-white',
+                icon: 'building-2'
+            },
+            md: {
+                badge: 'EXECUTIVE',
+                color: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+                scope: 'MD Console Only',
+                btnClass: 'bg-emerald-600 hover:bg-emerald-500 text-white',
+                icon: 'shield-check'
+            },
+            estimator: {
+                badge: 'LEAD ESTIMATOR',
+                color: 'text-indigo-600 bg-indigo-50 border-indigo-200',
+                scope: 'Estimator & Material Requests Hub',
+                btnClass: 'bg-indigo-600 hover:bg-indigo-500 text-white',
+                icon: 'calculator'
+            },
+            operations: {
+                badge: 'SITE OPS',
+                color: 'text-amber-600 bg-amber-50 border-amber-200',
+                scope: 'Operations Console Only',
+                btnClass: 'bg-amber-600 hover:bg-amber-500 text-white',
+                icon: 'compass'
+            },
+            surveyor: {
+                badge: 'FIELD SURVEYOR',
+                color: 'text-teal-600 bg-teal-50 border-teal-200',
+                scope: 'Field Surveyor Portal Only',
+                btnClass: 'bg-teal-600 hover:bg-teal-500 text-white',
+                icon: 'hard-hat'
+            },
+            qaqc: {
+                badge: 'QUALITY LEAD',
+                color: 'text-purple-600 bg-purple-50 border-purple-200',
+                scope: 'QA/QC Quality Portal Only',
+                btnClass: 'bg-purple-600 hover:bg-purple-500 text-white',
+                icon: 'award'
+            },
+            hse: {
+                badge: 'SAFETY OFFICER',
+                color: 'text-emerald-600 bg-emerald-50 border-emerald-200',
+                scope: 'HSE Safety Portal Only',
+                btnClass: 'bg-teal-600 hover:bg-teal-500 text-white',
+                icon: 'heart-pulse'
+            },
+            hr: {
+                badge: 'HR DIRECTOR',
+                color: 'text-rose-600 bg-rose-50 border-rose-200',
+                scope: 'HR & Personnel Portal Only',
+                btnClass: 'bg-rose-600 hover:bg-rose-500 text-white',
+                icon: 'users'
+            },
+            purchase: {
+                badge: 'PROCUREMENT',
+                color: 'text-cyan-600 bg-cyan-50 border-cyan-200',
+                scope: 'Purchase & Vendor PO Portal Only',
+                btnClass: 'bg-cyan-600 hover:bg-cyan-500 text-white',
+                icon: 'shopping-cart'
+            },
+            inventory: {
+                badge: 'WAREHOUSE CONTROLLER',
+                color: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+                scope: 'Central Warehouse & Yard Reconciler',
+                btnClass: 'bg-emerald-600 hover:bg-emerald-500 text-white',
+                icon: 'boxes'
+            },
+            mr: {
+                badge: 'MATERIAL QA',
+                color: 'text-blue-600 bg-blue-50 border-blue-200',
+                scope: 'Material Requests & Shortfall QA Desk Only',
+                btnClass: 'bg-blue-600 hover:bg-blue-500 text-white',
+                icon: 'clipboard-check'
+            }
+        };
+
+        const ROLE_TARGET_URLS = {
+            admin: '/menu/?view=admin_grid',
+            crm: '/crm/',
+            md: '/md/',
+            estimator: '/estimator/',
+            operations: '/operations/',
+            surveyor: '/surveyor/',
+            qaqc: '/qaqc/',
+            hse: '/hse/',
+            hr: '/hr/',
+            mr: '/material-requests/',
+            purchase: '/purchase/',
+            inventory: '/inventory/'
+        };
+
+        const ORDERED_ROLES = ['admin', 'crm', 'md', 'estimator', 'operations', 'surveyor', 'qaqc', 'hse', 'hr', 'mr', 'purchase', 'inventory'];
+
+        // Active State
+        let currentRole = null;
+        let selectedLoginRole = 'admin';
+        let searchQuery = '';
+
+        let authMode = 'signin';
+
+        function switchAuthMode(mode) {
+            authMode = mode;
+            const signInTab = document.getElementById('authTabSignIn');
+            const signUpTab = document.getElementById('authTabSignUp');
+            const signInBox = document.getElementById('authSignInContainer');
+            const signUpBox = document.getElementById('authSignUpContainer');
+            const errBox = document.getElementById('loginErrorMessage');
+            if (errBox) errBox.classList.add('hidden');
+
+            if (mode === 'signup') {
+                if (signInTab) signInTab.className = 'flex-1 py-2 text-xs font-bold rounded-lg transition text-slate-500 hover:text-slate-900 cursor-pointer';
+                if (signUpTab) signUpTab.className = 'flex-1 py-2 text-xs font-bold rounded-lg transition shadow-2xs bg-white text-slate-900 cursor-pointer';
+                if (signInBox) signInBox.classList.add('hidden');
+                if (signUpBox) signUpBox.classList.remove('hidden');
+            } else {
+                if (signUpTab) signUpTab.className = 'flex-1 py-2 text-xs font-bold rounded-lg transition text-slate-500 hover:text-slate-900 cursor-pointer';
+                if (signInTab) signInTab.className = 'flex-1 py-2 text-xs font-bold rounded-lg transition shadow-2xs bg-white text-slate-900 cursor-pointer';
+                if (signUpBox) signUpBox.classList.add('hidden');
+                if (signInBox) signInBox.classList.remove('hidden');
+            }
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (!input || !icon) return;
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        async function handleManualLoginForm(e) {
+            e.preventDefault();
+            const emailInp = document.getElementById('loginEmailInput');
+            const pwdInp = document.getElementById('loginPasswordInput');
+            const rawIdent = (emailInp?.value || '').trim();
+            const password = (pwdInp?.value || '');
+
+            const errBox = document.getElementById('loginErrorMessage');
+            const errText = document.getElementById('loginErrorText');
+            function showErr(msg) {
+                if (errText) errText.textContent = msg;
+                if (errBox) errBox.classList.remove('hidden');
+                if (pwdInp) pwdInp.classList.add('border-rose-500', 'ring-1', 'ring-rose-500');
+            }
+            function clearErr() {
+                if (errBox) errBox.classList.add('hidden');
+                if (pwdInp) pwdInp.classList.remove('border-rose-500', 'ring-1', 'ring-rose-500');
+            }
+
+            clearErr();
+
+            if (!rawIdent) {
+                showErr('Please enter your corporate email address or username.');
+                emailInp?.focus();
+                return;
+            }
+            if (!password) {
+                showErr('Please enter your password.');
+                pwdInp?.focus();
+                return;
+            }
+
+            const btn = document.getElementById('formSubmitBtn');
+            const btnText = document.getElementById('formSubmitBtnText');
+            const oldText = btnText ? btnText.innerText : 'SIGN IN';
+            if (btnText) btnText.innerText = 'VERIFYING...';
+            if (btn) btn.disabled = true;
+
+            try {
+                // 1. Backend API login
+                try {
+                    const resp = await fetch('/api/auth/login/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: rawIdent, username: rawIdent, password: password })
+                    });
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        const userRole = data.user?.role || 'admin';
+                        const preset = PRESET_USERS[userRole] || PRESET_USERS.admin;
+                        const authUser = {
+                            id: data.user?.id || preset.id,
+                            name: data.user?.name || preset.name,
+                            email: data.user?.email || preset.email,
+                            role: userRole,
+                            roleTitle: data.user?.roleTitle || preset.roleTitle,
+                            avatarInitials: preset.avatarInitials,
+                            department: preset.department,
+                            launchUrl: preset.launchUrl || '/'
+                        };
+                        try {
+                            localStorage.setItem('radwa_auth_user', JSON.stringify(authUser));
+                        } catch(e) {}
+                        document.cookie = `radwa_role=${userRole}; path=/; max-age=86400`;
+                        setRole(userRole);
+                        return;
+                    } else {
+                        const errData = await resp.json().catch(() => ({}));
+                        showErr(errData.error || 'Authentication failed: Invalid credentials. Access denied.');
+                        return;
+                    }
+                } catch(netErr) {
+                    console.warn('Backend login endpoint unavailable, performing strict local authentication:', netErr);
+                }
+
+                // 2. Strict local validation
+                const normalized = rawIdent.toLowerCase();
+                const roleKey = normalized.includes('@') ? normalized.split('@')[0] : normalized;
+                const normalizedEmail = normalized.includes('@') ? normalized : `${normalized}@radwa.sa`;
+
+                // Check custom registered users
+                let regUsers = [];
+                try { regUsers = JSON.parse(localStorage.getItem('radwa_registered_users') || '[]'); } catch(e){}
+                const customUser = regUsers.find(u => u.email.toLowerCase() === normalizedEmail || u.email.toLowerCase() === normalized);
+                if (customUser) {
+                    if (customUser.password !== password) {
+                        showErr('Invalid password for this account. Access denied.');
+                        return;
+                    }
+                    try { localStorage.setItem('radwa_auth_user', JSON.stringify(customUser)); } catch(e){}
+                    document.cookie = `radwa_role=${customUser.role}; path=/; max-age=86400`;
+                    setRole(customUser.role);
+                    return;
+                }
+
+                // Check PRESET_USERS
+                let matchedPreset = Object.values(PRESET_USERS).find(u => 
+                    u.email.toLowerCase() === normalizedEmail || 
+                    u.id === `u-${roleKey}`
+                );
+                if (!matchedPreset && PRESET_USERS[roleKey]) {
+                    matchedPreset = PRESET_USERS[roleKey];
+                }
+
+                if (matchedPreset) {
+                    const expectedPwd = matchedPreset.defaultPassword || 'radwa123';
+                    if (password !== expectedPwd) {
+                        showErr('Invalid password for this corporate account. Access denied.');
+                        return;
+                    }
+                    try { localStorage.setItem('radwa_auth_user', JSON.stringify(matchedPreset)); } catch(e){}
+                    const matchedRoleKey = Object.keys(PRESET_USERS).find(k => PRESET_USERS[k] === matchedPreset) || roleKey;
+                    document.cookie = `radwa_role=${matchedRoleKey}; path=/; max-age=86400`;
+                    setRole(matchedRoleKey);
+                    return;
+                }
+
+                showErr('No corporate account found with this email or username. Access denied.');
+            } finally {
+                if (btnText) btnText.innerText = oldText;
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        function handleManualSignUpForm(e) {
+            e.preventDefault();
+            const name = (document.getElementById('signupNameInput')?.value || '').trim();
+            const email = (document.getElementById('signupEmailInput')?.value || '').trim().toLowerCase();
+            const prefix = email.split('@')[0];
+            const role = (document.getElementById('signupRoleSelect')?.value) || (PRESET_USERS[prefix] ? prefix : 'admin');
+            const password = document.getElementById('signupPasswordInput')?.value || '';
+
+            const errBox = document.getElementById('loginErrorMessage');
+            const errText = document.getElementById('loginErrorText');
+
+            if (!name || !email || !password) {
+                if (errText) errText.textContent = 'Please enter your full name, corporate email address, and password.';
+                if (errBox) errBox.classList.remove('hidden');
+                return;
+            }
+
+            if (password.length < 6) {
+                if (errText) errText.textContent = 'Password must be at least 6 characters.';
+                if (errBox) errBox.classList.remove('hidden');
+                return;
+            }
+
+            const parts = name.split(' ');
+            const initials = parts.length > 1 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : name.slice(0, 2).toUpperCase();
+
+            const roleMeta = PRESET_USERS[role] || PRESET_USERS.admin;
+            PRESET_USERS[role] = {
+                ...roleMeta,
+                name: name,
+                email: email,
+                password: password,
+                defaultPassword: password,
+                avatarInitials: initials
+            };
+
+            const newUser = {
+                id: 'u-' + Date.now(),
+                name: name,
+                email: email,
+                role: role,
+                password: password,
+                defaultPassword: password,
+                avatarInitials: initials,
+                department: roleMeta.department || 'Corporate Operations',
+                launchUrl: roleMeta.launchUrl || '/'
+            };
+
+            try {
+                localStorage.setItem('radwa_auth_user', JSON.stringify(newUser));
+                localStorage.setItem('radwa_current_role', role);
+                localStorage.setItem('radwa_active_role', role);
+
+                const regList = JSON.parse(localStorage.getItem('radwa_registered_users') || '[]');
+                const updatedList = regList.filter(u => u.email.toLowerCase() !== email);
+                updatedList.push(newUser);
+                localStorage.setItem('radwa_registered_users', JSON.stringify(updatedList));
+            } catch(e) {}
+
+            document.cookie = `radwa_role=${role}; path=/; max-age=86400`;
+
+            if (errBox) errBox.classList.add('hidden');
+
+            const btn = document.getElementById('mainSignUpSubmitBtn');
+            if (btn) {
+                btn.innerHTML = `<span class="animate-pulse">CREATING ACCOUNT...</span>`;
+                btn.disabled = true;
+            }
+
+            setTimeout(() => {
+                setRole(role);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 300);
+        }
+
+        function setRole(newRole) {
+            currentRole = newRole;
+            if (currentRole && PRESET_USERS[currentRole]) {
+                const user = PRESET_USERS[currentRole];
+                try {
+                    localStorage.setItem('radwa_current_role', currentRole);
+                    localStorage.setItem('radwa_active_role', currentRole);
+                } catch(e) {}
+
+                // Update Header Profile
+                const avatarEl = document.getElementById('headerUserAvatar');
+                if (avatarEl) avatarEl.textContent = user.avatarInitials;
+                const nameEl = document.getElementById('headerUserName');
+                if (nameEl) nameEl.textContent = user.name;
+                const roleTitleEl = document.getElementById('headerUserRoleTitle');
+                if (roleTitleEl) roleTitleEl.textContent = user.roleTitle;
+                const badgeEl = document.getElementById('headerRoleBadge');
+                if (badgeEl) {
+                    badgeEl.textContent = user.roleBadge;
+                    badgeEl.className = `text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${user.badgeColor}`;
+                }
+                
+                const crown = document.getElementById('headerAdminCrown');
+                if (crown) {
+                    if (currentRole === 'admin') {
+                        crown.classList.remove('hidden');
+                    } else {
+                        crown.classList.add('hidden');
+                    }
+                }
+
+                // Header states
+                const notSignedIn = document.getElementById('headerNotSignedIn');
+                if (notSignedIn) notSignedIn.classList.add('hidden');
+                const userCard = document.getElementById('headerUserCard');
+                if (userCard) userCard.classList.remove('hidden');
+                const searchBar = document.getElementById('headerSearchBar');
+                const switchRoleBtn = document.getElementById('headerSwitchRoleBtn');
+                if (searchBar) {
+                    if (currentRole === 'admin') {
+                        searchBar.classList.remove('hidden');
+                        searchBar.classList.add('block');
+                    } else {
+                        searchBar.classList.add('hidden');
+                        searchBar.classList.remove('block');
+                    }
+                }
+                if (switchRoleBtn) {
+                    if (currentRole === 'admin') {
+                        switchRoleBtn.classList.remove('hidden');
+                    } else {
+                        switchRoleBtn.classList.add('hidden');
+                    }
+                }
+
+                // Main Views toggle
+                const unauthView = document.getElementById('unauthenticatedRoleView');
+                if (unauthView) unauthView.classList.add('hidden');
+                const authView = document.getElementById('authenticatedMainView');
+                if (authView) authView.classList.remove('hidden');
+
+                renderApps();
+                closeRoleSwitchModal();
+                lucide.createIcons();
+            } else {
+                handleSignOut();
+            }
+        }
+
+        function handleSignOut() {
+            currentRole = null;
+            try {
+                localStorage.removeItem('radwa_current_role');
+                localStorage.removeItem('radwa_active_role');
+            } catch(e) {}
+            
+            // Clean URL query params if present
+            if (window.location.search) {
+                window.history.replaceState({}, '', window.location.pathname);
+            }
+
+            // Header states
+            const notSignedIn = document.getElementById('headerNotSignedIn');
+            if (notSignedIn) notSignedIn.classList.remove('hidden');
+            const userCard = document.getElementById('headerUserCard');
+            if (userCard) userCard.classList.add('hidden');
+            const searchBar = document.getElementById('headerSearchBar');
+            if (searchBar) {
+                searchBar.classList.add('hidden');
+                searchBar.classList.remove('block');
+            }
+            const searchInput = document.getElementById('searchAppInput');
+            if (searchInput) searchInput.value = '';
+            searchQuery = '';
+
+            // Main Views toggle
+            const authView = document.getElementById('authenticatedMainView');
+            if (authView) authView.classList.add('hidden');
+            const unauthView = document.getElementById('unauthenticatedRoleView');
+            if (unauthView) unauthView.classList.remove('hidden');
+
+            // Reset auth mode to signin
+            switchAuthMode('signin');
+            const emailInp = document.getElementById('loginEmailInput');
+            if (emailInp) emailInp.value = '';
+            const pwdInp = document.getElementById('loginPasswordInput');
+            if (pwdInp) pwdInp.value = '';
+            if (typeof renderUnauthQuickRoles === 'function') renderUnauthQuickRoles();
+            lucide.createIcons();
+        }
+
+        function renderApps() {
+            if (!currentRole) return;
+            const user = PRESET_USERS[currentRole] || PRESET_USERS.admin;
+            
+            // Filter apps: Admin sees all 11 apps; non-admin sees ONLY their role's app
+            const visible = ALL_APPS.filter(app => {
+                const isAllowed = (currentRole === 'admin') ? true : (app.id === currentRole);
+                const q = searchQuery.toLowerCase().trim();
+                const matches = !q || (
+                    app.name.toLowerCase().includes(q) ||
+                    app.subtitle.toLowerCase().includes(q) ||
+                    app.description.toLowerCase().includes(q)
+                );
+                return isAllowed && matches;
+            });
+
+            // Update Scope Pill
+            const scopePill = document.getElementById('roleScopePillText');
+            if (currentRole === 'admin') {
+                scopePill.textContent = `Super Admin Mode — All Enterprise Workspaces Unlocked (${visible.length}/${ALL_APPS.length})`;
+            } else {
+                scopePill.textContent = `• Assigned Role Workspace: ${user.name} (${user.roleTitle}) • 1 Portal Accessible`;
+            }
+
+            // Update Subtitle
+            const sub = document.getElementById('roleSubtitleText');
+            if (currentRole === 'admin') {
+                sub.textContent = 'Unified Kingdom of Saudi Arabia civil contracting, tender estimation takeoffs, field operations, quality assurance, and HSE safety systems.';
+            } else {
+                sub.textContent = `Signed in as ${user.name} (${user.roleTitle}). Click your designated application workspace to launch your dashboard.`;
+            }
+
+            // Adjust grid layout based on card count
+            const container = document.getElementById('appsGridContainer');
+            if (visible.length === 1) {
+                container.className = 'w-full max-w-sm mx-auto pt-2';
+            } else if (visible.length === 2) {
+                container.className = 'w-full max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2';
+            } else {
+                container.className = 'w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-2';
+            }
+
+            if (visible.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center p-8 bg-white rounded-2xl border border-slate-200 max-w-md mx-auto shadow-sm">
+                        <i data-lucide="alert-circle" class="w-10 h-10 text-amber-500 mx-auto mb-3"></i>
+                        <h4 class="text-sm font-bold text-slate-900 mb-1">No matching applications found</h4>
+                        <p class="text-xs text-slate-500 mb-4">No apps matched "${searchQuery}". Clear search to view all authorized apps.</p>
+                        <button onclick="clearSearch()" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition">
+                            Clear Search
+                        </button>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = visible.map(app => `
+                <div
+                    onclick="window.location.href='${app.launchUrl}'"
+                    class="relative group w-full rounded-3xl bg-white border border-slate-200/90 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_22px_45px_-10px_rgba(15,23,42,0.15)] ${app.cardBorder} p-6 flex flex-col items-center text-center cursor-pointer transition-all duration-300 transform hover:-translate-y-2 overflow-hidden"
+                >
+                    <!-- Top colored accent line -->
+                    <div class="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r ${app.accentLine} opacity-80 group-hover:opacity-100 transition-opacity"></div>
+
+                    <!-- Corner ambient glow on hover -->
+                    <div class="absolute -top-14 -right-14 w-32 h-32 rounded-full ${app.ambientGlow} opacity-0 group-hover:opacity-15 blur-2xl transition-opacity duration-500 pointer-events-none"></div>
+
+                    <!-- Category / Discipline Pill Tag -->
+                    <div class="w-full flex items-center justify-between mb-3">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 group-hover:text-slate-600 transition-colors">
+                            ${app.tag}
+                        </span>
+                        ${app.badge ? `
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow-2xs border border-white ${app.badgeColor}">
+                                ${app.badge}
+                            </span>
+                        ` : ''}
+                    </div>
+
+                    <!-- Squircle Icon Container with smooth hover bounce -->
+                    <div class="relative mb-3.5">
+                        <div class="transition-all duration-300 group-hover:scale-105 filter drop-shadow-md group-hover:drop-shadow-xl">
+                            ${app.renderIcon()}
+                        </div>
+                    </div>
+
+                    <!-- App Title -->
+                    <h3 class="text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors leading-snug">
+                        ${app.name}
+                    </h3>
+
+                    <!-- Subtitle -->
+                    <span class="text-[11px] font-semibold text-slate-500 mt-0.5">
+                        ${app.subtitle}
+                    </span>
+
+                    <!-- Description -->
+                    <p class="text-xs text-slate-500 mt-2.5 leading-relaxed line-clamp-2">
+                        ${app.description}
+                    </p>
+
+                    <!-- Live Metric / Context Badge -->
+                    <div class="mt-3.5 w-full py-1.5 px-2.5 rounded-lg bg-slate-50 group-hover:bg-slate-100/80 border border-slate-100 text-[11px] font-medium text-slate-600 flex items-center justify-center gap-1.5 transition-colors">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        <span class="truncate">${app.kpiMetric}</span>
+                    </div>
+
+                    <!-- Launch Pill Button -->
+                    <div class="mt-4 pt-3 border-t border-slate-100 w-full flex items-center justify-center gap-2 text-xs font-bold text-slate-700 group-hover:text-white group-hover:bg-slate-900 py-2.5 rounded-xl transition-all duration-300 shadow-2xs group-hover:shadow-md">
+                        <span>Launch Workspace</span>
+                        <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function handleSearchApps(val) {
+            searchQuery = val;
+            renderApps();
+        }
+
+        function clearSearch() {
+            searchQuery = '';
+            document.getElementById('searchAppInput').value = '';
+            renderApps();
+        }
+
+        function openRoleSwitchModal() {
+            if (currentRole !== 'admin') {
+                return;
+            }
+            const grid = document.getElementById('roleModalGrid');
+            grid.innerHTML = ORDERED_ROLES.map(roleKey => {
+                const u = PRESET_USERS[roleKey];
+                const isSelected = currentRole === roleKey;
+                return `
+                    <div
+                        onclick="handleSwitchModalRoleSelect('${roleKey}')"
+                        class="p-3 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
+                            isSelected
+                                ? 'bg-blue-50/70 border-blue-500 ring-2 ring-blue-500/20 shadow-xs'
+                                : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                        }"
+                    >
+                        <div>
+                            <div class="flex items-center justify-between gap-1 mb-1">
+                                <span class="text-xs font-bold text-slate-900 truncate">${u.name}</span>
+                                ${roleKey === 'admin' ? '<i data-lucide="crown" class="w-3.5 h-3.5 text-amber-500 shrink-0"></i>' : ''}
+                            </div>
+                            <div class="text-[10px] text-slate-500 line-clamp-1 mb-2">${u.roleTitle}</div>
+                            <span class="text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded border uppercase ${u.badgeColor}">
+                                ${u.roleBadge}
+                            </span>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between">
+                            <span class="text-[10px] text-slate-400 font-mono">${roleKey === 'admin' ? '11 Portals' : '1 Portal'}</span>
+                            <span class="text-[11px] font-bold text-slate-900 hover:text-blue-600">Select →</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('roleSwitchModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function handleSwitchModalRoleSelect(roleKey) {
+            closeRoleSwitchModal();
+            setRole(roleKey);
+        }
+
+        function closeRoleSwitchModal() {
+            document.getElementById('roleSwitchModal').classList.add('hidden');
+        }
+
+        // -------------------------------------------------------------------------
+        // AI Configuration Modal Handlers (from components/layout/AiConfigModal.tsx)
+        // -------------------------------------------------------------------------
+        let aiConfig = {
+            apiKey: '',
+            apiEndpoint: 'https://api.openai.com/v1',
+            model: 'gpt-4o-mini',
+            maxPulls: 15,
+            pullsUsed: 4,
+            apiStatus: 'active',
+            apiStatusMessage: 'Active & ready for intelligent extraction'
+        };
+
+        try {
+            const saved = localStorage.getItem('radwa_ai_config');
+            if (saved) {
+                aiConfig = { ...aiConfig, ...JSON.parse(saved) };
+            }
+        } catch(e) {}
+
+        function updateAiPillView() {
+            const pillText = document.getElementById('mainMenuAiStatusText');
+            const endText = document.getElementById('mainMenuAiEndpointText');
+            const dot = document.getElementById('mainMenuAiDot');
+            if (pillText) {
+                pillText.innerText = aiConfig.apiKey ? `AI Engine: Active (${aiConfig.model})` : 'AI Engine: Active';
+            }
+            if (endText) {
+                try {
+                    const host = new URL(aiConfig.apiEndpoint).hostname;
+                    endText.innerText = host;
+                } catch(e) {
+                    endText.innerText = 'api.openai.com';
+                }
+            }
+        }
+
+        function openAiConfigModal() {
+            document.getElementById('modalApiKeyInput').value = aiConfig.apiKey || '';
+            document.getElementById('modalApiEndpointInput').value = aiConfig.apiEndpoint || 'https://api.openai.com/v1';
+            document.getElementById('modalAiModelSelect').value = aiConfig.model || 'gpt-4o-mini';
+            document.getElementById('modalMaxPullsInput').value = aiConfig.maxPulls || 15;
+            document.getElementById('modalMaxPullsVal').innerText = `${aiConfig.maxPulls || 15} pulls/hr`;
+            document.getElementById('modalAiCallsUsed').innerText = `${aiConfig.pullsUsed || 0} / ${aiConfig.maxPulls || 15}`;
+            document.getElementById('modalTestResultBox').classList.add('hidden');
+
+            document.getElementById('aiConfigModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeAiConfigModal() {
+            document.getElementById('aiConfigModal').classList.add('hidden');
+        }
+
+        function toggleApiKeyVisibility() {
+            const inp = document.getElementById('modalApiKeyInput');
+            const icon = document.getElementById('apiKeyEyeIcon');
+            if (inp.type === 'password') {
+                inp.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                inp.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        }
+
+        async function handleTestAiConnection() {
+            const key = document.getElementById('modalApiKeyInput').value.trim();
+            const endpoint = document.getElementById('modalApiEndpointInput').value.trim();
+            const model = document.getElementById('modalAiModelSelect').value;
+            const box = document.getElementById('modalTestResultBox');
+            const icon = document.getElementById('modalTestResultIcon');
+            const txt = document.getElementById('modalTestResultText');
+
+            box.classList.remove('hidden');
+            box.className = 'p-3.5 rounded-xl border text-xs flex items-start gap-2.5 bg-blue-50 border-blue-200 text-blue-900';
+            txt.innerText = 'Testing neural endpoint latency and credentials...';
+            icon.setAttribute('data-lucide', 'loader-2');
+            lucide.createIcons();
+
+            try {
+                const res = await fetch('/api/test-ai-connection/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ apiKey: key, apiEndpoint: endpoint, model: model })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    box.className = 'p-3.5 rounded-xl border text-xs flex items-start gap-2.5 bg-emerald-50 border-emerald-200 text-emerald-900';
+                    txt.innerText = data.message;
+                    icon.setAttribute('data-lucide', 'check-circle-2');
+                } else {
+                    box.className = 'p-3.5 rounded-xl border text-xs flex items-start gap-2.5 bg-rose-50 border-rose-200 text-rose-900';
+                    txt.innerText = data.message;
+                    icon.setAttribute('data-lucide', 'alert-triangle');
+                }
+            } catch(e) {
+                box.className = 'p-3.5 rounded-xl border text-xs flex items-start gap-2.5 bg-rose-50 border-rose-200 text-rose-900';
+                txt.innerText = `Network error: ${e.message}`;
+                icon.setAttribute('data-lucide', 'alert-triangle');
+            }
+            lucide.createIcons();
+        }
+
+        function handleResetAiCounter() {
+            aiConfig.pullsUsed = 0;
+            localStorage.setItem('radwa_ai_config', JSON.stringify(aiConfig));
+            document.getElementById('modalAiCallsUsed').innerText = `0 / ${aiConfig.maxPulls}`;
+            alert('Session quota reset to 0 calls used.');
+        }
+
+        function handleSaveAiConfig() {
+            const key = document.getElementById('modalApiKeyInput').value.trim();
+            const endpoint = document.getElementById('modalApiEndpointInput').value.trim() || 'https://api.openai.com/v1';
+            const model = document.getElementById('modalAiModelSelect').value;
+            const maxPulls = Number(document.getElementById('modalMaxPullsInput').value) || 15;
+
+            aiConfig = {
+                ...aiConfig,
+                apiKey: key,
+                apiEndpoint: endpoint,
+                model: model,
+                maxPulls: maxPulls,
+                apiStatus: key ? 'active' : 'standalone',
+                apiStatusMessage: key ? 'Connected and ready for AI operations.' : 'Standalone mode.'
+            };
+
+            localStorage.setItem('radwa_ai_config', JSON.stringify(aiConfig));
+            updateAiPillView();
+            closeAiConfigModal();
+        }
+
+        // Initialize on DOM load
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            updateAiPillView();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewParam = urlParams.get('view');
+            const roleParam = urlParams.get('role');
+            const isLogout = urlParams.get('logout') === '1';
+
+            if (isLogout) {
+                handleSignOut();
+                return;
+            }
+
+            const storedUser = localStorage.getItem('radwa_auth_user');
+            const savedRole = localStorage.getItem('radwa_current_role');
+
+            if (storedUser && savedRole && PRESET_USERS[savedRole]) {
+                if (roleParam && PRESET_USERS[roleParam]) {
+                    setRole(roleParam);
+                } else if (viewParam === 'admin_grid') {
+                    setRole('admin');
+                } else {
+                    setRole(savedRole);
+                }
+            } else {
+                handleSignOut();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,2376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radwa ERP - Operations & Site Survey Dispatch</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            },
+            boxShadow: {
+              '2xs': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+              'xs': '0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.08)',
+            }
+          }
+        }
+      }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+      .font-mono {
+        font-family: 'JetBrains Mono', monospace;
+      }
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: #f1f5f9; }
+      ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+      ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-900 antialiased select-none flex flex-col">
+
+    <!-- Master Navigation Component -->
+    {% include "core/components/master_nav.html" with active_module="operations" active_label="Site Operations Console" %}
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+        <!-- Super Clean, Modern Header Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-2">
+                    <div class="h-8 w-8 rounded-lg bg-amber-600 text-white flex items-center justify-center shadow-xs">
+                        <i data-lucide="compass" class="h-4 w-4"></i>
+                    </div>
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+                        Radwa Operations Console
+                    </h1>
+                </div>
+                <p class="text-xs text-slate-500 mt-1">
+                    Simple 3-step pipeline: Create Checklist ➔ Assign Surveyor ➔ Approve & Return to Estimator
+                </p>
+            </div>
+
+            <div class="flex items-center gap-2.5">
+                <span class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                    Sultan Al-Otaibi (Operations Head)
+                </span>
+            </div>
+        </div>
+
+        <!-- 3 Simple Tabs - Step 1, Step 2, Step 3 -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            
+            <!-- Step 1 Button -->
+            <button
+                type="button"
+                id="btnStep1"
+                onclick="setActiveStep(1)"
+                class="p-4 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between bg-amber-500 text-white border-amber-600 shadow-md ring-2 ring-amber-500/20"
+            >
+                <div class="space-y-1">
+                    <span id="step1Subtitle" class="text-[11px] font-bold uppercase tracking-wider block text-amber-100">
+                        Step 1
+                    </span>
+                    <span class="font-extrabold text-sm block">
+                        1. New Survey Requests
+                    </span>
+                    <span id="step1Desc" class="text-xs block text-amber-100">
+                        Create Checklist
+                    </span>
+                </div>
+
+                <span id="step1Badge" class="px-2.5 py-1 rounded-full text-xs font-black bg-white text-amber-700">
+                    0
+                </span>
+            </button>
+
+            <!-- Step 2 Button -->
+            <button
+                type="button"
+                id="btnStep2"
+                onclick="setActiveStep(2)"
+                class="p-4 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+            >
+                <div class="space-y-1">
+                    <span id="step2Subtitle" class="text-[11px] font-bold uppercase tracking-wider block text-slate-400">
+                        Step 2
+                    </span>
+                    <span class="font-extrabold text-sm block">
+                        2. Assign Surveyor
+                    </span>
+                    <span id="step2Desc" class="text-xs block text-slate-500">
+                        Send Checklist to Field
+                    </span>
+                </div>
+
+                <span id="step2Badge" class="px-2.5 py-1 rounded-full text-xs font-black bg-blue-100 text-blue-800">
+                    0
+                </span>
+            </button>
+
+            <!-- Step 3 Button -->
+            <button
+                type="button"
+                id="btnStep3"
+                onclick="setActiveStep(3)"
+                class="p-4 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+            >
+                <div class="space-y-1">
+                    <span id="step3Subtitle" class="text-[11px] font-bold uppercase tracking-wider block text-slate-400">
+                        Step 3
+                    </span>
+                    <span class="font-extrabold text-sm block">
+                        3. Approve & Return
+                    </span>
+                    <span id="step3Desc" class="text-xs block text-slate-500">
+                        Send to Estimator
+                    </span>
+                </div>
+
+                <span id="step3Badge" class="px-2.5 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800">
+                    0
+                </span>
+            </button>
+
+        </div>
+
+        <!-- Search Input for Quick Finding -->
+        <div class="relative">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            <input
+                type="text"
+                id="searchFilterInput"
+                oninput="handleSearch(this.value)"
+                placeholder="Filter tenders by name, client, work order or location..."
+                class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs"
+            />
+        </div>
+
+        <!-- Clean Cards Stream for the Selected Step -->
+        <div id="operationsListContainer" class="space-y-4">
+            <!-- Dynamically populated via renderOperationsCards() -->
+        </div>
+
+    </main>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL 1: SurveyChecklistModal (AI Site Survey Checklist & Hazard Eval)     -->
+    <!-- ========================================================================= -->
+    <div id="checklistModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/50 backdrop-blur-xs font-sans">
+        <div class="relative w-full max-w-5xl max-h-[92vh] flex flex-col rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-xl bg-amber-600 text-white flex items-center justify-center shadow-xs">
+                        <i data-lucide="sparkles" class="h-5 w-5"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span id="chkModalWorkOrder" class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200"></span>
+                            <span id="chkModalUrgency" class="text-[11px] font-bold px-2 py-0.5 rounded-full border"></span>
+                            <span id="chkModalStatus" class="text-[11px] font-semibold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300"></span>
+                        </div>
+                        <h2 class="text-base font-bold text-slate-900 mt-0.5">
+                            AI Site Survey Checklist & Hazard Evaluation
+                        </h2>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button
+                        type="button"
+                        id="btnRegenerateAi"
+                        onclick="triggerAiRegeneration()"
+                        class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs transition cursor-pointer flex items-center gap-1.5 shadow-xs"
+                    >
+                        <i data-lucide="refresh-cw" id="aiRefreshIcon" class="w-3.5 h-3.5"></i>
+                        <span id="aiRefreshText">Re-Generate AI Checklist</span>
+                    </button>
+
+                    <button
+                        onclick="closeChecklistModal()"
+                        class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                    >
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Project Context Banner -->
+            <div class="bg-slate-50 border-b border-slate-200 px-6 py-3 text-xs grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                    <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Project & Client</span>
+                    <span id="chkModalProjectName" class="font-bold text-slate-800 text-sm block truncate"></span>
+                    <span id="chkModalClientLocation" class="text-slate-500 font-medium"></span>
+                </div>
+
+                <div>
+                    <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Estimator Request Reason</span>
+                    <p id="chkModalReason" class="text-slate-700 text-[11px] line-clamp-2 italic"></p>
+                </div>
+
+                <div class="flex items-center justify-between md:justify-end gap-3">
+                    <div class="text-right">
+                        <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Checklist Stats</span>
+                        <div class="flex items-center gap-2 mt-0.5 font-semibold text-[11px]">
+                            <span id="chkStatCompliant" class="text-emerald-700 font-bold">0 Compliant</span>
+                            <span class="text-slate-300">•</span>
+                            <span id="chkStatRisks" class="text-rose-700 font-bold">0 Risks Flagged</span>
+                            <span class="text-slate-300">•</span>
+                            <span id="chkStatPending" class="text-amber-700 font-bold">0 Pending</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Processing Banner (shown during synthesis) -->
+            <div id="aiProcessingBanner" class="hidden bg-amber-500/10 border-b border-amber-200 px-6 py-3 flex items-center gap-3 animate-pulse">
+                <i data-lucide="sparkles" class="w-5 h-5 text-amber-600 animate-spin"></i>
+                <div class="space-y-0.5 text-xs">
+                    <p class="font-bold text-amber-900">Radwa Construction AI is synthesizing site survey requirements...</p>
+                    <p id="aiLogLine" class="text-[11px] text-amber-700 font-mono"></p>
+                </div>
+            </div>
+
+            <!-- Categories Bar & Filters -->
+            <div class="px-6 py-2.5 border-b border-slate-200 bg-white flex items-center justify-between flex-wrap gap-2">
+                <!-- Category Tabs -->
+                <div class="flex items-center gap-1.5 overflow-x-auto py-1 scrollbar-none" id="chkCategoryTabs">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <!-- Quick Actions & Status Filter -->
+                <div class="flex items-center gap-2">
+                    <select
+                        id="chkStatusFilter"
+                        onchange="handleFilterChecklist()"
+                        class="px-2.5 py-1 rounded-lg border border-slate-200 text-xs text-slate-700 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    >
+                        <option value="All">All Statuses</option>
+                        <option value="Pending Verification">Pending Verification</option>
+                        <option value="Compliant / Verified">Compliant / Verified</option>
+                        <option value="Risk / Hazard Detected">Risk / Hazard Detected</option>
+                        <option value="Not Applicable">Not Applicable</option>
+                    </select>
+
+                    <button
+                        type="button"
+                        onclick="toggleAddCustomItemForm()"
+                        class="px-2.5 py-1 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 font-semibold text-xs flex items-center gap-1 transition cursor-pointer"
+                    >
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                        <span>Add Custom Item</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Add Custom Item Inline Form -->
+            <div id="chkAddForm" class="hidden p-4 bg-amber-50/50 border-b border-amber-200 space-y-3 text-xs">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-amber-950 flex items-center gap-1.5">
+                        <i data-lucide="plus" class="w-4 h-4 text-amber-600"></i>
+                        Add Custom Survey Checkpoint
+                    </span>
+                    <button type="button" onclick="toggleAddCustomItemForm(false)" class="text-slate-400 hover:text-slate-600 text-xs">
+                        Cancel
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">Category</label>
+                        <select id="newChkCategory" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs">
+                            <option value="Safety & Site Access">Safety & Site Access</option>
+                            <option value="Terrain & Soil Conditions">Terrain & Soil Conditions</option>
+                            <option value="Underground Utilities">Underground Utilities</option>
+                            <option value="Tie-in & Battery Limits">Tie-in & Battery Limits</option>
+                            <option value="Logistics & Laydown">Logistics & Laydown</option>
+                        </select>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">Inspection Item Title *</label>
+                        <input
+                            type="text"
+                            id="newChkTitle"
+                            placeholder="e.g., Verify 132kV overhead transmission line sag clearance..."
+                            class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs"
+                        />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="sm:col-span-2">
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">Description / SOP Instructions</label>
+                        <input
+                            type="text"
+                            id="newChkDesc"
+                            placeholder="Instructions for the surveyor on ground..."
+                            class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs"
+                        />
+                    </div>
+
+                    <div class="flex items-center gap-4 pt-4">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Risk Level</label>
+                            <select id="newChkRisk" class="px-2.5 py-1 rounded-lg border border-slate-300 bg-white text-xs">
+                                <option value="Low">Low</option>
+                                <option value="Medium" selected>Medium</option>
+                                <option value="High">High</option>
+                            </select>
+                        </div>
+
+                        <label class="flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer mt-4">
+                            <input type="checkbox" id="newChkPhoto" checked class="rounded text-amber-600" />
+                            <span>Photo Req</span>
+                        </label>
+
+                        <button
+                            type="button"
+                            onclick="saveNewCustomChecklistItem()"
+                            class="mt-4 ml-auto px-4 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs transition cursor-pointer"
+                        >
+                            Add Item
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scrollable Items List -->
+            <div id="chkItemsList" class="flex-1 overflow-y-auto p-6 space-y-3 divide-y divide-slate-100">
+                <!-- Dynamically rendered -->
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50">
+                <div class="text-xs text-slate-500">
+                    <span id="chkFooterCount" class="font-semibold text-slate-700">0</span> total checklist points synthesized for field execution.
+                </div>
+
+                <div class="flex items-center gap-2.5">
+                    <button
+                        type="button"
+                        onclick="closeChecklistModal()"
+                        class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 font-semibold text-xs hover:bg-slate-100 transition cursor-pointer"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="persistChecklist('Pending AI Checklist')"
+                        class="px-4 py-2 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 font-semibold text-xs hover:bg-amber-100 transition cursor-pointer flex items-center gap-1.5"
+                    >
+                        <i data-lucide="save" class="w-3.5 h-3.5"></i>
+                        <span>Save Draft</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="persistChecklist('Checklist Ready')"
+                        class="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs transition cursor-pointer flex items-center gap-2 shadow-xs"
+                    >
+                        <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                        <span>Authorize Checklist & Ready for Dispatch</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL 2: DispatchSurveyorModal (Assign & Handover Survey Dossier)          -->
+    <!-- ========================================================================= -->
+    <div id="dispatchModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/50 backdrop-blur-xs font-sans">
+        <div class="relative w-full max-w-3xl max-h-[92vh] flex flex-col rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
+            
+            <!-- Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-gradient-to-r from-blue-600/10 via-indigo-600/5 to-transparent">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                        <i data-lucide="compass" class="h-5 w-5"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span id="dispModalWorkOrder" class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200"></span>
+                            <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                                Step 2: Surveyor Handover
+                            </span>
+                        </div>
+                        <h2 class="text-base font-bold text-slate-900 mt-0.5">
+                            Assign & Handover Survey Dossier to Field Surveyor
+                        </h2>
+                    </div>
+                </div>
+
+                <button
+                    onclick="closeDispatchModal()"
+                    class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                >
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Handover Dossier Package Banner -->
+            <div class="bg-gradient-to-r from-blue-50/80 via-slate-50 to-indigo-50/80 border-b border-slate-200 px-6 py-3.5 text-xs">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Project / Tender</span>
+                        <span id="dispModalProjectName" class="font-bold text-slate-900 text-sm"></span>
+                        <span id="dispModalClientLocation" class="text-slate-500 block text-[11px]"></span>
+                    </div>
+
+                    <div class="flex items-center gap-2 flex-wrap sm:justify-end">
+                        <span class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 shadow-2xs text-[11px] font-semibold text-slate-700 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                            <span>Estimator Report Attached</span>
+                        </span>
+                        <span class="px-2.5 py-1 rounded-lg bg-white border border-emerald-200 shadow-2xs text-[11px] font-bold text-emerald-800 flex items-center gap-1.5">
+                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i>
+                            <span id="dispModalCheckpointCount">0 AI Checkpoints</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Body -->
+            <form onsubmit="handleConfirmDispatchForm(event)" class="flex-1 overflow-y-auto p-6 space-y-5 text-xs text-slate-700">
+                
+                <!-- Surveyor Selection Cards -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-900 mb-2">
+                        Select Certified Field Surveyor *
+                    </label>
+                    <div id="surveyorsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- Target Survey Date & Urgency Tier -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-900 mb-1">
+                            Target On-Site Inspection Date *
+                        </label>
+                        <input
+                            type="date"
+                            id="dispTargetDateInput"
+                            required
+                            class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <p class="text-[11px] text-slate-400 mt-1">
+                            Field report expected back within 24 hours of site inspection.
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-900 mb-1">
+                            Urgency Tier
+                        </label>
+                        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                            <span id="dispUrgencyPill" class="text-xs font-bold text-slate-800"></span>
+                            <span id="dispEstimatorName" class="text-[11px] text-slate-500"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Special Equipment Required -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-900 mb-1.5">
+                        Field Equipment to Allocate
+                    </label>
+                    <div id="equipmentOptionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Operational Notes / Dispatch Instructions -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-900 mb-1">
+                        Field Operations Instructions & Gate Pass Notes
+                    </label>
+                    <textarea
+                        id="dispOpsNotesInput"
+                        rows="3"
+                        placeholder="Instructions for the surveyor regarding client site contacts, safety permits, or specific tie-in measurements..."
+                        class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    ></textarea>
+                </div>
+
+            </form>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50">
+                <div id="dispFooterDeployNotice" class="text-xs text-slate-500">
+                    Deploying selected surveyor to site.
+                </div>
+
+                <div class="flex items-center gap-2.5">
+                    <button
+                        type="button"
+                        onclick="closeDispatchModal()"
+                        class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 font-semibold text-xs hover:bg-slate-100 transition cursor-pointer"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="button"
+                        id="btnConfirmDispatch"
+                        onclick="executeSurveyorDispatch()"
+                        class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition cursor-pointer flex items-center gap-2 shadow-xs"
+                    >
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        <span>Handover Dossier & Dispatch Surveyor</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL 3: CompleteSurveyModal (Verify & Return to Estimator)                -->
+    <!-- ========================================================================= -->
+    <div id="completeModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/50 backdrop-blur-xs font-sans">
+        <div class="relative w-full max-w-2xl max-h-[92vh] flex flex-col rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
+            
+            <!-- Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-gradient-to-r from-emerald-600/10 via-teal-600/5 to-transparent">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                        <i data-lucide="check-check" class="h-5 w-5"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span id="compModalWorkOrder" class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200"></span>
+                            <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                Site Verification Complete
+                            </span>
+                        </div>
+                        <h2 class="text-base font-bold text-slate-900 mt-0.5">
+                            Complete Survey & Return Dossier to Estimator
+                        </h2>
+                    </div>
+                </div>
+
+                <button
+                    onclick="closeCompleteModal()"
+                    class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                >
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Project & Surveyor Banner -->
+            <div class="bg-slate-50 border-b border-slate-200 px-6 py-3 text-xs flex items-center justify-between flex-wrap gap-2">
+                <div>
+                    <span id="compModalProjectName" class="font-bold text-slate-800 text-sm block"></span>
+                    <span id="compModalClientLocation" class="text-slate-500"></span>
+                </div>
+
+                <div class="text-right">
+                    <span class="text-slate-500 block text-[11px]">Field Surveyor:</span>
+                    <span id="compModalSurveyorName" class="font-bold text-slate-900 text-xs"></span>
+                </div>
+            </div>
+
+            <!-- Form Body -->
+            <form onsubmit="handleCompleteSurveyForm(event)" class="flex-1 overflow-y-auto p-6 space-y-5 text-xs text-slate-700">
+                
+                <!-- Checklist Verification KPI Summary -->
+                <div class="p-3.5 rounded-xl bg-emerald-50/60 border border-emerald-200 flex items-center justify-between">
+                    <div class="space-y-0.5">
+                        <span class="font-bold text-emerald-950 text-xs flex items-center gap-1.5">
+                            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+                            AI Checklist Ground Validation
+                        </span>
+                        <p class="text-[11px] text-emerald-800">
+                            All assigned survey checkpoints have been audited on-site.
+                        </p>
+                    </div>
+
+                    <div class="flex items-center gap-2 text-xs font-bold">
+                        <span id="compModalVerifiedCount" class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            0/0 Verified
+                        </span>
+                        <span id="compModalHazardCount" class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-800 border border-rose-300">
+                            0 Hazards Flagged
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Survey Findings Narrative -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-900 mb-1">
+                        Field Survey Findings & Geotechnical Summary *
+                    </label>
+                    <textarea
+                        id="compFindingsInput"
+                        rows="4"
+                        required
+                        placeholder="Detail ground dimensions, elevation readings, pipe wall thicknesses, soil conditions..."
+                        class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none leading-relaxed"
+                    ></textarea>
+                    <p class="text-[11px] text-slate-400 mt-1">
+                        This summary will be transmitted directly to Estimator <strong id="compEstimatorRef"></strong> to finalize BOQ item unit rates.
+                    </p>
+                </div>
+
+                <!-- Uploaded Scanned Physical Checklist & Site Reports from Surveyor -->
+                <div id="compAttachedDocsBox" class="p-3.5 rounded-xl bg-emerald-50/60 border border-emerald-200 space-y-2">
+                    <span class="font-bold text-emerald-950 block text-xs flex items-center gap-1.5">
+                        <i data-lucide="file-text" class="w-4 h-4 text-emerald-700"></i>
+                        Attached Physical Checklist Scan & Field Evidence:
+                    </span>
+                    <div id="compAttachedDocsList" class="space-y-1.5">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- Hazards & Site Restrictions -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-900 mb-1">
+                        Safety Hazards, Underground Obstacles & Caveats
+                    </label>
+                    <input
+                        type="text"
+                        id="compHazardsInput"
+                        placeholder="e.g., Underground live cables, proximity to live flaring, shoring required..."
+                        class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                </div>
+
+                <!-- Site Accessibility Status -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-900 mb-1">
+                        Site Accessibility & Gate Clearance Status
+                    </label>
+                    <input
+                        type="text"
+                        id="compAccessibilityInput"
+                        placeholder="e.g., Fully Accessible with Aramco Gate Pass..."
+                        class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                </div>
+
+                <!-- Return Workflow Notice -->
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 space-y-1">
+                    <span class="font-bold text-slate-900 block text-xs">
+                        ⚡ Workflow Impact:
+                    </span>
+                    <p class="text-[11px] leading-relaxed">
+                        Submitting this survey will update the project tender state back to <strong>Under BOQ Estimation</strong>. The Estimator Workspace will receive the complete ground report, allowing Farhan Qureshi to calculate final bid margins and issue the commercial proposal.
+                    </p>
+                </div>
+
+            </form>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50">
+                <button
+                    type="button"
+                    onclick="closeCompleteModal()"
+                    class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 font-semibold text-xs hover:bg-slate-100 transition cursor-pointer"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    id="btnExecuteCompleteSurvey"
+                    onclick="executeCompleteSurvey()"
+                    class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition cursor-pointer flex items-center gap-2 shadow-xs"
+                >
+                    <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                    <span>Complete & Return to Estimator</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL 4: EstimatorReportModal (Estimator Feasibility Dossier)              -->
+    <!-- ========================================================================= -->
+    <div id="reportModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs font-sans">
+        <div class="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
+            
+            <!-- Document Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-gradient-to-r from-slate-900 via-slate-800 to-amber-950 text-white">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-xl bg-amber-500/20 border border-amber-400/30 text-amber-300 flex items-center justify-center shadow-xs">
+                        <i data-lucide="file-text" class="h-5 w-5"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span id="repModalWorkOrder" class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-400/30"></span>
+                            <span class="text-[11px] font-semibold text-slate-300">
+                                Estimator Feasibility Dossier
+                            </span>
+                            <span id="repModalUrgency" class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider"></span>
+                        </div>
+                        <h2 class="text-base sm:text-lg font-bold text-white mt-1">
+                            Estimator's Site Feasibility & Survey Justification Report
+                        </h2>
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    onclick="closeReportModal()"
+                    class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
+                >
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Scrollable Body -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-6 text-slate-800 bg-[#FBFBFC]">
+                
+                <!-- Metadata Grid -->
+                <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-2xs grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Project / Tender</span>
+                        <p id="repProjectName" class="font-bold text-slate-900 mt-0.5 text-xs truncate"></p>
+                        <p id="repClientName" class="text-[11px] text-slate-500 truncate"></p>
+                    </div>
+
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Site Location</span>
+                        <p id="repLocation" class="font-bold text-slate-900 mt-0.5 text-xs flex items-center gap-1"></p>
+                        <p id="repSiteName" class="text-[11px] text-slate-500"></p>
+                    </div>
+
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Prepared By Estimator</span>
+                        <p id="repEstimatorName" class="font-bold text-slate-900 mt-0.5 text-xs flex items-center gap-1"></p>
+                        <p id="repEstimatorRole" class="text-[11px] text-slate-500"></p>
+                    </div>
+
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Timeline Directives</span>
+                        <p id="repTargetDate" class="font-bold text-slate-900 mt-0.5 text-xs flex items-center gap-1"></p>
+                        <p id="repSubmittedDate" class="text-[11px] text-slate-400"></p>
+                    </div>
+                </div>
+
+                <!-- Section 1: Executive Summary -->
+                <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs space-y-2">
+                    <h3 class="text-xs uppercase tracking-wider font-bold text-slate-900 flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-md bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-[11px]">1</span>
+                        Estimator Feasibility Analysis & Site Visit Justification
+                    </h3>
+                    <div id="repExecutiveSummary" class="p-3.5 rounded-lg bg-amber-50/50 border border-amber-200/70 text-xs sm:text-sm text-slate-700 leading-relaxed">
+                    </div>
+                </div>
+
+                <!-- Section 2: Tender Documents & IFC Drawings Reviewed -->
+                <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs space-y-3">
+                    <h3 class="text-xs uppercase tracking-wider font-bold text-slate-900 flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-md bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-[11px]">2</span>
+                        Tender Drawings & Engineering Specifications Reviewed
+                    </h3>
+                    <p class="text-xs text-slate-500">
+                        The Estimator studied the following documents from the client tender dossier before issuing this physical survey request:
+                    </p>
+
+                    <div id="repTenderDocsList" class="divide-y divide-slate-100 border border-slate-200 rounded-lg overflow-hidden bg-slate-50/30">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- Section 3: Critical Clashes & Risks -->
+                <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs uppercase tracking-wider font-bold text-slate-900 flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-md bg-rose-100 text-rose-800 flex items-center justify-center font-bold text-[11px]">3</span>
+                            Critical Site Risks Requiring Field Verification
+                        </h3>
+                        <span id="repRisksBadge" class="text-[11px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                            3 Key Checkpoints
+                        </span>
+                    </div>
+
+                    <div id="repCriticalRisksGrid" class="grid grid-cols-1 gap-3">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- Section 4: Site Access & Security Protocols -->
+                <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-2xs space-y-2">
+                    <h3 class="text-xs uppercase tracking-wider font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="shield-alert" class="w-4 h-4 text-slate-600"></i>
+                        Site Access Directives & Gate Pass Authorization
+                    </h3>
+                    <p id="repAccessProtocols" class="text-xs text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-200/80 leading-relaxed">
+                    </p>
+                </div>
+
+                <!-- Estimator Formal Sign-off -->
+                <div class="p-4 rounded-xl bg-slate-100 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                    <div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Official Submission Sign-off</span>
+                        <p id="repSignature" class="font-bold text-slate-800 mt-0.5"></p>
+                        <p class="text-[11px] text-slate-500">Radwa EPC Quantity Surveying & Cost Engineering Department</p>
+                    </div>
+
+                    <div class="shrink-0 flex items-center gap-1.5 text-emerald-700 font-bold bg-white px-3 py-1.5 rounded-lg border border-emerald-200">
+                        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+                        <span>Dossier Formally Routed to Operations</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-3.5 border-t border-slate-200 bg-white flex flex-col sm:flex-row items-center justify-between gap-3">
+                <p class="text-xs text-slate-500">
+                    Next Action: Feed this Estimator Report into AI to synthesize the customized site inspection checklist.
+                </p>
+
+                <div class="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+                    <button
+                        type="button"
+                        onclick="closeReportModal()"
+                        class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold text-xs transition cursor-pointer"
+                    >
+                        Close Dossier
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="switchFromReportToChecklist()"
+                        class="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold text-xs shadow-md hover:shadow-lg transition flex items-center gap-2 cursor-pointer"
+                    >
+                        <i data-lucide="sparkles" class="w-4 h-4 text-amber-200"></i>
+                        <span>⚡ Generate AI Checklist from This Report</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL 5: ProjectDetailModal (Tender Specifications & Scope Dossier)       -->
+    <!-- ========================================================================= -->
+    <div id="detailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/50 backdrop-blur-xs font-sans">
+        <div class="relative w-full max-w-3xl max-h-[92vh] flex flex-col rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
+            
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50">
+                <div class="flex items-center gap-3">
+                    <div class="h-9 w-9 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                        <i data-lucide="layers" class="w-4 h-4 text-amber-400"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span id="dtlWorkOrder" class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-200 text-slate-800"></span>
+                            <span id="dtlStatusBadge" class="text-xs font-bold px-2 py-0.5 rounded-full border"></span>
+                        </div>
+                        <h2 id="dtlProjectName" class="text-base font-bold text-slate-900 mt-0.5"></h2>
+                    </div>
+                </div>
+
+                <button onclick="closeDetailModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition cursor-pointer">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 space-y-5 text-xs text-slate-700">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 block">Client</span>
+                        <span id="dtlClient" class="font-bold text-slate-900 text-xs"></span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 block">Location</span>
+                        <span id="dtlLocation" class="font-semibold text-slate-800 text-xs"></span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 block">Enquiry Serial #</span>
+                        <span id="dtlSerial" class="font-mono font-semibold text-slate-800 text-xs"></span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 block">Received Date</span>
+                        <span id="dtlReceived" class="font-semibold text-slate-800 text-xs"></span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 block">Bid Submission Deadline</span>
+                        <span id="dtlDeadline" class="font-bold text-rose-700 text-xs"></span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 block">Assigned Estimator</span>
+                        <span id="dtlEstimator" class="font-bold text-indigo-700 text-xs"></span>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Engineering Disciplines (SOW Scopes)</span>
+                    <div id="dtlScopesList" class="flex items-center gap-1.5 flex-wrap"></div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Scope of Work Narrative</span>
+                    <p id="dtlWorkDesc" class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 leading-relaxed"></p>
+                </div>
+
+                <div class="space-y-2">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Tender Package Attachments</span>
+                    <div id="dtlFilesList" class="space-y-1.5"></div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-end">
+                <button onclick="closeDetailModal()" class="px-5 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-slate-800 transition cursor-pointer">
+                    Close Details
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Toast Notification Banner -->
+    <div id="toastNotification" class="fixed bottom-5 right-5 z-50 hidden max-w-sm px-4 py-3 rounded-2xl shadow-xl text-xs font-semibold flex items-center gap-2.5 transition-all">
+        <i id="toastIcon" data-lucide="check-circle" class="w-4 h-4 shrink-0"></i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- JAVASCRIPT: DATA & INTERACTIVITY CONTROLLER                              -->
+    <!-- ========================================================================= -->
+    <script>
+        // Server State Hydration
+        let rawProjects = {{ projects_json|safe }};
+        let rawSurveyors = {{ surveyors_json|safe }};
+
+        // Active State
+        let activeStep = 1;
+        let searchQuery = '';
+
+        // Modal Active References
+        let activeChecklistProject = null;
+        let activeChecklist = [];
+        let activeChecklistCategory = 'All';
+        let activeChecklistStatus = 'All';
+
+        let activeDispatchProject = null;
+        let selectedSurveyorId = '';
+        let selectedEquipment = ['GPS RTK Total Station', 'Ground Penetrating Radar (GPR)', '4-Gas Personal H2S Detectors'];
+
+        let activeCompleteProject = null;
+        let activeReportProject = null;
+        let activeDetailProject = null;
+
+        const DEFAULT_AI_CHECKLIST_TEMPLATES = [
+            {
+                category: 'Safety & Site Access',
+                item: 'Plant Cold/Hot Work PTW & Safety Induction Level',
+                description: 'Verify client/facility permit-to-work requirements, security clearance, and mandatory safety orientation courses before crew mobilization.',
+                status: 'Pending Verification',
+                riskLevel: 'Medium',
+                photoRequired: false,
+                findings: 'Aramco SAP work permit receiver required on site at all times during work.'
+            },
+            {
+                category: 'Safety & Site Access',
+                item: 'H2S Gas Detection & Escape Breathing Apparatus (EEBA)',
+                description: 'Assess if working in designated toxic H2S release zones. Confirm stationary detectors and personal wireless gas monitors.',
+                status: 'Pending Verification',
+                riskLevel: 'High',
+                photoRequired: true,
+                findings: 'Zone 2 classified area. Continuous personal 4-gas detector mandatory.'
+            },
+            {
+                category: 'Terrain & Soil Conditions',
+                item: 'Soil Bearing Capacity & Plate Load Test Spots',
+                description: 'Inspect subgrade compaction, presence of loose sabkha or karst cavities, and locate 3 test boreholes for foundation design.',
+                status: 'Pending Verification',
+                riskLevel: 'High',
+                photoRequired: true,
+                findings: 'Surface sabkha soil requires minimum 1.5m geotextile and sub-base stabilization.'
+            },
+            {
+                category: 'Terrain & Soil Conditions',
+                item: 'Groundwater Table Depth & Dewatering Requirement',
+                description: 'Measure existing water table elevation to determine if well-point dewatering or continuous sump pumping is required during deep piping trenches.',
+                status: 'Pending Verification',
+                riskLevel: 'Medium',
+                photoRequired: true,
+                findings: 'Water table detected at 1.8m below natural ground level.'
+            },
+            {
+                category: 'Underground Utilities',
+                item: 'Ground Penetrating Radar (GPR) Multi-Frequency Scan',
+                description: 'Conduct 100% GPR and electromagnetic pipe/cable locator scan across entire pipeline corridor to flag unrecorded live buried lines.',
+                status: 'Pending Verification',
+                riskLevel: 'High',
+                photoRequired: true,
+                findings: 'Two high-voltage 33kV direct-buried cables identified crossing the proposed trench corridor at chainage 0+320.'
+            },
+            {
+                category: 'Underground Utilities',
+                item: 'Cathodic Protection (CP) Test Stations & Anode Beds',
+                description: 'Locate existing deep well anode groundbeds and verify electrical isolation joints to prevent induced DC interference.',
+                status: 'Pending Verification',
+                riskLevel: 'Low',
+                photoRequired: false,
+                findings: 'Existing impressed current CP system running at -1.15V CSE.'
+            },
+            {
+                category: 'Tie-in & Battery Limits',
+                item: 'Flange Face Rating, Nominal Bore & Wall Thickness (UT)',
+                description: 'Physically caliper flange OD, bolt circle, ANSI class (#300/#600 RTJ or RF), and conduct ultrasonic thickness testing on existing header.',
+                status: 'Pending Verification',
+                riskLevel: 'High',
+                photoRequired: true,
+                findings: 'Tie-in nozzle N-01 is 12" ASME Class 300 WNRF Sch 40 Carbon Steel.'
+            },
+            {
+                category: 'Tie-in & Battery Limits',
+                item: 'Elevation & Exact GPS Coordinates of Manifold Flange',
+                description: 'Verify 3D coordinates (Easting, Northing, Elevation) with RTK GPS against IFC engineering plot plan to prevent spool pre-fab misalignment.',
+                status: 'Pending Verification',
+                riskLevel: 'Medium',
+                photoRequired: true,
+                findings: 'Coordinates match within ±5mm tolerance of preliminary client drawing.'
+            },
+            {
+                category: 'Logistics & Laydown',
+                item: 'Heavy Mobile Crane (150T+) Outrigger Soil Pad Compaction',
+                description: 'Verify access road turning radius for 40ft lowboy trailers and check soil bearing under 4 outrigger pads for heavy vessel lifting.',
+                status: 'Pending Verification',
+                riskLevel: 'High',
+                photoRequired: true,
+                findings: 'Crane setup location confirmed firm; requires 20mm steel mats under each outrigger.'
+            },
+            {
+                category: 'Logistics & Laydown',
+                item: 'Secure Material Staging Yard & Fabrication Laydown Area',
+                description: 'Confirm available square meters for pipe spool laydown, security perimeter fencing, site office trailers, and temporary power generator hookup.',
+                status: 'Pending Verification',
+                riskLevel: 'Low',
+                photoRequired: false,
+                findings: '4,500 m² graded laydown area allocated near gate #3.'
+            }
+        ];
+
+        const EQUIPMENT_OPTIONS = [
+            'GPS RTK Total Station',
+            'Ground Penetrating Radar (GPR)',
+            '4-Gas Personal H2S Detectors',
+            'Ultrasonic Pipe Thickness Gauge',
+            'Laser 3D Scanner & Drone LiDaR',
+            'Dynamic Cone Penetrometer (Soil Test)'
+        ];
+
+        // Pipeline Computation
+        function getSurveyProjects() {
+            return rawProjects.filter(p => Boolean(p.surveyRequest));
+        }
+
+        function getStep1Projects() {
+            return getSurveyProjects().filter(p => p.surveyRequest?.status === 'Pending AI Checklist');
+        }
+
+        function getStep2Projects() {
+            return getSurveyProjects().filter(p => p.surveyRequest?.status === 'Checklist Ready');
+        }
+
+        function getStep3Projects() {
+            return getSurveyProjects().filter(p => 
+                p.surveyRequest?.status === 'Surveyor Dispatched' || 
+                p.surveyRequest?.status === 'Surveyor En Route' || 
+                p.surveyRequest?.status === 'Survey In Progress' ||
+                p.surveyRequest?.status === 'Survey Submitted' || 
+                p.surveyRequest?.status === 'Completed'
+            );
+        }
+
+        function getCurrentStepList() {
+            const list = activeStep === 1 
+                ? getStep1Projects() 
+                : activeStep === 2 
+                ? getStep2Projects() 
+                : getStep3Projects();
+
+            if (!searchQuery.trim()) return list;
+            const q = searchQuery.toLowerCase();
+            return list.filter(p => 
+                (p.proposedProjectName || '').toLowerCase().includes(q) ||
+                (p.clientName || '').toLowerCase().includes(q) ||
+                (p.workOrderNo || '').toLowerCase().includes(q) ||
+                (p.projectLocation || '').toLowerCase().includes(q)
+            );
+        }
+
+        // Tab Switching
+        function setActiveStep(step) {
+            activeStep = step;
+
+            // Reset tab styling
+            const btn1 = document.getElementById('btnStep1');
+            const sub1 = document.getElementById('step1Subtitle');
+            const desc1 = document.getElementById('step1Desc');
+            const badge1 = document.getElementById('step1Badge');
+
+            const btn2 = document.getElementById('btnStep2');
+            const sub2 = document.getElementById('step2Subtitle');
+            const desc2 = document.getElementById('step2Desc');
+            const badge2 = document.getElementById('step2Badge');
+
+            const btn3 = document.getElementById('btnStep3');
+            const sub3 = document.getElementById('step3Subtitle');
+            const desc3 = document.getElementById('step3Desc');
+            const badge3 = document.getElementById('step3Badge');
+
+            // Set inactive default styles
+            [btn1, btn2, btn3].forEach(b => {
+                b.className = 'p-4 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50';
+            });
+            sub1.className = 'text-[11px] font-bold uppercase tracking-wider block text-slate-400';
+            desc1.className = 'text-xs block text-slate-500';
+            badge1.className = 'px-2.5 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-800';
+
+            sub2.className = 'text-[11px] font-bold uppercase tracking-wider block text-slate-400';
+            desc2.className = 'text-xs block text-slate-500';
+            badge2.className = 'px-2.5 py-1 rounded-full text-xs font-black bg-blue-100 text-blue-800';
+
+            sub3.className = 'text-[11px] font-bold uppercase tracking-wider block text-slate-400';
+            desc3.className = 'text-xs block text-slate-500';
+            badge3.className = 'px-2.5 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800';
+
+            if (step === 1) {
+                btn1.className = 'p-4 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between bg-amber-500 text-white border-amber-600 shadow-md ring-2 ring-amber-500/20';
+                sub1.className = 'text-[11px] font-bold uppercase tracking-wider block text-amber-100';
+                desc1.className = 'text-xs block text-amber-100';
+                badge1.className = 'px-2.5 py-1 rounded-full text-xs font-black bg-white text-amber-700';
+            } else if (step === 2) {
+                btn2.className = 'p-4 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between bg-blue-600 text-white border-blue-700 shadow-md ring-2 ring-blue-500/20';
+                sub2.className = 'text-[11px] font-bold uppercase tracking-wider block text-blue-100';
+                desc2.className = 'text-xs block text-blue-100';
+                badge2.className = 'px-2.5 py-1 rounded-full text-xs font-black bg-white text-blue-700';
+            } else if (step === 3) {
+                btn3.className = 'p-4 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-500/20';
+                sub3.className = 'text-[11px] font-bold uppercase tracking-wider block text-emerald-100';
+                desc3.className = 'text-xs block text-emerald-100';
+                badge3.className = 'px-2.5 py-1 rounded-full text-xs font-black bg-white text-emerald-700';
+            }
+
+            renderOperationsCards();
+        }
+
+        function handleSearch(q) {
+            searchQuery = q;
+            renderOperationsCards();
+        }
+
+        // Render Operations Cards
+        function renderOperationsCards() {
+            // Update badge counts
+            const s1Count = getStep1Projects().length;
+            const s2Count = getStep2Projects().length;
+            const s3Count = getStep3Projects().length;
+
+            document.getElementById('step1Badge').textContent = s1Count;
+            document.getElementById('step2Badge').textContent = s2Count;
+            document.getElementById('step3Badge').textContent = s3Count;
+
+            const container = document.getElementById('operationsListContainer');
+            const currentList = getCurrentStepList();
+
+            if (currentList.length === 0) {
+                container.innerHTML = `
+                    <div class="p-12 rounded-2xl bg-white border border-slate-200 text-center space-y-2 shadow-2xs">
+                        <div class="h-10 w-10 rounded-xl bg-slate-100 text-slate-400 mx-auto flex items-center justify-center">
+                            <i data-lucide="check" class="h-5 w-5"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-sm">
+                            ${activeStep === 1 ? 'No Pending Survey Requests' : activeStep === 2 ? 'No Checklists Waiting to Assign' : 'No Surveys to Approve'}
+                        </h3>
+                        <p class="text-xs text-slate-400 max-w-sm mx-auto">
+                            ${activeStep === 1 ? 'When Estimators request a site visit, they will show up here.' : activeStep === 2 ? 'Generate a checklist in Step 1 to move tenders here.' : 'Assign a surveyor in Step 2 to track and verify findings here.'}
+                        </p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            let html = '';
+            currentList.forEach(project => {
+                const req = project.surveyRequest || {};
+                const isCompleted = req.status === 'Completed';
+
+                let urgencyClass = 'bg-blue-50 text-blue-700 border-blue-200';
+                if (req.urgency === 'Critical 48h') urgencyClass = 'bg-rose-50 text-rose-700 border-rose-200';
+                else if (req.urgency === 'Urgent') urgencyClass = 'bg-amber-50 text-amber-700 border-amber-200';
+
+                let statusBadgeHtml = '';
+                if (activeStep === 1) {
+                    statusBadgeHtml = `<span class="text-xs font-bold px-3 py-1 rounded-full shrink-0 border bg-amber-50 text-amber-800 border-amber-200">Needs Checklist</span>`;
+                } else if (activeStep === 2) {
+                    const chkLen = (req.checklist || []).length;
+                    statusBadgeHtml = `<span class="text-xs font-bold px-3 py-1 rounded-full shrink-0 border bg-blue-50 text-blue-800 border-blue-200">${chkLen} Checkpoints Ready</span>`;
+                } else {
+                    if (isCompleted) {
+                        statusBadgeHtml = `<span class="text-xs font-bold px-3 py-1 rounded-full shrink-0 border bg-emerald-50 text-emerald-800 border-emerald-200">✓ Returned to Estimator</span>`;
+                    } else if (req.status === 'Survey Submitted') {
+                        statusBadgeHtml = `<span class="text-xs font-bold px-3 py-1 rounded-full shrink-0 border bg-emerald-100 text-emerald-900 border-emerald-300 animate-pulse font-black">⚡ Survey Done (Pending Ops Approval)</span>`;
+                    } else if (req.status === 'Surveyor En Route') {
+                        statusBadgeHtml = `<span class="text-xs font-bold px-3 py-1 rounded-full shrink-0 border bg-amber-50 text-amber-900 border-amber-200 font-bold">🚗 En Route to Site (${req.assignedSurveyorName || 'Surveyor'})</span>`;
+                    } else {
+                        statusBadgeHtml = `<span class="text-xs font-bold px-3 py-1 rounded-full shrink-0 border bg-indigo-50 text-indigo-800 border-indigo-200">Surveyor on Site (${req.assignedSurveyorName || 'Surveyor'})</span>`;
+                    }
+                }
+
+                // Step 3 Findings Box
+                let findingsHtml = '';
+                if (activeStep === 3 && (req.surveyorObservations || req.status === 'Survey Submitted')) {
+                    const checklist = req.checklist || [];
+                    const verifiedCount = checklist.filter(i => i.status === 'Compliant / Verified').length;
+                    const hazardCount = checklist.filter(i => i.status === 'Risk / Hazard Detected').length;
+
+                    let attachedDocsHtml = '';
+                    if (req.uploadedSurveyDocuments && req.uploadedSurveyDocuments.length > 0) {
+                        attachedDocsHtml = `
+                            <div class="pt-2 border-t border-emerald-200/60 flex items-center gap-2 flex-wrap">
+                                <span class="text-[10px] font-bold text-emerald-900">
+                                    Attached Survey Reports:
+                                </span>
+                                ${req.uploadedSurveyDocuments.map(doc => `
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white border border-emerald-200 text-[10px] font-medium text-slate-700 shadow-2xs">
+                                        <i data-lucide="file-text" class="w-3 h-3 text-rose-500"></i>
+                                        <span>${doc.name}</span>
+                                    </span>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+
+                    findingsHtml = `
+                        <div class="p-3.5 rounded-xl bg-emerald-50/80 border border-emerald-200 text-xs text-emerald-950 space-y-1.5 shadow-2xs">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold flex items-center gap-1.5 text-emerald-900">
+                                    <i data-lucide="file-text" class="w-3.5 h-3.5 text-emerald-700"></i>
+                                    Surveyor's Submitted Field Findings (${req.assignedSurveyorName || 'Assigned Surveyor'}):
+                                </span>
+                                <span class="text-[10px] font-bold text-emerald-800 bg-emerald-200/60 px-2 py-0.5 rounded">
+                                    ${verifiedCount} Verified • ${hazardCount} Hazards
+                                </span>
+                            </div>
+                            <p class="font-mono text-[11px] text-slate-800 whitespace-pre-line leading-relaxed bg-white/70 p-2.5 rounded-lg border border-emerald-100">
+                                ${req.surveyorObservations || 'Field verification completed with GPS RTK positioning. All site checkpoints inspected.'}
+                            </p>
+                            ${attachedDocsHtml}
+                        </div>
+                    `;
+                }
+
+                // Main Action Button
+                let mainActionButtonHtml = '';
+                if (activeStep === 1) {
+                    mainActionButtonHtml = `
+                        <button
+                            type="button"
+                            onclick="openChecklistModal('${project.id}')"
+                            class="w-full sm:w-auto px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs transition-all shadow-xs hover:shadow-md cursor-pointer flex items-center justify-center gap-2"
+                        >
+                            <i data-lucide="sparkles" class="w-4 h-4 text-amber-200"></i>
+                            <span>Generate Checklist</span>
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    `;
+                } else if (activeStep === 2) {
+                    mainActionButtonHtml = `
+                        <button
+                            type="button"
+                            onclick="openDispatchModal('${project.id}')"
+                            class="w-full sm:w-auto px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-all shadow-xs hover:shadow-md cursor-pointer flex items-center justify-center gap-2"
+                        >
+                            <i data-lucide="hard-hat" class="w-4 h-4"></i>
+                            <span>Assign & Send to Surveyor</span>
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    `;
+                } else if (activeStep === 3) {
+                    if (!isCompleted) {
+                        mainActionButtonHtml = `
+                            <button
+                                type="button"
+                                onclick="openCompleteModal('${project.id}')"
+                                class="w-full sm:w-auto px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-all shadow-xs hover:shadow-md cursor-pointer flex items-center justify-center gap-2"
+                            >
+                                <i data-lucide="check-check" class="w-4 h-4"></i>
+                                <span>Approve & Send to Estimator</span>
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </button>
+                        `;
+                    } else {
+                        mainActionButtonHtml = `
+                            <button
+                                type="button"
+                                onclick="openCompleteModal('${project.id}')"
+                                class="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 font-semibold text-xs hover:bg-emerald-100 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                            >
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-600"></i>
+                                <span>View Approved Findings</span>
+                            </button>
+                        `;
+                    }
+                }
+
+                html += `
+                    <div class="bg-white rounded-2xl border border-slate-200 hover:border-slate-300 p-5 shadow-2xs hover:shadow-xs transition-all space-y-4">
+                        <!-- Header Row: Title, WO, Urgency -->
+                        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200">
+                                        ${project.workOrderNo}
+                                    </span>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${urgencyClass}">
+                                        ${req.urgency || 'Normal'}
+                                    </span>
+                                    <span class="text-xs text-slate-400">
+                                        Requested by: <strong class="text-slate-700">${req.requestedByEstimatorName || 'Estimator'}</strong>
+                                    </span>
+                                </div>
+
+                                <h2 
+                                    onclick="openDetailModal('${project.id}')"
+                                    class="text-base font-bold text-slate-900 hover:text-blue-600 transition cursor-pointer"
+                                >
+                                    ${project.proposedProjectName}
+                                </h2>
+
+                                <p class="text-xs text-slate-500 flex items-center gap-1.5 flex-wrap">
+                                    <span class="font-semibold text-slate-700">${project.clientName}</span>
+                                    <span>•</span>
+                                    <span class="flex items-center gap-1">
+                                        <i data-lucide="map-pin" class="w-3 h-3 text-slate-400 shrink-0"></i>
+                                        <span>${project.projectLocation || 'Jubail'}</span>
+                                    </span>
+                                </p>
+                            </div>
+
+                            ${statusBadgeHtml}
+                        </div>
+
+                        <!-- Reason Note -->
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-700 leading-relaxed">
+                            <span class="font-bold text-slate-900 block text-[11px] mb-0.5">
+                                Estimator's Survey Requirement:
+                            </span>
+                            <p class="italic text-slate-600">
+                                "${req.surveyReason || 'General site survey and elevation measurement required before bid submission.'}"
+                            </p>
+                        </div>
+
+                        <!-- Step 3 Field Findings (if present) -->
+                        ${findingsHtml}
+
+                        <!-- Action Bar -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-100">
+                            <div class="flex items-center gap-3 text-xs">
+                                <button
+                                    type="button"
+                                    onclick="openReportModal('${project.id}')"
+                                    class="text-slate-600 hover:text-slate-900 font-semibold underline cursor-pointer flex items-center gap-1"
+                                >
+                                    <i data-lucide="file-text" class="w-3.5 h-3.5 text-slate-400"></i>
+                                    <span>View Estimator Report</span>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onclick="openDetailModal('${project.id}')"
+                                    class="text-slate-500 hover:text-slate-800 text-xs cursor-pointer flex items-center gap-1"
+                                >
+                                    <i data-lucide="eye" class="w-3.5 h-3.5 text-slate-400"></i>
+                                    <span>Tender Details</span>
+                                </button>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                ${mainActionButtonHtml}
+                            </div>
+                        </div>
+
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        // =========================================================================
+        // MODAL 1: CHECKLIST CONTROLLER
+        // =========================================================================
+        function openChecklistModal(projectId) {
+            const project = rawProjects.find(p => String(p.id) === String(projectId));
+            if (!project || !project.surveyRequest) return;
+
+            activeChecklistProject = project;
+            const req = project.surveyRequest;
+
+            // Load existing checklist or synthesize initial templates
+            if (req.checklist && req.checklist.length > 0) {
+                activeChecklist = JSON.parse(JSON.stringify(req.checklist));
+            } else {
+                activeChecklist = DEFAULT_AI_CHECKLIST_TEMPLATES.map((item, idx) => ({
+                    ...item,
+                    id: `chk-${Date.now()}-${idx}`
+                }));
+            }
+
+            document.getElementById('chkModalWorkOrder').textContent = project.workOrderNo;
+            document.getElementById('chkModalProjectName').textContent = project.proposedProjectName;
+            document.getElementById('chkModalClientLocation').textContent = `${project.clientName} • ${project.projectLocation || 'Eastern Province'}`;
+            document.getElementById('chkModalReason').textContent = req.surveyReason || 'General reconnaissance and utility clash detection.';
+
+            const urgEl = document.getElementById('chkModalUrgency');
+            urgEl.textContent = `Urgency: ${req.urgency || 'Normal'}`;
+            if (req.urgency === 'Critical 48h') urgEl.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full border bg-rose-100 text-rose-800 border-rose-300';
+            else if (req.urgency === 'Urgent') urgEl.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full border bg-amber-100 text-amber-800 border-amber-300';
+            else urgEl.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full border bg-blue-100 text-blue-800 border-blue-300';
+
+            document.getElementById('chkModalStatus').textContent = `Status: ${req.status || 'Pending AI Checklist'}`;
+
+            activeChecklistCategory = 'All';
+            activeChecklistStatus = 'All';
+            document.getElementById('chkStatusFilter').value = 'All';
+            toggleAddCustomItemForm(false);
+
+            renderCategoryTabs();
+            renderChecklistItems();
+
+            document.getElementById('checklistModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeChecklistModal() {
+            document.getElementById('checklistModal').classList.add('hidden');
+            activeChecklistProject = null;
+        }
+
+        function renderCategoryTabs() {
+            const cats = ['All', 'Safety & Site Access', 'Terrain & Soil Conditions', 'Underground Utilities', 'Tie-in & Battery Limits', 'Logistics & Laydown'];
+            const container = document.getElementById('chkCategoryTabs');
+            container.innerHTML = cats.map(cat => `
+                <button
+                    type="button"
+                    onclick="selectChecklistCategory('${cat}')"
+                    class="px-3 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition cursor-pointer ${activeChecklistCategory === cat ? 'bg-slate-900 text-white shadow-xs font-semibold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}"
+                >
+                    ${cat}
+                </button>
+            `).join('');
+        }
+
+        function selectChecklistCategory(cat) {
+            activeChecklistCategory = cat;
+            renderCategoryTabs();
+            renderChecklistItems();
+        }
+
+        function handleFilterChecklist() {
+            activeChecklistStatus = document.getElementById('chkStatusFilter').value;
+            renderChecklistItems();
+        }
+
+        function renderChecklistItems() {
+            const container = document.getElementById('chkItemsList');
+
+            const filtered = activeChecklist.filter(item => {
+                const matchCat = activeChecklistCategory === 'All' || item.category === activeChecklistCategory;
+                const matchStatus = activeChecklistStatus === 'All' || item.status === activeChecklistStatus;
+                return matchCat && matchStatus;
+            });
+
+            // Update stats
+            const compliantCount = activeChecklist.filter(i => i.status === 'Compliant / Verified').length;
+            const riskCount = activeChecklist.filter(i => i.status === 'Risk / Hazard Detected').length;
+            const pendingCount = activeChecklist.filter(i => i.status === 'Pending Verification').length;
+
+            document.getElementById('chkStatCompliant').textContent = `${compliantCount} Compliant`;
+            document.getElementById('chkStatRisks').textContent = `${riskCount} Risks Flagged`;
+            document.getElementById('chkStatPending').textContent = `${pendingCount} Pending`;
+            document.getElementById('chkFooterCount').textContent = activeChecklist.length;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-slate-400">
+                        <i data-lucide="hard-hat" class="w-10 h-10 mx-auto text-slate-300 mb-2"></i>
+                        <p class="font-semibold text-sm">No checklist items in this category or status filter</p>
+                        <p class="text-xs text-slate-400 mt-1">Try switching categories or clicking "Re-Generate AI Checklist"</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            let html = '';
+            filtered.forEach((item, idx) => {
+                const isCompliant = item.status === 'Compliant / Verified';
+                const isRisk = item.status === 'Risk / Hazard Detected';
+                const isPending = item.status === 'Pending Verification';
+
+                let bgClass = 'bg-white border-slate-200 hover:border-slate-300';
+                if (isRisk) bgClass = 'bg-rose-50/40 border-rose-200';
+                else if (isCompliant) bgClass = 'bg-emerald-50/30 border-emerald-200';
+
+                let riskClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                if (item.riskLevel === 'High') riskClass = 'bg-rose-100 text-rose-800 border-rose-200';
+                else if (item.riskLevel === 'Medium') riskClass = 'bg-amber-100 text-amber-800 border-amber-200';
+
+                html += `
+                    <div class="pt-3 first:pt-0 rounded-xl p-3.5 transition-all border ${bgClass}">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex items-start gap-3 flex-1">
+                                <span class="font-mono text-xs font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 shrink-0 mt-0.5">
+                                    #${idx + 1}
+                                </span>
+
+                                <div class="space-y-1 flex-1">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="font-bold text-slate-900 text-xs sm:text-sm">
+                                            ${item.item}
+                                        </span>
+
+                                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                                            ${item.category}
+                                        </span>
+
+                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${riskClass}">
+                                            Risk: ${item.riskLevel}
+                                        </span>
+
+                                        ${item.photoRequired ? `
+                                            <span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
+                                                <i data-lucide="camera" class="w-3 h-3"></i>
+                                                Photo Req
+                                            </span>
+                                        ` : ''}
+                                    </div>
+
+                                    <p class="text-xs text-slate-600 leading-relaxed">
+                                        ${item.description}
+                                    </p>
+
+                                    <!-- Inline Findings & Observations -->
+                                    <div class="pt-2">
+                                        <input
+                                            type="text"
+                                            value="${item.findings || ''}"
+                                            onchange="updateChecklistFindings('${item.id}', this.value)"
+                                            placeholder="Add surveyor findings, measured dimensions, or ground observations..."
+                                            class="w-full px-2.5 py-1 rounded-md border border-slate-200 text-xs text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500 placeholder:text-slate-400"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Status Dropdown & Delete -->
+                            <div class="flex flex-col sm:flex-row items-end sm:items-center gap-2 shrink-0">
+                                <select
+                                    onchange="updateChecklistItemStatus('${item.id}', this.value)"
+                                    class="px-2.5 py-1 rounded-lg text-xs font-semibold border transition cursor-pointer ${
+                                        isCompliant ? 'bg-emerald-100 text-emerald-900 border-emerald-300' :
+                                        isRisk ? 'bg-rose-100 text-rose-900 border-rose-300' :
+                                        isPending ? 'bg-amber-50 text-amber-900 border-amber-300' : 'bg-slate-100 text-slate-700 border-slate-200'
+                                    }"
+                                >
+                                    <option value="Pending Verification" ${item.status === 'Pending Verification' ? 'selected' : ''}>Pending Verification</option>
+                                    <option value="Compliant / Verified" ${item.status === 'Compliant / Verified' ? 'selected' : ''}>Compliant / Verified</option>
+                                    <option value="Risk / Hazard Detected" ${item.status === 'Risk / Hazard Detected' ? 'selected' : ''}>Risk / Hazard Detected</option>
+                                    <option value="Not Applicable" ${item.status === 'Not Applicable' ? 'selected' : ''}>Not Applicable</option>
+                                </select>
+
+                                <button
+                                    type="button"
+                                    onclick="deleteChecklistItem('${item.id}')"
+                                    title="Delete checkpoint"
+                                    class="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                                >
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        function updateChecklistItemStatus(id, newStatus) {
+            activeChecklist = activeChecklist.map(item => item.id === id ? { ...item, status: newStatus } : item);
+            renderChecklistItems();
+        }
+
+        function updateChecklistFindings(id, findings) {
+            activeChecklist = activeChecklist.map(item => item.id === id ? { ...item, findings } : item);
+        }
+
+        function deleteChecklistItem(id) {
+            activeChecklist = activeChecklist.filter(item => item.id !== id);
+            renderChecklistItems();
+        }
+
+        function toggleAddCustomItemForm(forceState) {
+            const form = document.getElementById('chkAddForm');
+            if (forceState !== undefined) {
+                if (forceState) form.classList.remove('hidden');
+                else form.classList.add('hidden');
+            } else {
+                form.classList.toggle('hidden');
+            }
+        }
+
+        function saveNewCustomChecklistItem() {
+            const title = document.getElementById('newChkTitle').value.trim();
+            if (!title) {
+                alert('Please enter an inspection checkpoint title.');
+                return;
+            }
+
+            const category = document.getElementById('newChkCategory').value;
+            const desc = document.getElementById('newChkDesc').value.trim() || 'Custom on-site verification checkpoint defined by Operations.';
+            const risk = document.getElementById('newChkRisk').value;
+            const photo = document.getElementById('newChkPhoto').checked;
+
+            const newItem = {
+                id: `custom-chk-${Date.now()}`,
+                category: category,
+                item: title,
+                description: desc,
+                status: 'Pending Verification',
+                riskLevel: risk,
+                photoRequired: photo,
+                findings: ''
+            };
+
+            activeChecklist.unshift(newItem);
+            document.getElementById('newChkTitle').value = '';
+            document.getElementById('newChkDesc').value = '';
+            toggleAddCustomItemForm(false);
+            renderChecklistItems();
+            showToast('Custom checkpoint added to survey dossier');
+        }
+
+        // Live AI Synthesis Simulation
+        function triggerAiRegeneration() {
+            const banner = document.getElementById('aiProcessingBanner');
+            const logEl = document.getElementById('aiLogLine');
+            const icon = document.getElementById('aiRefreshIcon');
+            const btnText = document.getElementById('aiRefreshText');
+
+            banner.classList.remove('hidden');
+            icon.classList.add('animate-spin');
+            btnText.textContent = 'Synthesizing...';
+
+            const logs = [
+                'Scanning attached Tender Dossier, IFC drawings & specification sheets...',
+                'Parsing Saudi Aramco / SABIC site safety codes & PTW classification...',
+                'Synthesizing geotechnical & underground utility radar scan requirements...',
+                'Tailoring reconnaissance checkpoints to battery limit tie-in parameters...'
+            ];
+
+            let step = 0;
+            logEl.textContent = logs[0];
+
+            const interval = setInterval(() => {
+                step++;
+                if (step < logs.length) {
+                    logEl.textContent = logs[step];
+                } else {
+                    clearInterval(interval);
+                    banner.classList.add('hidden');
+                    icon.classList.remove('animate-spin');
+                    btnText.textContent = 'Re-Generate AI Checklist';
+
+                    // Synthesize enhanced items tailored to the project
+                    const projectName = activeChecklistProject.proposedProjectName || 'Industrial Site';
+                    activeChecklist = DEFAULT_AI_CHECKLIST_TEMPLATES.map((tmpl, idx) => ({
+                        ...tmpl,
+                        id: `chk-ai-${Date.now()}-${idx}`,
+                        description: `${tmpl.description} [Tailored for ${projectName}]`
+                    }));
+
+                    renderChecklistItems();
+                    showToast('AI synthesized 10 specialized inspection checkpoints!');
+                }
+            }, 550);
+        }
+
+        // Save Checklist and Dispatch to Backend
+        async function persistChecklist(newStatus) {
+            if (!activeChecklistProject) return;
+
+            const updatedRequest = {
+                ...activeChecklistProject.surveyRequest,
+                status: newStatus,
+                checklist: activeChecklist
+            };
+
+            try {
+                const response = await fetch('/operations/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        action: 'save_checklist',
+                        projectId: activeChecklistProject.id,
+                        surveyRequest: updatedRequest
+                    })
+                });
+
+                if (response.ok) {
+                    // Update in-memory
+                    activeChecklistProject.surveyRequest = updatedRequest;
+                    const idx = rawProjects.findIndex(p => String(p.id) === String(activeChecklistProject.id));
+                    if (idx !== -1) rawProjects[idx].surveyRequest = updatedRequest;
+
+                    closeChecklistModal();
+
+                    if (newStatus === 'Checklist Ready') {
+                        showToast('Checklist authorized! Moving to Step 2: Assign Surveyor.');
+                        setActiveStep(2);
+                    } else {
+                        showToast('Checklist draft saved.');
+                        renderOperationsCards();
+                    }
+                } else {
+                    showToast('Server update failed. Check console.', true);
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Network error while saving checklist.', true);
+            }
+        }
+
+        // =========================================================================
+        // MODAL 2: DISPATCH SURVEYOR CONTROLLER
+        // =========================================================================
+        function openDispatchModal(projectId) {
+            const project = rawProjects.find(p => String(p.id) === String(projectId));
+            if (!project || !project.surveyRequest) return;
+
+            activeDispatchProject = project;
+            const req = project.surveyRequest;
+
+            document.getElementById('dispModalWorkOrder').textContent = project.workOrderNo;
+            document.getElementById('dispModalProjectName').textContent = project.proposedProjectName;
+            document.getElementById('dispModalClientLocation').textContent = `${project.clientName} • ${project.projectLocation || 'Jubail'}`;
+            document.getElementById('dispModalCheckpointCount').textContent = `${(req.checklist || []).length} AI Checkpoints`;
+
+            // Default target date: 3 days ahead
+            let targetD = req.targetSurveyDate;
+            if (!targetD) {
+                const d = new Date();
+                d.setDate(d.getDate() + 3);
+                targetD = d.toISOString().split('T')[0];
+            }
+            document.getElementById('dispTargetDateInput').value = targetD;
+
+            document.getElementById('dispUrgencyPill').textContent = req.urgency || 'Normal';
+            document.getElementById('dispEstimatorName').textContent = `Requested by: ${req.requestedByEstimatorName || 'Estimator'}`;
+
+            document.getElementById('dispOpsNotesInput').value = req.opsNotes || 'Take Total Station GPS RTK equipment. Verify underground utility markings with client site engineer before excavation profiling.';
+
+            // Select Surveyor Logic: preselect matching zone or first available
+            if (req.assignedSurveyorId) {
+                selectedSurveyorId = req.assignedSurveyorId;
+            } else {
+                const match = rawSurveyors.find(s => 
+                    project.projectLocation && s.assignedZone && project.projectLocation.toLowerCase().includes(s.assignedZone.toLowerCase().slice(0, 5))
+                );
+                if (match) selectedSurveyorId = match.id;
+                else {
+                    const avail = rawSurveyors.find(s => s.capacityStatus === 'Available');
+                    selectedSurveyorId = avail ? avail.id : (rawSurveyors[0]?.id || '');
+                }
+            }
+
+            renderSurveyorsGrid();
+            renderEquipmentOptions();
+
+            document.getElementById('dispatchModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeDispatchModal() {
+            document.getElementById('dispatchModal').classList.add('hidden');
+            activeDispatchProject = null;
+        }
+
+        function renderSurveyorsGrid() {
+            const container = document.getElementById('surveyorsGrid');
+            container.innerHTML = rawSurveyors.map(surv => {
+                const isSelected = String(selectedSurveyorId) === String(surv.id);
+                const isAvail = surv.capacityStatus === 'Available';
+
+                return `
+                    <div
+                        onclick="selectSurveyor('${surv.id}')"
+                        class="p-3.5 rounded-xl border text-xs cursor-pointer transition-all flex flex-col justify-between ${
+                            isSelected ? 'bg-blue-50/60 border-blue-500 shadow-xs ring-1 ring-blue-500' : 'bg-white border-slate-200 hover:border-slate-300'
+                        }"
+                    >
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <div class="h-8 w-8 rounded-lg flex items-center justify-center font-bold text-xs ${surv.avatarBg || 'bg-slate-100 text-slate-700'}">
+                                        ${surv.initials || 'SR'}
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-slate-900 text-xs">${surv.name}</p>
+                                        <p class="text-[10px] text-slate-500">${surv.role}</p>
+                                    </div>
+                                </div>
+
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${isAvail ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                                    ${surv.capacityStatus}
+                                </span>
+                            </div>
+
+                            <div class="space-y-1 text-[11px] text-slate-600 mt-2">
+                                <p class="flex items-center gap-1.5 truncate">
+                                    <i data-lucide="map-pin" class="w-3 h-3 text-slate-400 shrink-0"></i>
+                                    <span>Zone: <strong>${surv.assignedZone}</strong></span>
+                                </p>
+                                <p class="flex items-center gap-1.5 truncate">
+                                    <i data-lucide="phone" class="w-3 h-3 text-slate-400 shrink-0"></i>
+                                    <span>${surv.phone || '+966 50 000 0000'}</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                            <span class="text-slate-500">Active surveys: <strong>${surv.activeSurveys || 0}</strong></span>
+                            ${isSelected ? `
+                                <span class="text-blue-600 font-bold flex items-center gap-1 text-[11px]">
+                                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                                    Selected
+                                </span>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const selected = rawSurveyors.find(s => String(s.id) === String(selectedSurveyorId));
+            const noticeEl = document.getElementById('dispFooterDeployNotice');
+            if (selected) {
+                noticeEl.innerHTML = `Deploying <strong>${selected.name}</strong> to ${activeDispatchProject.projectLocation || 'site'}.`;
+            } else {
+                noticeEl.textContent = 'Please select a surveyor to deploy.';
+            }
+
+            lucide.createIcons();
+        }
+
+        function selectSurveyor(id) {
+            selectedSurveyorId = id;
+            renderSurveyorsGrid();
+        }
+
+        function renderEquipmentOptions() {
+            const container = document.getElementById('equipmentOptionsGrid');
+            container.innerHTML = EQUIPMENT_OPTIONS.map(eq => {
+                const isSelected = selectedEquipment.includes(eq);
+                return `
+                    <button
+                        type="button"
+                        onclick="toggleEquipmentOption('${eq}')"
+                        class="px-3 py-2 rounded-lg border text-xs text-left transition cursor-pointer flex items-center justify-between ${
+                            isSelected ? 'bg-blue-50 border-blue-400 text-blue-900 font-medium' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }"
+                    >
+                        <span>${eq}</span>
+                        ${isSelected ? '<i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-blue-600 shrink-0"></i>' : ''}
+                    </button>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function toggleEquipmentOption(eq) {
+            if (selectedEquipment.includes(eq)) {
+                selectedEquipment = selectedEquipment.filter(e => e !== eq);
+            } else {
+                selectedEquipment.push(eq);
+            }
+            renderEquipmentOptions();
+        }
+
+        async function executeSurveyorDispatch() {
+            if (!activeDispatchProject || !selectedSurveyorId) {
+                alert('Please select a certified field surveyor.');
+                return;
+            }
+
+            const surveyor = rawSurveyors.find(s => String(s.id) === String(selectedSurveyorId));
+            const targetDate = document.getElementById('dispTargetDateInput').value;
+            const opsNotes = document.getElementById('dispOpsNotesInput').value.trim();
+
+            const fullNotes = [
+                opsNotes,
+                selectedEquipment.length > 0 ? `Required Equipment: ${selectedEquipment.join(', ')}` : ''
+            ].filter(Boolean).join(' | ');
+
+            const updatedRequest = {
+                ...activeDispatchProject.surveyRequest,
+                assignedSurveyorId: String(surveyor.id),
+                assignedSurveyorName: surveyor.name,
+                targetSurveyDate: targetDate,
+                status: 'Surveyor Dispatched',
+                opsNotes: fullNotes
+            };
+
+            try {
+                const response = await fetch('/operations/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        action: 'dispatch_surveyor',
+                        projectId: activeDispatchProject.id,
+                        surveyRequest: updatedRequest,
+                        surveyorId: surveyor.id,
+                        newProjectStatus: 'Survey In Progress'
+                    })
+                });
+
+                if (response.ok) {
+                    activeDispatchProject.surveyRequest = updatedRequest;
+                    activeDispatchProject.status = 'Survey In Progress';
+                    const idx = rawProjects.findIndex(p => String(p.id) === String(activeDispatchProject.id));
+                    if (idx !== -1) {
+                        rawProjects[idx].surveyRequest = updatedRequest;
+                        rawProjects[idx].status = 'Survey In Progress';
+                    }
+
+                    closeDispatchModal();
+                    showToast(`Surveyor ${surveyor.name} dispatched! Dossier moved to Step 3.`);
+                    setActiveStep(3);
+                } else {
+                    showToast('Server error while dispatching surveyor.', true);
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Network error during dispatch.', true);
+            }
+        }
+
+        // =========================================================================
+        // MODAL 3: COMPLETE SURVEY CONTROLLER
+        // =========================================================================
+        function openCompleteModal(projectId) {
+            const project = rawProjects.find(p => String(p.id) === String(projectId));
+            if (!project || !project.surveyRequest) return;
+
+            activeCompleteProject = project;
+            const req = project.surveyRequest;
+            const checklist = req.checklist || [];
+
+            document.getElementById('compModalWorkOrder').textContent = project.workOrderNo;
+            document.getElementById('compModalProjectName').textContent = project.proposedProjectName;
+            document.getElementById('compModalClientLocation').textContent = `${project.clientName} • ${project.projectLocation || 'Jubail'}`;
+            document.getElementById('compModalSurveyorName').textContent = req.assignedSurveyorName || 'Assigned Surveyor';
+            document.getElementById('compEstimatorRef').textContent = req.requestedByEstimatorName || 'Estimator';
+
+            const verifiedCount = checklist.filter(i => i.status === 'Compliant / Verified').length;
+            const hazardCount = checklist.filter(i => i.status === 'Risk / Hazard Detected').length;
+
+            document.getElementById('compModalVerifiedCount').textContent = `${verifiedCount}/${checklist.length} Verified`;
+            document.getElementById('compModalHazardCount').textContent = `${hazardCount} Hazards Flagged`;
+
+            document.getElementById('compFindingsInput').value = req.surveyorObservations || 
+                `Field survey completed on-site by ${req.assignedSurveyorName || 'Assigned Surveyor'}. Tie-in nozzle flanges inspected & confirmed ASME B16.5 Class 300#. Underground GPR scan verified 2 live 33kV cable crossings flagged in checklist. Cleared for Estimator to finalize BOQ item pricing & proposal.`;
+
+            document.getElementById('compHazardsInput').value = 'Live underground 33kV electrical cable crossing at Ch 0+320 requires hand-digging within 1.5 meters buffer.';
+            document.getElementById('compAccessibilityInput').value = 'Fully Accessible with Aramco Gate Pass';
+
+            // Attached Scanned Docs
+            const docsBox = document.getElementById('compAttachedDocsBox');
+            const docsList = document.getElementById('compAttachedDocsList');
+            if (req.uploadedSurveyDocuments && req.uploadedSurveyDocuments.length > 0) {
+                docsBox.classList.remove('hidden');
+                docsList.innerHTML = req.uploadedSurveyDocuments.map(doc => `
+                    <div class="p-2.5 rounded-lg bg-white border border-emerald-100 flex items-center justify-between text-xs shadow-2xs">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="h-7 w-7 rounded bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center shrink-0">
+                                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="font-semibold text-slate-800 block truncate">${doc.name}</span>
+                                <span class="text-[10px] text-slate-400">${doc.size || '2.4 MB'} • Verified by ${req.assignedSurveyorName || 'Surveyor'}</span>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-full border border-emerald-200">
+                            Verified Scanned Copy
+                        </span>
+                    </div>
+                `).join('');
+            } else {
+                docsBox.classList.add('hidden');
+            }
+
+            document.getElementById('completeModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeCompleteModal() {
+            document.getElementById('completeModal').classList.add('hidden');
+            activeCompleteProject = null;
+        }
+
+        async function executeCompleteSurvey() {
+            if (!activeCompleteProject) return;
+
+            const findings = document.getElementById('compFindingsInput').value.trim();
+            if (!findings) {
+                alert('Please enter the field survey findings summary.');
+                return;
+            }
+
+            const hazards = document.getElementById('compHazardsInput').value.trim();
+            const accessibility = document.getElementById('compAccessibilityInput').value.trim();
+
+            const completedTimestamp = new Date().toISOString().split('T')[0];
+
+            const updatedRequest = {
+                ...activeCompleteProject.surveyRequest,
+                status: 'Completed',
+                completedAt: completedTimestamp,
+                surveyorObservations: findings,
+                opsNotes: `${activeCompleteProject.surveyRequest.opsNotes ? activeCompleteProject.surveyRequest.opsNotes + ' | ' : ''}Survey Finalized: ${findings}`
+            };
+
+            const siteReview = {
+                required: true,
+                status: 'Completed',
+                inspectorName: updatedRequest.assignedSurveyorName || 'Operations Field Surveyor',
+                scheduledDate: updatedRequest.targetSurveyDate || completedTimestamp,
+                purpose: updatedRequest.surveyReason,
+                findings: `${findings} [Hazards: ${hazards}] [Access: ${accessibility}]`,
+                completedAt: completedTimestamp
+            };
+
+            try {
+                const response = await fetch('/operations/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        action: 'complete_survey',
+                        projectId: activeCompleteProject.id,
+                        surveyRequest: updatedRequest,
+                        siteReview: siteReview
+                    })
+                });
+
+                if (response.ok) {
+                    activeCompleteProject.surveyRequest = updatedRequest;
+                    activeCompleteProject.siteReview = siteReview;
+                    activeCompleteProject.status = 'Under BOQ Estimation';
+
+                    const idx = rawProjects.findIndex(p => String(p.id) === String(activeCompleteProject.id));
+                    if (idx !== -1) {
+                        rawProjects[idx].surveyRequest = updatedRequest;
+                        rawProjects[idx].siteReview = siteReview;
+                        rawProjects[idx].status = 'Under BOQ Estimation';
+                    }
+
+                    closeCompleteModal();
+                    showToast('Survey approved & returned to Estimator (Under BOQ Estimation)!');
+                    renderOperationsCards();
+                } else {
+                    showToast('Server update failed.', true);
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Network error while finalizing survey.', true);
+            }
+        }
+
+        // =========================================================================
+        // MODAL 4: ESTIMATOR REPORT CONTROLLER
+        // =========================================================================
+        function openReportModal(projectId) {
+            const project = rawProjects.find(p => String(p.id) === String(projectId));
+            if (!project || !project.surveyRequest) return;
+
+            activeReportProject = project;
+            const req = project.surveyRequest;
+
+            const report = req.estimatorReport || {
+                reportTitle: `Site Feasibility & Verification Justification Report: ${project.proposedProjectName}`,
+                estimatorName: req.requestedByEstimatorName || 'Farhan Qureshi',
+                estimatorRole: 'Lead EPC & Piping Estimating Engineer',
+                submittedDate: req.requestedAt || new Date().toISOString().split('T')[0],
+                urgency: req.urgency || 'Normal',
+                executiveSummary: req.surveyReason || 'Following comprehensive review of client tender specifications, IFC plot plans, and bill of quantities, critical physical uncertainties have been identified at the site limit. A physical reconnaissance survey is mandatory to prevent severe variation risk and ensure accurate BOQ rate pricing.',
+                tenderDocsReviewed: [
+                    {
+                        docName: 'IFC-ENG-PLT-001 (Overall Plant General Arrangement & Piping Corridor)',
+                        docType: 'Engineering Plot Plan',
+                        keyObservation: 'Corridor crosses several unconfirmed underground utility easements near tie-in battery limit.'
+                    },
+                    {
+                        docName: 'SOW-TS-MEC-2026-Rev2 (Mechanical Piping & Equipment Specification)',
+                        docType: 'Technical Tender Spec',
+                        keyObservation: 'Requires cold tap tie-in to 24" high-pressure fuel line; flange rating & thickness must be confirmed on-site.'
+                    },
+                    {
+                        docName: 'GEO-SOIL-BRIEF-2025 (Preliminary Geotechnical Soil Boring Report)',
+                        docType: 'Geotechnical Study',
+                        keyObservation: 'High water table detected between 1.5m - 2.2m below NGL. Heavy shoring and dewatering expected.'
+                    }
+                ],
+                criticalSiteRisks: [
+                    {
+                        category: 'Underground Utilities',
+                        risk: 'Direct-buried high-voltage cables and existing potable water trunk lines along pipeline route.',
+                        impactOnBoq: 'Excavation classification (Manual vs Mechanical), trench safety protection, and utility sleeve casing costs.',
+                        requiredVerification: 'Continuous Ground Penetrating Radar (GPR) scan along 1.2km right-of-way corridor.'
+                    },
+                    {
+                        category: 'Battery Limit Tie-In',
+                        risk: 'Potential misalignment or corrosion on existing client header flange nozzle.',
+                        impactOnBoq: 'Spool pre-fabrication tolerances, crane lifting rigging, and plant shutdown outage hours.',
+                        requiredVerification: 'Ultrasonic thickness (UT) testing and 3D RTK GPS coordinate logging of tie-in flange.'
+                    },
+                    {
+                        category: 'Access & Soil Compaction',
+                        risk: 'Sub-base bearing capacity insufficient for 150T mobile crawler crane outriggers.',
+                        impactOnBoq: 'Crane mat rentals, gravel base stabilization, and temporary access road grading.',
+                        requiredVerification: 'Dynamic cone penetrometer soil test at designated heavy crane lift station.'
+                    }
+                ],
+                siteAccessProtocols: req.accessRestrictions || 'Industrial restricted high-security zone. Mandatory Saudi Aramco SAP / Royal Commission security clearance, certified work permit receiver, and personal 4-gas H2S monitor.',
+                targetCompletionDate: req.targetSurveyDate || 'Immediate',
+                estimatorSignature: `${req.requestedByEstimatorName || 'Farhan Qureshi'}, PE (Lead Estimator - Quantity Surveying Division)`
+            };
+
+            document.getElementById('repModalWorkOrder').textContent = project.workOrderNo;
+            const urgEl = document.getElementById('repModalUrgency');
+            urgEl.textContent = `Urgency: ${report.urgency}`;
+            if (report.urgency === 'Critical 48h') urgEl.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-rose-500/20 text-rose-300 border border-rose-500/40';
+            else if (report.urgency === 'Urgent') urgEl.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40';
+            else urgEl.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-blue-500/20 text-blue-300 border border-blue-500/40';
+
+            document.getElementById('repProjectName').textContent = project.proposedProjectName;
+            document.getElementById('repClientName').textContent = project.clientName;
+            document.getElementById('repLocation').textContent = project.projectLocation || 'Jubail';
+            document.getElementById('repSiteName').textContent = project.siteName || '';
+            document.getElementById('repEstimatorName').textContent = report.estimatorName;
+            document.getElementById('repEstimatorRole').textContent = report.estimatorRole;
+            document.getElementById('repTargetDate').textContent = `Target: ${report.targetCompletionDate}`;
+            document.getElementById('repSubmittedDate').textContent = `Submitted: ${report.submittedDate}`;
+
+            document.getElementById('repExecutiveSummary').textContent = report.executiveSummary;
+
+            // Tender Docs
+            document.getElementById('repTenderDocsList').innerHTML = report.tenderDocsReviewed.map(doc => `
+                <div class="p-3 text-xs space-y-1">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="font-semibold text-slate-900 flex items-center gap-1.5">
+                            <i data-lucide="file-check" class="w-3.5 h-3.5 text-blue-600 shrink-0"></i>
+                            ${doc.docName}
+                        </span>
+                        <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-medium border border-slate-200 shrink-0">
+                            ${doc.docType}
+                        </span>
+                    </div>
+                    <p class="text-slate-600 pl-5 text-[11px] leading-relaxed">
+                        <strong class="text-slate-700">Estimator Key Finding:</strong> ${doc.keyObservation}
+                    </p>
+                </div>
+            `).join('');
+
+            // Critical Risks
+            document.getElementById('repRisksBadge').textContent = `${report.criticalSiteRisks.length} Key Checkpoints`;
+            document.getElementById('repCriticalRisksGrid').innerHTML = report.criticalSiteRisks.map(item => `
+                <div class="p-3.5 rounded-lg border border-slate-200 bg-white hover:border-slate-300 transition space-y-2 text-xs">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-slate-900 flex items-center gap-1.5">
+                            <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-600 shrink-0"></i>
+                            ${item.category}: ${item.risk}
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px] pt-1 border-t border-slate-100">
+                        <div class="p-2 rounded bg-slate-50 border border-slate-100">
+                            <span class="font-bold text-slate-700 block text-[10px] uppercase">Impact on BOQ & Pricing:</span>
+                            <p class="text-slate-600 mt-0.5">${item.impactOnBoq}</p>
+                        </div>
+
+                        <div class="p-2 rounded bg-amber-50/60 border border-amber-100 text-amber-900">
+                            <span class="font-bold text-amber-800 block text-[10px] uppercase">Field Verification Required:</span>
+                            <p class="mt-0.5">${item.requiredVerification}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('repAccessProtocols').textContent = report.siteAccessProtocols;
+            document.getElementById('repSignature').textContent = report.estimatorSignature;
+
+            document.getElementById('reportModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.add('hidden');
+            activeReportProject = null;
+        }
+
+        function switchFromReportToChecklist() {
+            const project = activeReportProject;
+            closeReportModal();
+            if (project) {
+                openChecklistModal(project.id);
+            }
+        }
+
+        // =========================================================================
+        // MODAL 5: PROJECT DETAIL CONTROLLER
+        // =========================================================================
+        function openDetailModal(projectId) {
+            const project = rawProjects.find(p => String(p.id) === String(projectId));
+            if (!project) return;
+
+            activeDetailProject = project;
+
+            document.getElementById('dtlWorkOrder').textContent = project.workOrderNo;
+            document.getElementById('dtlProjectName').textContent = project.proposedProjectName;
+            document.getElementById('dtlClient').textContent = project.clientName;
+            document.getElementById('dtlLocation').textContent = project.projectLocation || 'Jubail, KSA';
+            document.getElementById('dtlSerial').textContent = project.enquirySerialNo || 'RGC-RFQ-2026-000';
+            document.getElementById('dtlReceived').textContent = project.receivedDate || '-';
+            document.getElementById('dtlDeadline').textContent = project.submissionDeadline || '-';
+            document.getElementById('dtlEstimator').textContent = project.assignedEstimatorName || 'Central Estimating Pool';
+
+            const statusBadge = document.getElementById('dtlStatusBadge');
+            statusBadge.textContent = project.status;
+            statusBadge.className = 'text-xs font-bold px-2 py-0.5 rounded-full border bg-slate-100 text-slate-800 border-slate-300';
+
+            // Scopes
+            const scopesContainer = document.getElementById('dtlScopesList');
+            const scopes = project.sowScopes || [];
+            scopesContainer.innerHTML = scopes.map(s => `
+                <span class="px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-[11px] font-semibold text-slate-700">
+                    ${s}
+                </span>
+            `).join('') || '<span class="text-slate-400">Standard Civil & Mechanical</span>';
+
+            document.getElementById('dtlWorkDesc').textContent = project.projectWorkDescription || 'Scope and requirements as per client tender package.';
+
+            // Files
+            const filesContainer = document.getElementById('dtlFilesList');
+            const files = project.attachedFiles || [];
+            if (files.length === 0) {
+                filesContainer.innerHTML = '<span class="text-slate-400 italic">No tender drawings attached.</span>';
+            } else {
+                filesContainer.innerHTML = files.map(f => `
+                    <div class="p-2 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="file" class="w-3.5 h-3.5 text-blue-600"></i>
+                            <span class="font-medium text-slate-800">${f.name}</span>
+                        </div>
+                        <span class="text-[10px] text-slate-400 font-mono">${f.size || '3.2 MB'}</span>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('detailModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+            activeDetailProject = null;
+        }
+
+        // =========================================================================
+        // TOAST NOTIFICATION HELPER
+        // =========================================================================
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toastNotification');
+            const text = document.getElementById('toastMessage');
+            const icon = document.getElementById('toastIcon');
+
+            text.textContent = msg;
+            if (isError) {
+                toast.className = 'fixed bottom-5 right-5 z-50 px-4 py-3 rounded-2xl shadow-xl text-xs font-semibold flex items-center gap-2.5 transition-all bg-rose-600 text-white animate-in slide-in-from-bottom duration-200';
+                icon.setAttribute('data-lucide', 'alert-circle');
+            } else {
+                toast.className = 'fixed bottom-5 right-5 z-50 px-4 py-3 rounded-2xl shadow-xl text-xs font-semibold flex items-center gap-2.5 transition-all bg-slate-900 text-white border border-slate-700 animate-in slide-in-from-bottom duration-200';
+                icon.setAttribute('data-lucide', 'check-circle');
+            }
+
+            toast.classList.remove('hidden');
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3500);
+        }
+
+        // Initial Boot
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check stored user if present
+            try {
+                const stored = localStorage.getItem('radwa_user');
+                if (stored) {
+                    const u = JSON.parse(stored);
+                    if (u.name) {
+                        const ub = document.getElementById('userBadge');
+                        if (ub) {
+                            ub.innerHTML = `
+                                <div class="w-6 h-6 rounded-lg bg-amber-600 text-white flex items-center justify-center font-bold text-[10px]">
+                                    ${(u.name.split(' ').map(n=>n[0]).join('')).slice(0,2).toUpperCase()}
+                                </div>
+                                <span>${u.name} (${u.roleTitle || 'Operations Head'})</span>
+                            `;
+                        }
+                    }
+                }
+            } catch(e) {}
+
+            setActiveStep(1);
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
