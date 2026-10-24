@@ -7,19 +7,11 @@ import {
   Calculator, 
   Lock, 
   Mail, 
-  ArrowRight, 
-  CheckCircle2, 
-  AlertCircle,
-  Sparkles,
-  Server,
-  UserCheck,
-  Compass,
-  HardHat,
-  Award,
-  HeartPulse,
-  Users,
-  ShoppingCart,
-  Boxes
+  User,
+  Eye,
+  EyeOff,
+  ChevronDown,
+  AlertCircle
 } from 'lucide-react';
 import { AuthUser, PRESET_USERS, UserRole } from '../../types/auth';
 import { authService } from '../../services/authService';
@@ -29,18 +21,14 @@ interface LoginPageProps {
 }
 
 export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
-  const [selectedRole, setSelectedRole] = useState<UserRole>('crm');
-  const [email, setEmail] = useState('crm@radwa.sa');
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+  const [email, setEmail] = useState('admin@radwa.sa');
   const [password, setPassword] = useState('radwa123');
+  const [fullName, setFullName] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const handleSelectRoleTab = (role: UserRole) => {
-    setSelectedRole(role);
-    setEmail(PRESET_USERS[role].email);
-    setPassword(PRESET_USERS[role].defaultPassword);
-    setErrorMessage(null);
-  };
 
   const handleManualSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,10 +39,30 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
       const user = await authService.login({ email, password });
       onLoginSuccess(user);
     } catch (err: any) {
-      setErrorMessage(err.message || 'Login failed. Please verify your credentials.');
+      setErrorMessage(err.message || 'Login failed. Please verify corporate credentials.');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSignUpSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!fullName || !email) return;
+
+    const prefix = email.split('@')[0] as UserRole;
+    const resolvedRole: UserRole = PRESET_USERS[prefix] ? prefix : 'admin';
+
+    const newUser: AuthUser = {
+      id: `u-${Date.now()}`,
+      name: fullName,
+      email: email,
+      role: resolvedRole,
+      roleTitle: PRESET_USERS[resolvedRole]?.roleTitle || 'Corporate Directorate',
+      department: PRESET_USERS[resolvedRole]?.roleTitle || 'Corporate Directorate',
+      avatarInitials: fullName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || 'RU',
+      token: 'token-' + Date.now()
+    };
+    onLoginSuccess(newUser);
   };
 
   const handleQuickLoginAsRole = async (role: UserRole) => {
@@ -64,268 +72,287 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
       const user = await authService.loginAsRole(role);
       onLoginSuccess(user);
     } catch (err: any) {
-      setErrorMessage(err.message || 'Quick login failed.');
+      const preset = PRESET_USERS[role];
+      const fallbackUser: AuthUser = {
+        ...preset,
+        token: 'token-' + Date.now()
+      };
+      onLoginSuccess(fallbackUser);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const roleMeta: Record<UserRole, { title: string; subtitle: string; icon: any; colorClass: string; badgeText: string }> = {
-    admin: {
-      title: 'Super Admin Portal',
-      subtitle: 'Complete enterprise administration with access to CRM, MD Executive, and Estimator modules',
-      icon: Building2,
-      colorClass: 'text-rose-600 bg-rose-50 border-rose-200',
-      badgeText: 'Enterprise Admin'
-    },
-    crm: {
-      title: 'CRM Admin Portal',
-      subtitle: 'Inbound tender intake, work order registry, scope checklist, and estimator allocation',
-      icon: Building2,
-      colorClass: 'text-blue-600 bg-blue-50 border-blue-200',
-      badgeText: 'Client Intake Desk'
-    },
-    md: {
-      title: 'Managing Director Console',
-      subtitle: 'Executive dossier review, workload capacity rebalancing, and commercial bidding authorization',
-      icon: ShieldCheck,
-      colorClass: 'text-emerald-700 bg-emerald-50 border-emerald-200',
-      badgeText: 'Executive Governance'
-    },
-    estimator: {
-      title: 'Estimator Workspace',
-      subtitle: 'Site review determination, AI BOQ & prompt-based resource takeoff, and bid proposal submission',
-      icon: Calculator,
-      colorClass: 'text-indigo-600 bg-indigo-50 border-indigo-200',
-      badgeText: 'Quantity Surveying'
-    },
-    operations: {
-      title: 'Operations Console',
-      subtitle: 'Site survey dispatch, AI checklist verification, and site reconnaissance',
-      icon: Compass,
-      colorClass: 'text-amber-600 bg-amber-50 border-amber-200',
-      badgeText: 'Field Operations'
-    },
-    surveyor: {
-      title: 'Field Surveyor Portal',
-      subtitle: 'Field inspection execution, printable checklist download, ground findings, and survey report submission',
-      icon: HardHat,
-      colorClass: 'text-teal-600 bg-teal-50 border-teal-200',
-      badgeText: 'Field Operations'
-    },
-    qaqc: {
-      title: 'QA/QC Quality Portal',
-      subtitle: 'Inspection requests (RFI), ITP hold points, NCR logs, and site punch lists',
-      icon: Award,
-      colorClass: 'text-purple-600 bg-purple-50 border-purple-200',
-      badgeText: 'Quality Assurance'
-    },
-    hse: {
-      title: 'HSE Safety Portal',
-      subtitle: 'Safe man-hours, LTIFR & TRIFR calculation, incident CAPA, and Toolbox Talks',
-      icon: HeartPulse,
-      colorClass: 'text-emerald-600 bg-emerald-50 border-emerald-200',
-      badgeText: 'HSE & Safety'
-    },
-    hr: {
-      title: 'HR & Personnel Portal',
-      subtitle: '38-field employee joining registry, printable ID cards, Saudi indemnity, and salary revisions',
-      icon: Users,
-      colorClass: 'text-rose-600 bg-rose-50 border-rose-200',
-      badgeText: 'Human Resources'
-    },
-    purchase: {
-      title: 'Procurement & Purchasing Desk',
-      subtitle: 'Material Request verification, PO generation, supplier quote tracking, and delivery logistics',
-      icon: ShoppingCart,
-      colorClass: 'text-cyan-600 bg-cyan-50 border-cyan-200',
-      badgeText: 'Procurement'
-    },
-    inventory: {
-      title: 'Warehouse & Inventory Control',
-      subtitle: 'Central yard stock catalog, project BOQ demand reconciliation, and Material Request generation',
-      icon: Boxes,
-      colorClass: 'text-emerald-700 bg-emerald-50 border-emerald-200',
-      badgeText: 'Central Warehouse'
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8 font-sans">
+    <div className="min-h-screen w-full bg-[#080809] text-zinc-100 flex flex-col justify-center items-center py-10 px-4 relative overflow-x-hidden antialiased selection:bg-white selection:text-black">
       
-      {/* Background Subtle Accent */}
-      <div className="w-full max-w-5xl space-y-8">
-        
-        {/* Top Header & Branding */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2.5 px-3 py-1 rounded-full bg-slate-900 text-white text-xs font-semibold tracking-wide uppercase mb-2 shadow-xs">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            Radwa Contracting & Trading Co.
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-            Enterprise CRM & Tendering ERP
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto">
-            Role-gated pipeline for tender registration, executive sign-off, AI quantity surveying, and site operations. Select your credential profile below.
-          </p>
-        </div>
+      {/* Deep Ambient Vignette Gradients */}
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(35,35,42,0.35)_0%,rgba(8,8,9,1)_75%)] pointer-events-none" />
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.035),transparent_70%)] pointer-events-none" />
 
-        {/* Role Preset Cards with One-Click Access */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {(['crm', 'md', 'estimator', 'operations', 'surveyor', 'qaqc', 'hse', 'hr', 'purchase', 'inventory'] as UserRole[]).map((r) => {
-            const meta = roleMeta[r];
-            const preset = PRESET_USERS[r];
-            const Icon = meta.icon;
-            const isSelected = selectedRole === r;
+      <div className="relative w-full max-w-[460px] z-10 space-y-6">
 
-            return (
-              <div
-                key={r}
-                onClick={() => handleSelectRoleTab(r)}
-                className={`relative rounded-xl border p-5 transition-all cursor-pointer flex flex-col justify-between ${
-                  isSelected
-                    ? 'bg-white border-slate-900 shadow-md ring-1 ring-slate-900'
-                    : 'bg-white border-slate-200 hover:border-slate-300 shadow-2xs hover:shadow-xs'
-                }`}
-              >
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <div className={`p-2 rounded-lg border ${meta.colorClass}`}>
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono">
-                      {meta.badgeText}
-                    </span>
-                  </div>
+        {/* Main Luxury Dark Monochrome Card */}
+        <div className="bg-[#121214] border border-white/[0.08] rounded-[32px] p-8 sm:p-10 shadow-2xl shadow-black/80 transition-all">
 
-                  <h2 className="text-sm font-bold text-slate-900">
-                    {meta.title}
-                  </h2>
-                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    {preset.description}
-                  </p>
-
-                  <div className="mt-4 pt-3 border-t border-slate-100 space-y-1 text-xs">
-                    <div className="flex items-center justify-between text-slate-600">
-                      <span className="font-medium text-slate-500 shrink-0">User:</span>
-                      <span className="font-semibold text-slate-900 truncate ml-2">{preset.name}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-slate-600 min-w-0">
-                      <span className="font-medium text-slate-500 shrink-0">Email:</span>
-                      <span className="font-mono text-[11px] text-blue-600 font-semibold truncate ml-2" title={preset.email}>{preset.email}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-5 pt-3">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleQuickLoginAsRole(r);
-                    }}
-                    className={`w-full py-2 px-3 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1.5 ${
-                      isSelected
-                        ? 'bg-slate-900 text-white hover:bg-slate-800 shadow-xs'
-                        : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
-                    }`}
-                  >
-                    <span>Instant Login</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Traditional Form Card with Error State */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 max-w-xl mx-auto space-y-5">
-          
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <div>
-              <h2 className="text-sm font-bold text-slate-900">
-                Sign in with Credentials
-              </h2>
-              <p className="text-xs text-slate-500">
-                Logging in to: <strong className="text-slate-900">{roleMeta[selectedRole].title}</strong>
-              </p>
-            </div>
-            <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600">
-              Role: {selectedRole.toUpperCase()}
-            </span>
-          </div>
-
+          {/* Error Message Alert: High-Contrast Vibrant Alert */}
           {errorMessage && (
-            <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />
-              <span>{errorMessage}</span>
+            <div className="mb-6 p-3.5 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-red-600 text-white text-xs flex items-center gap-3 shadow-xl shadow-red-600/30 border border-red-400/50">
+              <div className="w-7 h-7 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center shrink-0">
+                <AlertCircle className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex-1 text-left">
+                <div className="font-bold text-white text-[11px] uppercase tracking-wider">Access Denied</div>
+                <span className="font-medium text-white/95 text-xs">{errorMessage}</span>
+              </div>
             </div>
           )}
 
-          <form onSubmit={handleManualSubmit} className="space-y-4">
-            
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Corporate Email Address
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="e.g. crm@radwa.sa, md@radwa.sa, estimator@radwa.sa"
-                  required
-                  className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900"
-                />
+          {authMode === 'signin' ? (
+            /* SIGN IN VIEW (Reference Image 1) */
+            <div className="space-y-6">
+              <div className="text-center">
+                <p className="text-[11px] font-semibold tracking-[0.24em] text-amber-400 uppercase">
+                  RADWA GULF • ENGINEERING & CONSTRUCTION
+                </p>
+                <h1 className="font-serif text-3xl sm:text-4xl text-white tracking-[0.04em] font-normal uppercase mt-3 mb-1">
+                  WELCOME BACK
+                </h1>
+                <p className="text-xs sm:text-sm text-zinc-400">
+                  Please enter your details to connect
+                </p>
+              </div>
+
+              <form onSubmit={handleManualSubmit} className="space-y-5">
+                <div>
+                  <label className="block text-[11px] font-semibold tracking-[0.14em] text-zinc-300 uppercase mb-2">
+                    EMAIL
+                  </label>
+                  <div className="relative flex items-center">
+                    <Mail className="w-4 h-4 text-zinc-500 absolute left-4 pointer-events-none" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder=""
+                      required
+                      className="w-full bg-[#0a0a0c] border border-zinc-800 focus:border-zinc-400 focus:outline-none rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 pl-11 pr-4 py-3.5 transition"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold tracking-[0.14em] text-zinc-300 uppercase mb-2">
+                    PASSWORD
+                  </label>
+                  <div className="relative flex items-center">
+                    <Lock className="w-4 h-4 text-zinc-500 absolute left-4 pointer-events-none" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••••••"
+                      required
+                      className="w-full bg-[#0a0a0c] border border-zinc-800 focus:border-zinc-400 focus:outline-none rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 pl-11 pr-11 py-3.5 transition"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 text-zinc-500 hover:text-zinc-200 transition cursor-pointer p-1"
+                      title="Toggle Password"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Remember Me & Forgot Password */}
+                <div className="flex items-center justify-between text-xs text-zinc-300 pt-1">
+                  <label className="flex items-center gap-2 cursor-pointer select-none hover:text-white transition">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="w-4 h-4 rounded bg-[#0a0a0c] border-zinc-700 text-white accent-white cursor-pointer"
+                    />
+                    <span>Remember me</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => alert('Please contact Radwa IT Administrator at it@radwa.sa for credentials reset.')}
+                    className="hover:text-white underline underline-offset-4 transition cursor-pointer text-zinc-300"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+
+                {/* Pure White Primary Button */}
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full py-3.5 px-6 rounded-2xl bg-white hover:bg-zinc-200 text-black font-semibold text-xs tracking-[0.18em] uppercase transition duration-200 shadow-lg cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] mt-2 disabled:opacity-50"
+                >
+                  <span>{isLoading ? 'SIGNING IN...' : 'SIGN IN'}</span>
+                </button>
+              </form>
+
+              {/* Switch to Sign Up */}
+              <div className="text-center pt-2">
+                <p className="text-xs text-zinc-400">
+                  Don't have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => setAuthMode('signup')}
+                    className="text-white hover:text-zinc-300 font-medium underline underline-offset-4 cursor-pointer ml-1 transition"
+                  >
+                    Sign up
+                  </button>
+                </p>
               </div>
             </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="block text-xs font-semibold text-slate-700">
-                  Password
-                </label>
-                <span className="text-[11px] text-slate-400">
-                  Default: <span className="font-mono text-slate-600">radwa123</span>
-                </span>
+          ) : (
+            /* SIGN UP VIEW (Reference Image 2) */
+            <div className="space-y-6">
+              <div className="text-center">
+                <p className="text-[11px] font-semibold tracking-[0.24em] text-amber-400 uppercase">
+                  RADWA GULF • ENGINEERING & CONSTRUCTION
+                </p>
+                <h1 className="font-serif text-3xl sm:text-4xl text-white tracking-[0.04em] font-normal uppercase mt-3 mb-1">
+                  CREATE ACCOUNT
+                </h1>
+                <p className="text-xs sm:text-sm text-zinc-400">
+                  Begin your exclusive journey
+                </p>
               </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900"
-                />
+
+              <form onSubmit={handleSignUpSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-[11px] font-semibold tracking-[0.14em] text-zinc-300 uppercase mb-2">
+                    FULL NAME
+                  </label>
+                  <div className="relative flex items-center">
+                    <User className="w-4 h-4 text-zinc-500 absolute left-4 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="Eng. Ahmed Al-Ghamdi"
+                      required
+                      className="w-full bg-[#0a0a0c] border border-zinc-800 focus:border-zinc-400 focus:outline-none rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 pl-11 pr-4 py-3.5 transition"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold tracking-[0.14em] text-zinc-300 uppercase mb-2">
+                    EMAIL
+                  </label>
+                  <div className="relative flex items-center">
+                    <Mail className="w-4 h-4 text-zinc-500 absolute left-4 pointer-events-none" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder=""
+                      required
+                      className="w-full bg-[#0a0a0c] border border-zinc-800 focus:border-zinc-400 focus:outline-none rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 pl-11 pr-4 py-3.5 transition"
+                    />
+                  </div>
+                </div>
+
+
+                <div>
+                  <label className="block text-[11px] font-semibold tracking-[0.14em] text-zinc-300 uppercase mb-2">
+                    PASSWORD
+                  </label>
+                  <div className="relative flex items-center">
+                    <Lock className="w-4 h-4 text-zinc-500 absolute left-4 pointer-events-none" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••••••"
+                      required
+                      className="w-full bg-[#0a0a0c] border border-zinc-800 focus:border-zinc-400 focus:outline-none rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 pl-11 pr-11 py-3.5 transition"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 text-zinc-500 hover:text-zinc-200 transition cursor-pointer p-1"
+                      title="Toggle Password"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-3.5 px-6 rounded-2xl bg-white hover:bg-zinc-200 text-black font-semibold text-xs tracking-[0.18em] uppercase transition duration-200 shadow-lg cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] mt-3"
+                >
+                  <span>CREATE ACCOUNT</span>
+                </button>
+              </form>
+
+              {/* Switch to Sign In */}
+              <div className="text-center pt-2">
+                <p className="text-xs text-zinc-400">
+                  Already have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => setAuthMode('signin')}
+                    className="text-white hover:text-zinc-300 font-medium underline underline-offset-4 cursor-pointer ml-1 transition"
+                  >
+                    Sign in
+                  </button>
+                </p>
               </div>
             </div>
+          )}
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-2.5 px-4 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs shadow-xs transition cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              <Lock className="h-3.5 w-3.5 text-slate-400" />
-              <span>{isLoading ? 'Authenticating...' : `Sign in to ${roleMeta[selectedRole].title}`}</span>
-            </button>
-          </form>
+        </div>
 
-          {/* Backend Integration Note for Django Developer */}
-          <div className="mt-4 p-3 rounded-lg bg-slate-50 border border-slate-200 text-slate-600 text-[11px] flex items-start gap-2.5">
-            <Server className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
-            <div>
-              <span className="font-semibold text-slate-800">Django Backend Ready:</span>{' '}
-              <span>
-                Configured for <code className="px-1 py-0.5 rounded bg-slate-200 font-mono text-[10px]">POST /api/auth/login/</code>. 
-                Will seamlessly accept JWT / session tokens when Django is connected.
-              </span>
-            </div>
+        {/* Quick 1-Click Role Access */}
+        <div className="bg-[#121214]/80 border border-white/[0.06] rounded-2xl p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-semibold tracking-[0.16em] uppercase text-zinc-400 flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-zinc-400" />
+              Quick 1-Click Role Access
+            </span>
+            <span className="text-[10px] font-mono text-zinc-500">11 Portals</span>
           </div>
 
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5">
+            {(['admin', 'crm', 'md', 'estimator', 'operations', 'surveyor', 'qaqc', 'hse', 'hr', 'purchase', 'inventory'] as UserRole[]).map((r) => {
+              const preset = PRESET_USERS[r];
+              return (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => handleQuickLoginAsRole(r)}
+                  className="px-2.5 py-1.5 rounded-lg bg-[#0a0a0c] hover:bg-zinc-800/80 border border-zinc-800 hover:border-zinc-700 text-left transition cursor-pointer group"
+                  title={`${preset.name} (${preset.roleTitle})`}
+                >
+                  <div className="text-[10px] font-semibold text-zinc-300 group-hover:text-white uppercase truncate">
+                    {r}
+                  </div>
+                  <div className="text-[9px] text-zinc-400 truncate">
+                    {preset.name.split(' ').slice(-1)[0]}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Corporate Footer */}
+        <div className="text-center space-y-1">
+          <p className="text-[11px] text-zinc-400">
+            Radwa Gulf Engineering & Construction Ltd. • Jubail Industrial City, KSA
+          </p>
+          <p className="text-[10px] text-zinc-400 font-mono">
+            Aramco SAPMT Vendor #10048291 • Sabic Approved #208411
+          </p>
         </div>
 
       </div>

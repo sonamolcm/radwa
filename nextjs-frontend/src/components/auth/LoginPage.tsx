@@ -95,11 +95,16 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         {/* Main Luxury Dark Monochrome Card */}
         <div className="bg-[#121214] border border-white/[0.08] rounded-[32px] p-8 sm:p-10 shadow-2xl shadow-black/80 transition-all">
 
-          {/* Error Message Alert */}
+          {/* Error Message Alert: High-Contrast Vibrant Alert */}
           {errorMessage && (
-            <div className="mb-6 p-3 rounded-xl bg-rose-950/40 border border-rose-900/60 text-rose-300 text-xs flex items-center gap-2.5">
-              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
-              <span>{errorMessage}</span>
+            <div className="mb-6 p-3.5 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-red-600 text-white text-xs flex items-center gap-3 shadow-xl shadow-red-600/30 border border-red-400/50">
+              <div className="w-7 h-7 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center shrink-0">
+                <AlertCircle className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex-1 text-left">
+                <div className="font-bold text-white text-[11px] uppercase tracking-wider">Access Denied</div>
+                <span className="font-medium text-white/95 text-xs">{errorMessage}</span>
+              </div>
             </div>
           )}
 
@@ -107,8 +112,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
             /* SIGN IN VIEW (Reference Image 1) */
             <div className="space-y-6">
               <div className="text-center">
-                <p className="text-[11px] font-medium tracking-[0.26em] text-zinc-400 uppercase">
-                  RADWA CONTRACTING & TRADING
+                <p className="text-[11px] font-semibold tracking-[0.24em] text-amber-400 uppercase">
+                  RADWA GULF • ENGINEERING & CONSTRUCTION
                 </p>
                 <h1 className="font-serif text-3xl sm:text-4xl text-white tracking-[0.04em] font-normal uppercase mt-3 mb-1">
                   WELCOME BACK
@@ -121,7 +126,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
               <form onSubmit={handleManualSubmit} className="space-y-5">
                 <div>
                   <label className="block text-[11px] font-semibold tracking-[0.14em] text-zinc-300 uppercase mb-2">
-                    EMAIL ADDRESS
+                    EMAIL
                   </label>
                   <div className="relative flex items-center">
                     <Mail className="w-4 h-4 text-zinc-500 absolute left-4 pointer-events-none" />
@@ -129,7 +134,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="name@radwa.sa"
+                      placeholder=""
                       required
                       className="w-full bg-[#0a0a0c] border border-zinc-800 focus:border-zinc-400 focus:outline-none rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 pl-11 pr-4 py-3.5 transition"
                     />
@@ -209,8 +214,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
             /* SIGN UP VIEW (Reference Image 2) */
             <div className="space-y-6">
               <div className="text-center">
-                <p className="text-[11px] font-medium tracking-[0.26em] text-zinc-400 uppercase">
-                  RADWA CONTRACTING & TRADING
+                <p className="text-[11px] font-semibold tracking-[0.24em] text-amber-400 uppercase">
+                  RADWA GULF • ENGINEERING & CONSTRUCTION
                 </p>
                 <h1 className="font-serif text-3xl sm:text-4xl text-white tracking-[0.04em] font-normal uppercase mt-3 mb-1">
                   CREATE ACCOUNT
@@ -240,7 +245,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
 
                 <div>
                   <label className="block text-[11px] font-semibold tracking-[0.14em] text-zinc-300 uppercase mb-2">
-                    EMAIL ADDRESS
+                    EMAIL
                   </label>
                   <div className="relative flex items-center">
                     <Mail className="w-4 h-4 text-zinc-500 absolute left-4 pointer-events-none" />
@@ -248,7 +253,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="name@radwa.sa"
+                      placeholder=""
                       required
                       className="w-full bg-[#0a0a0c] border border-zinc-800 focus:border-zinc-400 focus:outline-none rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 pl-11 pr-4 py-3.5 transition"
                     />
@@ -343,7 +348,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         {/* Corporate Footer */}
         <div className="text-center space-y-1">
           <p className="text-[11px] text-zinc-400">
-            Radwa Contracting & Trading Ltd. • Jubail Industrial City, KSA
+            Radwa Gulf Engineering & Construction Ltd. • Jubail Industrial City, KSA
           </p>
           <p className="text-[10px] text-zinc-400 font-mono">
             Aramco SAPMT Vendor #10048291 • Sabic Approved #208411

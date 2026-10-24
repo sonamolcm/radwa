@@ -99,40 +99,13 @@
             <!-- Top Content Container -->
             <div class="relative z-10 p-8 sm:p-12 lg:p-14 xl:p-16 flex-1 flex flex-col justify-start">
                 
-                <!-- Logo & Brand Mark -->
-                <div class="flex items-center gap-4">
-                    <!-- Stylized 3D-Look Metallic "RG" Emblem -->
-                    <div class="relative w-14 h-14 flex items-center justify-center shrink-0">
-                        <svg class="w-full h-full drop-shadow-lg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <defs>
-                                <linearGradient id="rgBlue" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="#3b82f6"/>
-                                    <stop offset="50%" stop-color="#1d4ed8"/>
-                                    <stop offset="100%" stop-color="#172554"/>
-                                </linearGradient>
-                                <linearGradient id="rgOrange" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="#fbbf24"/>
-                                    <stop offset="50%" stop-color="#f59e0b"/>
-                                    <stop offset="100%" stop-color="#d97706"/>
-                                </linearGradient>
-                            </defs>
-                            <!-- R shape (Blue Metallic) -->
-                            <path d="M10 14 H28 C34 14, 38 18, 38 24 C38 30, 34 34, 28 34 H20 V50 H10 V14 Z M20 22 V26 H27 C29 26, 30 25, 30 24 C30 23, 29 22, 27 22 H20 Z" fill="url(#rgBlue)"/>
-                            <!-- Leg of R angled into G -->
-                            <path d="M24 34 L36 50 H47 L34 33 H24 Z" fill="url(#rgBlue)"/>
-                            <!-- G shape (Orange / Gold Accent Intertwined) -->
-                            <path d="M38 18 H54 V26 H46 C48 28, 50 32, 50 36 C50 44, 44 50, 36 50 C29 50, 24 46, 22 41 L30 36 C31 39, 33 42, 36 42 C40 42, 42 39, 42 36 C42 33, 40 31, 36 31 H32 V23 H38 V18 Z" fill="url(#rgOrange)"/>
-                        </svg>
-                    </div>
-
-                    <div>
-                        <div class="text-2xl sm:text-[26px] font-extrabold tracking-wider text-white uppercase leading-tight font-sans">
-                            RADWA GULF
-                        </div>
-                        <div class="text-[10px] sm:text-[11px] font-semibold tracking-[0.24em] text-amber-400 uppercase mt-0.5">
-                            ENGINEERING AND CONSTRUCTION
-                        </div>
-                    </div>
+                <!-- Brand Logo: Newly Uploaded Official Radwa Gulf Emblem -->
+                <div class="flex items-center">
+                    <img 
+                        src="{% static 'images/radwa_gulf_logo.png' %}" 
+                        alt="Radwa Gulf - Engineering and Construction" 
+                        class="h-14 sm:h-16 lg:h-18 w-auto object-contain drop-shadow-2xl"
+                    />
                 </div>
 
                 <!-- Hero Headline -->
@@ -243,26 +216,31 @@
                         </p>
                     </div>
 
-                    <!-- Error Alert Box -->
-                    <div id="loginErrorMessage" class="hidden mb-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2.5 transition-all">
-                        <i data-lucide="alert-circle" class="w-4 h-4 text-rose-500 shrink-0"></i>
-                        <span id="loginErrorText" class="font-medium"></span>
+                    <!-- Error Alert Box: Vibrant, High-Contrast Red Alert -->
+                    <div id="loginErrorMessage" class="hidden mb-5 p-3.5 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-red-600 text-white text-xs flex items-center gap-3 shadow-xl shadow-red-600/25 border border-red-400/50 transition-all duration-300">
+                        <div class="w-7 h-7 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center shrink-0">
+                            <i data-lucide="alert-triangle" class="w-4 h-4 text-white"></i>
+                        </div>
+                        <div class="flex-1 text-left">
+                            <div class="font-bold text-white text-[11px] uppercase tracking-wider">Access Denied</div>
+                            <span id="loginErrorText" class="font-medium text-white/95 text-xs"></span>
+                        </div>
                     </div>
 
                     <!-- Sign In Form -->
                     <form onsubmit="handleExecuteSignIn(event)" class="space-y-4">
                         
-                        <!-- Email / Employee ID Field -->
+                        <!-- Email Field -->
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1.5">
-                                Email / Employee ID
+                                Email
                             </label>
                             <div class="relative flex items-center">
-                                <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none"></i>
+                                <i data-lucide="mail" class="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none"></i>
                                 <input 
                                     type="text" 
                                     id="loginEmailInput" 
-                                    placeholder="Enter your email or employee ID" 
+                                    placeholder="" 
                                     required
                                     autocomplete="username"
                                     class="w-full bg-white border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 focus:outline-none rounded-xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 pl-10 pr-4 py-3 transition shadow-2xs"
