@@ -84,14 +84,15 @@
     <div class="h-screen w-full flex flex-col lg:flex-row relative overflow-hidden">
 
         <!-- ============================================================= -->
-        <!-- LEFT PANEL: EXACT REFERENCE BRANDING (FULL HEIGHT & BUILDING) -->
+        <!-- LEFT PANEL: FLUSH TO LEFT EDGE, ZERO EXTRA BLUE MARGIN (HD)   -->
         <!-- ============================================================= -->
-        <div class="hidden lg:flex lg:w-1/2 h-full bg-[#071638] items-center justify-end relative overflow-hidden shrink-0">
-            <!-- Full Height Uncropped Left Artwork: Building & Cranes Fully Visible -->
+        <div class="hidden lg:flex lg:w-1/2 h-full bg-[#f8f9fa] items-center justify-start relative overflow-hidden shrink-0">
+            <!-- Full Height Left Artwork Flush to Left Screen Edge: Crystal Clear Buildings, Cranes & Typography -->
             <img 
                 src="{% static 'images/radwa_login_left.png' %}" 
                 alt="Radwa Gulf - Building Excellence. Delivering Trust." 
-                class="h-full w-auto max-w-none object-contain object-right select-none pointer-events-none filter brightness-100 contrast-[1.01]"
+                class="w-full h-full object-cover object-left select-none pointer-events-none filter brightness-100 contrast-[1.02]"
+                style="image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;"
             />
         </div>
 
@@ -223,30 +224,6 @@
                             <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </button>
                     </form>
-
-                    <!-- "or continue with" Divider -->
-                    <div class="relative flex items-center justify-center my-3.5">
-                        <div class="border-t border-slate-200 w-full"></div>
-                        <span class="bg-white px-2.5 text-[10px] font-medium text-slate-400 uppercase tracking-wider absolute">
-                            or continue with
-                        </span>
-                    </div>
-
-                    <!-- Sign in with Microsoft Button -->
-                    <button 
-                        type="button" 
-                        onclick="handleMicrosoftSignIn()"
-                        class="w-full py-2.5 px-3.5 rounded-xl border border-slate-200/90 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs sm:text-sm transition shadow-2xs flex items-center justify-center gap-2.5 cursor-pointer"
-                    >
-                        <!-- Official Microsoft 4-Color Grid Icon -->
-                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
-                            <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
-                            <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
-                            <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
-                        </svg>
-                        <span>Sign in with Microsoft</span>
-                    </button>
 
                 </div>
 
