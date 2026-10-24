@@ -119,9 +119,12 @@
                 </span>
             </button>
 
-            <!-- Unauthenticated State: Not signed in -->
-            <div id="headerNotSignedIn" class="flex items-center gap-2">
-                <span class="text-xs text-slate-500 font-medium hidden sm:inline">Not signed in</span>
+            <!-- Unauthenticated State: Direct Link to /login/ -->
+            <div id="headerNotSignedIn" class="hidden flex items-center gap-2">
+                <a href="/login/" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-xs">
+                    <span>Sign In</span>
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                </a>
             </div>
 
             <!-- Authenticated State: User Profile Card (Super Admin Default) -->
@@ -174,230 +177,8 @@
     <!-- Main Full-Screen Body -->
     <main class="flex-1 w-full flex flex-col justify-center items-center px-4 sm:px-8 py-8 sm:py-12 max-w-7xl mx-auto">
         
-        <!-- CASE 1: Role-Gated Application Launcher (Landing Page when signed out) -->
-        <div id="unauthenticatedRoleView" class="w-full max-w-[460px] mx-auto space-y-6 animate-in fade-in duration-200">
-            
-            <!-- Login Error Banner: High-contrast, clean and attractive alert -->
-            <div id="loginErrorMessage" class="hidden p-3.5 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-red-600 text-white text-xs flex items-center gap-3 shadow-xl shadow-red-600/30 border border-red-400/50 transition-all duration-300">
-                <div class="w-7 h-7 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center shrink-0">
-                    <i data-lucide="alert-triangle" class="w-4 h-4 text-white"></i>
-                </div>
-                <div class="flex-1">
-                    <span id="loginErrorText" class="font-semibold text-white text-xs tracking-wide">Invalid email or password</span>
-                </div>
-            </div>
-
-            <!-- Main Luxury Dark Monochrome Card -->
-            <div class="bg-[#121214] border border-white/[0.08] rounded-[32px] p-8 sm:p-10 shadow-2xl shadow-black/80 transition-all">
-                
-                <!-- SIGN IN FORM (Matching Reference Image 1) -->
-                <div id="authSignInContainer" class="space-y-6">
-                    <!-- Brand Logo: Newly Uploaded Official Radwa Gulf Emblem -->
-                    <div class="text-center flex flex-col items-center justify-center">
-                        <img 
-                            src="{% static 'images/radwa_gulf_logo.png' %}" 
-                            alt="Radwa Gulf - Engineering and Construction" 
-                            class="h-12 sm:h-14 w-auto object-contain drop-shadow-xl mb-4"
-                        />
-                        <h1 class="font-luxury text-2xl sm:text-3xl text-white tracking-[0.04em] font-normal uppercase mt-1 mb-1">
-                            WELCOME BACK
-                        </h1>
-                        <p class="text-xs sm:text-sm text-zinc-400">
-                            Please enter your details to connect
-                        </p>
-                    </div>
-
-                    <form onsubmit="handleManualLoginForm(event)" class="space-y-5">
-                        <div>
-                            <label class="block text-[11px] font-semibold tracking-[0.14em] text-zinc-300 uppercase mb-2">
-                                EMAIL
-                            </label>
-                            <div class="relative flex items-center">
-                                <i data-lucide="mail" class="w-4 h-4 text-zinc-500 absolute left-4 pointer-events-none"></i>
-                                <input
-                                    type="text"
-                                    id="loginEmailInput"
-                                    placeholder=""
-                                    required
-                                    autocomplete="username"
-                                    class="w-full bg-[#0a0a0c] border border-zinc-800 focus:border-zinc-400 focus:outline-none rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 pl-11 pr-4 py-3.5 transition"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-[11px] font-semibold tracking-[0.14em] text-zinc-300 uppercase mb-2">
-                                PASSWORD
-                            </label>
-                            <div class="relative flex items-center">
-                                <i data-lucide="lock" class="w-4 h-4 text-zinc-500 absolute left-4 pointer-events-none"></i>
-                                <input
-                                    type="password"
-                                    id="loginPasswordInput"
-                                    placeholder="••••••••••••"
-                                    required
-                                    class="w-full bg-[#0a0a0c] border border-zinc-800 focus:border-zinc-400 focus:outline-none rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 pl-11 pr-11 py-3.5 transition"
-                                />
-                                <button 
-                                    type="button" 
-                                    onclick="togglePasswordVisibility('loginPasswordInput', 'mainLoginPwdEye')"
-                                    class="absolute right-4 text-zinc-500 hover:text-zinc-200 transition cursor-pointer p-1"
-                                    title="Toggle Password"
-                                >
-                                    <i data-lucide="eye" id="mainLoginPwdEye" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Remember me & Forgot Password -->
-                        <div class="flex items-center justify-between text-xs text-zinc-300 pt-1">
-                            <label class="flex items-center gap-2 cursor-pointer select-none hover:text-white transition">
-                                <input 
-                                    type="checkbox" 
-                                    checked 
-                                    class="w-4 h-4 rounded bg-[#0a0a0c] border-zinc-700 text-white accent-white cursor-pointer"
-                                />
-                                <span>Remember me</span>
-                            </label>
-                            <a 
-                                href="/login/"
-                                class="hover:text-white underline underline-offset-4 transition cursor-pointer text-zinc-300"
-                            >
-                                Forgot password?
-                            </a>
-                        </div>
-
-                        <!-- Pure White Primary Button -->
-                        <button
-                            type="submit"
-                            id="formSubmitBtn"
-                            class="w-full py-3.5 px-6 rounded-2xl bg-white hover:bg-zinc-200 text-black font-semibold text-xs tracking-[0.18em] uppercase transition duration-200 shadow-lg cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] mt-2"
-                        >
-                            <span id="formSubmitBtnText">SIGN IN</span>
-                        </button>
-                    </form>
-
-                    <!-- Toggle to Sign Up -->
-                    <div class="text-center pt-2">
-                        <p class="text-xs text-zinc-400">
-                            Don't have an account?
-                            <button 
-                                type="button" 
-                                onclick="switchAuthMode('signup')" 
-                                class="text-white hover:text-zinc-300 font-medium underline underline-offset-4 cursor-pointer ml-1 transition"
-                            >
-                                Sign up
-                            </button>
-                        </p>
-                    </div>
-                </div>
-
-                <!-- SIGN UP FORM (Matching Reference Image 2) -->
-                <div id="authSignUpContainer" class="hidden space-y-6">
-                    <!-- Brand Logo: Newly Uploaded Official Radwa Gulf Emblem -->
-                    <div class="text-center flex flex-col items-center justify-center">
-                        <img 
-                            src="{% static 'images/radwa_gulf_logo.png' %}" 
-                            alt="Radwa Gulf - Engineering and Construction" 
-                            class="h-12 sm:h-14 w-auto object-contain drop-shadow-xl mb-4"
-                        />
-                        <h1 class="font-luxury text-2xl sm:text-3xl text-white tracking-[0.04em] font-normal uppercase mt-1 mb-1">
-                            CREATE ACCOUNT
-                        </h1>
-                        <p class="text-xs sm:text-sm text-zinc-400">
-                            Begin your exclusive journey
-                        </p>
-                    </div>
-
-                    <form onsubmit="handleManualSignUpForm(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-[11px] font-semibold tracking-[0.14em] text-zinc-300 uppercase mb-2">
-                                FULL NAME
-                            </label>
-                            <div class="relative flex items-center">
-                                <i data-lucide="user" class="w-4 h-4 text-zinc-500 absolute left-4 pointer-events-none"></i>
-                                <input
-                                    type="text"
-                                    id="signupNameInput"
-                                    placeholder="Eng. Ahmed Al-Ghamdi"
-                                    required
-                                    class="w-full bg-[#0a0a0c] border border-zinc-800 focus:border-zinc-400 focus:outline-none rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 pl-11 pr-4 py-3.5 transition"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-[11px] font-semibold tracking-[0.14em] text-zinc-300 uppercase mb-2">
-                                EMAIL
-                            </label>
-                            <div class="relative flex items-center">
-                                <i data-lucide="mail" class="w-4 h-4 text-zinc-500 absolute left-4 pointer-events-none"></i>
-                                <input
-                                    type="email"
-                                    id="signupEmailInput"
-                                    placeholder=""
-                                    required
-                                    class="w-full bg-[#0a0a0c] border border-zinc-800 focus:border-zinc-400 focus:outline-none rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 pl-11 pr-4 py-3.5 transition"
-                                />
-                            </div>
-                        </div>
-
-
-
-                        <div>
-                            <label class="block text-[11px] font-semibold tracking-[0.14em] text-zinc-300 uppercase mb-2">
-                                PASSWORD
-                            </label>
-                            <div class="relative flex items-center">
-                                <i data-lucide="lock" class="w-4 h-4 text-zinc-500 absolute left-4 pointer-events-none"></i>
-                                <input
-                                    type="password"
-                                    id="signupPasswordInput"
-                                    placeholder="••••••••••••"
-                                    required
-                                    class="w-full bg-[#0a0a0c] border border-zinc-800 focus:border-zinc-400 focus:outline-none rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 pl-11 pr-11 py-3.5 transition"
-                                />
-                                <button 
-                                    type="button" 
-                                    onclick="togglePasswordVisibility('signupPasswordInput', 'mainSignupPwdEye')"
-                                    class="absolute right-4 text-zinc-500 hover:text-zinc-200 transition cursor-pointer p-1"
-                                    title="Toggle Password"
-                                >
-                                    <i data-lucide="eye" id="mainSignupPwdEye" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <button
-                            type="submit"
-                            id="mainSignUpSubmitBtn"
-                            class="w-full py-3.5 px-6 rounded-2xl bg-white hover:bg-zinc-200 text-black font-semibold text-xs tracking-[0.18em] uppercase transition duration-200 shadow-lg cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] mt-3"
-                        >
-                            <span>CREATE ACCOUNT</span>
-                        </button>
-                    </form>
-
-                    <!-- Toggle to Sign In -->
-                    <div class="text-center pt-2">
-                        <p class="text-xs text-zinc-400">
-                            Already have an account?
-                            <button 
-                                type="button" 
-                                onclick="switchAuthMode('signin')" 
-                                class="text-white hover:text-zinc-300 font-medium underline underline-offset-4 cursor-pointer ml-1 transition"
-                            >
-                                Sign in
-                            </button>
-                        </p>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- CASE 2: Authenticated Role Workspace (Super Admin Default) -->
-        <div id="authenticatedMainView" class="w-full flex flex-col items-center space-y-8 animate-in fade-in duration-200 hidden">
+        <!-- Authenticated Role Workspace (Super Admin Default) -->
+        <div id="authenticatedMainView" class="w-full flex flex-col items-center space-y-8 animate-in fade-in duration-200">
             
             <!-- Header Scope Pill & Executive Headline -->
             <div class="text-center space-y-3">
@@ -1565,9 +1346,6 @@
                     }
                 }
 
-                // Main Views toggle
-                const unauthView = document.getElementById('unauthenticatedRoleView');
-                if (unauthView) unauthView.classList.add('hidden');
                 const authView = document.getElementById('authenticatedMainView');
                 if (authView) authView.classList.remove('hidden');
 
@@ -1582,43 +1360,12 @@
         function handleSignOut() {
             currentRole = null;
             try {
+                localStorage.removeItem('radwa_auth_user');
                 localStorage.removeItem('radwa_current_role');
                 localStorage.removeItem('radwa_active_role');
+                document.cookie = 'radwa_role=; path=/; max-age=0';
             } catch(e) {}
-            
-            // Clean URL query params if present
-            if (window.location.search) {
-                window.history.replaceState({}, '', window.location.pathname);
-            }
-
-            // Header states
-            const notSignedIn = document.getElementById('headerNotSignedIn');
-            if (notSignedIn) notSignedIn.classList.remove('hidden');
-            const userCard = document.getElementById('headerUserCard');
-            if (userCard) userCard.classList.add('hidden');
-            const searchBar = document.getElementById('headerSearchBar');
-            if (searchBar) {
-                searchBar.classList.add('hidden');
-                searchBar.classList.remove('block');
-            }
-            const searchInput = document.getElementById('searchAppInput');
-            if (searchInput) searchInput.value = '';
-            searchQuery = '';
-
-            // Main Views toggle
-            const authView = document.getElementById('authenticatedMainView');
-            if (authView) authView.classList.add('hidden');
-            const unauthView = document.getElementById('unauthenticatedRoleView');
-            if (unauthView) unauthView.classList.remove('hidden');
-
-            // Reset auth mode to signin
-            switchAuthMode('signin');
-            const emailInp = document.getElementById('loginEmailInput');
-            if (emailInp) emailInp.value = '';
-            const pwdInp = document.getElementById('loginPasswordInput');
-            if (pwdInp) pwdInp.value = '';
-            if (typeof renderUnauthQuickRoles === 'function') renderUnauthQuickRoles();
-            lucide.createIcons();
+            window.location.href = '/login/';
         }
 
         function renderApps() {
@@ -1960,7 +1707,7 @@
                     setRole(savedRole);
                 }
             } else {
-                handleSignOut();
+                window.location.href = '/login/';
             }
         });
     </script>
