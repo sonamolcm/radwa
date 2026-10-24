@@ -762,43 +762,163 @@
                             />
                         </div>
 
-                        <!-- Employee Photo Input -->
+                        <!-- Employee Photo File Upload -->
                         <div class="sm:col-span-2 p-3.5 rounded-2xl bg-gradient-to-br from-indigo-50/50 via-slate-50 to-white border border-indigo-100/90 shadow-xs space-y-2">
                             <div class="flex items-center justify-between">
                                 <label class="text-slate-800 font-bold text-xs flex items-center gap-1.5">
                                     <i data-lucide="camera" class="w-3.5 h-3.5 text-indigo-600"></i>
                                     <span>Employee Photo (ID Badge Picture)</span>
                                 </label>
+                                <span class="text-[10px] text-indigo-600 font-semibold bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">Image File</span>
                             </div>
-                            <div class="space-y-1">
-                                <input
-                                    type="text"
-                                    id="formPhotoUrl"
-                                    placeholder="https://images.unsplash.com/... or leave blank for auto"
-                                    class="w-full px-3 py-2 rounded-xl border border-indigo-200 text-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 outline-none font-mono"
-                                />
-                                <p class="text-[10px] text-slate-400">Direct image URL for official employee ID badge.</p>
+
+                            <!-- Hidden Real File Input -->
+                            <input
+                                type="file"
+                                id="formPhotoFileInput"
+                                accept="image/*"
+                                class="hidden"
+                                onchange="handlePhotoFileUpload(event)"
+                            />
+
+                            <!-- State 1: Dropzone / Click to Upload (visible when no photo) -->
+                            <div 
+                                id="photoDropzone" 
+                                onclick="document.getElementById('formPhotoFileInput').click()"
+                                ondragover="handlePhotoDragOver(event)"
+                                ondragleave="handlePhotoDragLeave(event)"
+                                ondrop="handlePhotoDrop(event)"
+                                class="flex flex-col items-center justify-center p-3.5 border-2 border-dashed border-indigo-200 hover:border-indigo-400 hover:bg-indigo-50/60 rounded-xl cursor-pointer transition group bg-white/70"
+                            >
+                                <div class="w-9 h-9 rounded-xl bg-indigo-50 group-hover:bg-indigo-100 flex items-center justify-center text-indigo-600 mb-1 transition shadow-2xs">
+                                    <i data-lucide="image-plus" class="w-4.5 h-4.5"></i>
+                                </div>
+                                <span class="text-xs font-bold text-indigo-900 group-hover:text-indigo-950">
+                                    Click or Drag to Upload Photo
+                                </span>
+                                <span class="text-[10px] text-slate-400 mt-0.5">
+                                    PNG, JPG, WebP (Max 10MB) • Live ID Badge Preview
+                                </span>
+                            </div>
+
+                            <!-- State 2: Preview Card (hidden until file selected) -->
+                            <div id="photoPreviewContainer" class="hidden flex items-center justify-between p-2.5 bg-white rounded-xl border border-indigo-200 shadow-xs">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <img
+                                        id="formPhotoPreview"
+                                        src=""
+                                        alt="Badge Photo"
+                                        class="w-12 h-12 rounded-xl object-cover ring-2 ring-indigo-500/30 shadow-xs shrink-0"
+                                    />
+                                    <div class="min-w-0">
+                                        <div id="photoFileNameDisplay" class="text-xs font-bold text-slate-900 truncate max-w-[150px] sm:max-w-[180px]">
+                                            employee_photo.jpg
+                                        </div>
+                                        <div class="flex items-center gap-1 text-[10px] text-emerald-600 font-semibold mt-0.5">
+                                            <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-600"></i>
+                                            <span>Ready for ID Badge</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <button
+                                        type="button"
+                                        onclick="document.getElementById('formPhotoFileInput').click()"
+                                        class="px-2.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-bold cursor-pointer transition flex items-center gap-1"
+                                    >
+                                        <i data-lucide="camera" class="w-3 h-3"></i>
+                                        <span>Change</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onclick="clearPhotoUpload()"
+                                        class="p-1.5 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition cursor-pointer"
+                                        title="Remove photo"
+                                    >
+                                        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Attach CV -->
+                        <!-- Attach CV (Candidate Resume) File Upload -->
                         <div class="sm:col-span-2 p-3.5 rounded-2xl bg-gradient-to-br from-blue-50/50 via-slate-50 to-white border border-blue-100/90 shadow-xs space-y-2">
                             <div class="flex items-center justify-between">
                                 <label class="text-slate-800 font-bold text-xs flex items-center gap-1.5">
                                     <i data-lucide="file-up" class="w-3.5 h-3.5 text-blue-600"></i>
                                     <span>Attach CV (Candidate Resume)</span>
                                 </label>
-                                <span class="text-[10px] text-slate-400 font-mono">PDF, DOC, DOCX</span>
+                                <span class="text-[10px] text-blue-700 font-semibold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">PDF / DOC</span>
                             </div>
-                            <div class="space-y-1">
-                                <input
-                                    type="text"
-                                    id="formCvFileName"
-                                    value="Candidate_Resume.pdf"
-                                    placeholder="Candidate_Resume.pdf"
-                                    class="w-full px-3 py-2 rounded-xl border border-blue-200 text-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none font-mono"
-                                />
-                                <p class="text-[10px] text-slate-400">CV Document title attached to employee records.</p>
+
+                            <!-- Hidden Real File Input -->
+                            <input
+                                type="file"
+                                id="formCvFileInput"
+                                accept=".pdf,.doc,.docx"
+                                class="hidden"
+                                onchange="handleCvFileUpload(event)"
+                            />
+
+                            <!-- State 1: Dropzone / Click to Upload (visible when no CV uploaded) -->
+                            <div 
+                                id="cvDropzone" 
+                                onclick="document.getElementById('formCvFileInput').click()"
+                                ondragover="handleCvDragOver(event)"
+                                ondragleave="handleCvDragLeave(event)"
+                                ondrop="handleCvDrop(event)"
+                                class="flex flex-col items-center justify-center p-3.5 border-2 border-dashed border-blue-200 hover:border-blue-400 hover:bg-blue-50/60 rounded-xl cursor-pointer transition group bg-white/70"
+                            >
+                                <div class="w-9 h-9 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center text-blue-600 mb-1 transition shadow-2xs">
+                                    <i data-lucide="file-text" class="w-4.5 h-4.5"></i>
+                                </div>
+                                <span class="text-xs font-bold text-blue-900 group-hover:text-blue-950">
+                                    Click or Drag to Upload Resume (PDF / DOC)
+                                </span>
+                                <span class="text-[10px] text-slate-400 mt-0.5">
+                                    PDF, DOC, DOCX (Max 25MB) • Direct Attachment
+                                </span>
+                            </div>
+
+                            <!-- State 2: Preview Card (hidden until file selected) -->
+                            <div id="cvPreviewContainer" class="hidden flex items-center justify-between p-2.5 bg-white rounded-xl border border-blue-200 shadow-xs">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <div class="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
+                                        <i data-lucide="file-text" class="w-5 h-5 text-rose-600"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div id="cvFileNameDisplay" class="text-xs font-bold text-slate-900 truncate max-w-[150px] sm:max-w-[180px]">
+                                            Candidate_Resume.pdf
+                                        </div>
+                                        <div class="flex items-center gap-2 text-[10px] text-slate-500 mt-0.5">
+                                            <span id="cvFileSizeDisplay" class="font-mono bg-slate-100 px-1.5 py-0.2 rounded text-slate-600">
+                                                1.8 MB PDF
+                                            </span>
+                                            <span class="flex items-center gap-0.5 text-emerald-600 font-semibold">
+                                                <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-600"></i>
+                                                <span>Attached</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <button
+                                        type="button"
+                                        onclick="document.getElementById('formCvFileInput').click()"
+                                        class="px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-[11px] font-bold cursor-pointer transition flex items-center gap-1"
+                                    >
+                                        <i data-lucide="file-up" class="w-3 h-3"></i>
+                                        <span>Replace</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onclick="clearCvUpload()"
+                                        class="p-1.5 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition cursor-pointer"
+                                        title="Remove CV"
+                                    >
+                                        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2722,8 +2842,161 @@
         }
 
         // ============================================================================
-        // 10. ADD EMPLOYEE JOINING MODAL & FORM
+        // 10. ADD EMPLOYEE JOINING MODAL & FORM (Interactive Photo & CV Upload)
         // ============================================================================
+        let currentUploadedPhotoUrl = '';
+        let currentUploadedPhotoName = '';
+        let currentUploadedCvData = '';
+        let currentUploadedCvName = '';
+        let currentUploadedCvSize = '';
+
+        function handlePhotoDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('photoDropzone')?.classList.add('border-indigo-500', 'bg-indigo-50/90');
+        }
+
+        function handlePhotoDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('photoDropzone')?.classList.remove('border-indigo-500', 'bg-indigo-50/90');
+        }
+
+        function handlePhotoDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('photoDropzone')?.classList.remove('border-indigo-500', 'bg-indigo-50/90');
+            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+                processPhotoFile(e.dataTransfer.files[0]);
+            }
+        }
+
+        function handlePhotoFileUpload(e) {
+            const file = e.target.files?.[0];
+            if (file) {
+                processPhotoFile(file);
+            }
+        }
+
+        function processPhotoFile(file) {
+            if (!file) return;
+            currentUploadedPhotoName = file.name;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const rawData = evt.target.result;
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxDim = 400;
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > height) {
+                        if (width > maxDim) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        }
+                    } else {
+                        if (height > maxDim) {
+                            width = Math.round((width * maxDim) / height);
+                            height = maxDim;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.88);
+                    currentUploadedPhotoUrl = optimizedDataUrl;
+
+                    const previewImg = document.getElementById('formPhotoPreview');
+                    if (previewImg) previewImg.src = optimizedDataUrl;
+
+                    const nameEl = document.getElementById('photoFileNameDisplay');
+                    if (nameEl) nameEl.textContent = file.name;
+
+                    document.getElementById('photoDropzone')?.classList.add('hidden');
+                    document.getElementById('photoPreviewContainer')?.classList.remove('hidden');
+                    if (window.lucide) window.lucide.createIcons();
+                    showToast(`📸 Photo "${file.name}" uploaded successfully!`);
+                };
+                img.src = rawData;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearPhotoUpload() {
+            currentUploadedPhotoUrl = '';
+            currentUploadedPhotoName = '';
+            const input = document.getElementById('formPhotoFileInput');
+            if (input) input.value = '';
+            document.getElementById('photoPreviewContainer')?.classList.add('hidden');
+            document.getElementById('photoDropzone')?.classList.remove('hidden');
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        function handleCvDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('cvDropzone')?.classList.add('border-blue-500', 'bg-blue-50/90');
+        }
+
+        function handleCvDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('cvDropzone')?.classList.remove('border-blue-500', 'bg-blue-50/90');
+        }
+
+        function handleCvDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('cvDropzone')?.classList.remove('border-blue-500', 'bg-blue-50/90');
+            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+                processCvFile(e.dataTransfer.files[0]);
+            }
+        }
+
+        function handleCvFileUpload(e) {
+            const file = e.target.files?.[0];
+            if (file) {
+                processCvFile(file);
+            }
+        }
+
+        function processCvFile(file) {
+            if (!file) return;
+            currentUploadedCvName = file.name;
+            const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            currentUploadedCvSize = `${sizeMB} MB`;
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                currentUploadedCvData = evt.target.result;
+
+                const nameEl = document.getElementById('cvFileNameDisplay');
+                if (nameEl) nameEl.textContent = file.name;
+
+                const sizeEl = document.getElementById('cvFileSizeDisplay');
+                if (sizeEl) sizeEl.textContent = `${currentUploadedCvSize} Attached`;
+
+                document.getElementById('cvDropzone')?.classList.add('hidden');
+                document.getElementById('cvPreviewContainer')?.classList.remove('hidden');
+                if (window.lucide) window.lucide.createIcons();
+                showToast(`📄 CV Document "${file.name}" attached successfully!`);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearCvUpload() {
+            currentUploadedCvData = '';
+            currentUploadedCvName = '';
+            currentUploadedCvSize = '';
+            const input = document.getElementById('formCvFileInput');
+            if (input) input.value = '';
+            document.getElementById('cvPreviewContainer')?.classList.add('hidden');
+            document.getElementById('cvDropzone')?.classList.remove('hidden');
+            if (window.lucide) window.lucide.createIcons();
+        }
+
         function openAddEmployeeModal() {
             const nextEmplNo = `10${employees.length + 1}`;
             document.getElementById('formEmplNo').value = nextEmplNo;
@@ -2736,6 +3009,8 @@
             document.getElementById('formEmergencyContactAddress').value = 'Riyadh, Kingdom of Saudi Arabia';
             document.getElementById('formDateOfJoin').value = new Date().toISOString().slice(0, 10);
             document.getElementById('formDateOfArrival').value = new Date().toISOString().slice(0, 10);
+            clearPhotoUpload();
+            clearCvUpload();
             calcAddFormGross();
 
             const modal = document.getElementById('addEmployeeModal');
@@ -2748,6 +3023,8 @@
             const modal = document.getElementById('addEmployeeModal');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
+            clearPhotoUpload();
+            clearCvUpload();
         }
 
         function calcAddFormGross() {
@@ -2774,13 +3051,21 @@
             const emplNo = document.getElementById('formEmplNo').value.trim() || `10${employees.length + 1}`;
             const basicSalary = Number(document.getElementById('formBasicSalary').value) || 0;
             const yearlyLeave = Number(document.getElementById('formYearlyLeaveDays').value) || 21;
-            const photoUrl = document.getElementById('formPhotoUrl').value.trim() || `https://images.unsplash.com/photo-${1500000000000 + Math.floor(Math.random() * 50000000)}?w=150&h=150&fit=crop&crop=face`;
+            const photoUrl = currentUploadedPhotoUrl || `https://images.unsplash.com/photo-${1500000000000 + Math.floor(Math.random() * 50000000)}?w=150&h=150&fit=crop&crop=face`;
+            const photoFileName = currentUploadedPhotoName || `${name.replace(/\s+/g, '_')}_Photo.jpg`;
+            const cvFileName = currentUploadedCvName || `${name.replace(/\s+/g, '_')}_CV.pdf`;
+            const cvFileData = currentUploadedCvData || null;
+            const cvFileSize = currentUploadedCvSize || '1.8 MB';
 
             const newEmp = {
                 id: `emp-${Date.now()}`,
                 emplNo: emplNo,
                 name: name,
                 photoUrl: photoUrl,
+                photoFileName: photoFileName,
+                cvFileName: cvFileName,
+                cvFileData: cvFileData,
+                cvFileSize: cvFileSize,
                 sponsor: document.getElementById('formSponsor').value,
                 mainCategory: document.getElementById('formMainCategory').value,
                 tradeDesignation: trade,
@@ -2803,8 +3088,6 @@
                 emergencyContactTele: document.getElementById('formEmergencyContactTele').value,
                 education: document.getElementById('formEducation').value,
                 experienceYears: Number(document.getElementById('formExperienceYears').value) || 0,
-                cvFileName: document.getElementById('formCvFileName').value || `${name.replace(/\s+/g, '_')}_CV.pdf`,
-                photoFileName: `${name.replace(/\s+/g, '_')}_Photo.jpg`,
                 basicSalary: basicSalary,
                 dutyHours: Number(document.getElementById('formDutyHours').value) || 8,
                 otRate: Number(document.getElementById('formOtRate').value) || 1.5,
@@ -3079,7 +3362,18 @@
 
         function triggerDownloadCv() {
             if (!selectedEmployeeForDetail) return;
-            showToast(`📥 Downloading CV: "${selectedEmployeeForDetail.cvFileName || 'Candidate_Resume.pdf'}"`);
+            const fileName = selectedEmployeeForDetail.cvFileName || `${selectedEmployeeForDetail.name.replace(/\s+/g, '_')}_CV.pdf`;
+            if (selectedEmployeeForDetail.cvFileData) {
+                const link = document.createElement('a');
+                link.href = selectedEmployeeForDetail.cvFileData;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showToast(`📥 Downloaded attached candidate CV: "${fileName}"`);
+            } else {
+                showToast(`📥 Downloading candidate CV: "${fileName}"`);
+            }
         }
 
         function renderSalaryRevisionsTable(revisions) {
