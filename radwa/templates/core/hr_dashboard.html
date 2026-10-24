@@ -24,6 +24,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- SheetJS for Excel / Spreadsheet Import & Parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
       body {
         font-family: 'Plus Jakarta Sans', sans-serif;
@@ -108,14 +110,23 @@
 
             <!-- Action Buttons in Banner -->
             <div class="relative z-10 flex flex-wrap items-center gap-3 shrink-0">
+                <!-- Hidden Excel / Spreadsheet Import File Input -->
+                <input
+                    type="file"
+                    id="hrExcelImportInput"
+                    accept=".xlsx,.xls,.csv"
+                    class="hidden"
+                    onchange="handleImportExcel(event)"
+                />
+
                 <button
                     type="button"
-                    onclick="handleExportCsv()"
+                    onclick="document.getElementById('hrExcelImportInput').click()"
                     class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/15 transition cursor-pointer flex items-center gap-2 shadow-xs backdrop-blur-md active:scale-95"
-                    title="Download Excel / CSV of all employees"
+                    title="Upload & Import Excel or CSV spreadsheet of employees"
                 >
-                    <i data-lucide="download" class="w-4 h-4 text-emerald-400"></i>
-                    <span>Export Excel</span>
+                    <i data-lucide="file-up" class="w-4 h-4 text-emerald-400"></i>
+                    <span>Import Excel</span>
                 </button>
 
                 <button
@@ -2839,6 +2850,168 @@
             link.click();
             document.body.removeChild(link);
             showToast('✅ Employee roster successfully exported to CSV / Excel format.');
+        }
+
+        // ============================================================================
+        // 9B. EXCEL / SPREADSHEET IMPORT (.xlsx, .xls, .csv)
+        // ============================================================================
+        function handleImportExcel(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let rows = [];
+                    if (window.XLSX) {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        rows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+                    } else {
+                        // Fallback CSV text parse
+                        const text = new TextDecoder().decode(e.target.result);
+                        const lines = text.split('\n').filter(l => l.trim().length > 0);
+                        if (lines.length > 1) {
+                            const headers = lines[0].split(',').map(h => h.replace(/^["']|["']$/g, '').trim());
+                            rows = lines.slice(1).map(line => {
+                                const vals = line.split(',').map(v => v.replace(/^["']|["']$/g, '').trim());
+                                const obj = {};
+                                headers.forEach((h, idx) => obj[h] = vals[idx] || '');
+                                return obj;
+                            });
+                        }
+                    }
+
+                    if (!rows || rows.length === 0) {
+                        alert('No employee data rows found in the selected Excel / CSV file.');
+                        return;
+                    }
+
+                    // Normalize keys and map into employee records matching Radwa HR 38-field standard
+                    const importedEmployees = rows.map((r, index) => {
+                        const getVal = (candidates) => {
+                            const keys = Object.keys(r);
+                            for (let c of candidates) {
+                                const found = keys.find(k => k.toLowerCase().replace(/[\s_#-]/g, '') === c.toLowerCase().replace(/[\s_#-]/g, ''));
+                                if (found && r[found] !== undefined && r[found] !== '') return String(r[found]).trim();
+                            }
+                            return '';
+                        };
+
+                        const name = getVal(['name', 'employeename', 'empname', 'fullname']) || `Imported Employee ${index + 1}`;
+                        const emplNo = getVal(['emplno', 'empno', 'id', 'employeeno', 'staffid']) || `10${employees.length + index + 1}`;
+                        const sponsor = getVal(['sponsor', 'employeesponsor']) || 'Radwa';
+                        const mainCategory = getVal(['maincategory', 'category', 'emplmaincategory']) || 'Project operation team (POT)';
+                        const tradeDesignation = getVal(['trade', 'designation', 'tradedesignation', 'role', 'jobtitle']) || 'Site Supervisor';
+                        const expensesCategory = getVal(['expensescategory', 'expensecategory']) || 'Project direct cost';
+                        const nationality = getVal(['nationality', 'country']) || 'Saudi Arabia';
+                        const religion = getVal(['religion']) || 'Muslim';
+                        const dateOfBirth = getVal(['dob', 'dateofbirth', 'birthdate']) || '1992-05-18';
+                        const dateOfJoin = getVal(['doj', 'dateofjoin', 'joindate', 'joiningdate']) || new Date().toISOString().slice(0, 10);
+                        const dateOfArrival = getVal(['doa', 'dateofarrival', 'arrivaldate']) || dateOfJoin;
+                        const departurePort = getVal(['departureport', 'port']) || 'King Khalid Int Airport (RUH)';
+                        const passportNo = getVal(['passport', 'passportno', 'passport#']) || `P${Math.floor(10000000 + Math.random() * 90000000)}`;
+                        const iqamaNo = getVal(['iqama', 'iqamano', 'civilid', 'iqama#']) || `2${Math.floor(100000000 + Math.random() * 900000000)}`;
+                        const assignedWorkOrder = getVal(['workorder', 'wo', 'assignedworkorder', 'wo#']) || 'wo# 1234';
+                        const recruitmentType = getVal(['recruitmenttype', 'recruitment']) || 'new recruited';
+                        const agentName = getVal(['agentname', 'agent']) || undefined;
+                        const referredByName = getVal(['referredby', 'referredbyname', 'referral']) || undefined;
+                        const localMobNo = getVal(['mobile', 'localmobile', 'phone', 'tele', 'localmobno']) || '+966 50 123 4567';
+                        const bloodGroup = getVal(['bloodgroup', 'blood']) || 'O+';
+                        const emergencyContactAddress = getVal(['emergencyaddress', 'emergencycontactaddress', 'address']) || 'Riyadh, Kingdom of Saudi Arabia';
+                        const emergencyContactTele = getVal(['emergencycontacttele', 'emergencyphone', 'emergencytele']) || '+966 50 987 6543';
+                        const education = getVal(['education', 'qualification']) || 'B.Sc Engineering';
+                        const experienceYears = Number(getVal(['experienceyears', 'experience', 'exp'])) || 5;
+                        const basicSalary = Number(getVal(['basicsalary', 'basic', 'salary'])) || 4500;
+                        const dutyHours = Number(getVal(['dutyhours', 'hours'])) || 8;
+                        const otRate = Number(getVal(['otrate', 'overtimerate'])) || 1.5;
+                        const foodAllowance = Number(getVal(['foodallowance', 'food'])) || 300;
+                        const otAllowance = Number(getVal(['otallowance', 'ot'])) || 0;
+                        const teleAllowance = Number(getVal(['teleallowance', 'tele', 'phoneallowance'])) || 100;
+                        const houseAllowance = Number(getVal(['houseallowance', 'housing', 'housingallowance'])) || 1000;
+                        const vehicleAllowance = Number(getVal(['vehicleallowance', 'vehicle'])) || 0;
+                        const otherAllowance = Number(getVal(['otherallowance', 'other'])) || 0;
+                        const leaveContractPeriod = getVal(['leavecontractperiod', 'contractperiod']) || '1 Year';
+                        const yearlyLeaveDays = Number(getVal(['yearlyleavedays', 'yearlyleave', 'leave'])) || 21;
+                        const coverallSize = getVal(['coverallsize', 'coverall']) || 'L';
+                        const shoeSize = Number(getVal(['shoesize', 'shoe'])) || 42;
+                        const status = getVal(['status']) || 'Active';
+
+                        return {
+                            id: `emp-excel-${Date.now()}-${index}`,
+                            emplNo,
+                            name,
+                            photoUrl: `https://images.unsplash.com/photo-${1500000000000 + Math.floor(Math.random() * 50000000)}?w=150&h=150&fit=crop&crop=face`,
+                            photoFileName: `${name.replace(/\s+/g, '_')}_Photo.jpg`,
+                            cvFileName: `${name.replace(/\s+/g, '_')}_CV.pdf`,
+                            sponsor,
+                            mainCategory,
+                            tradeDesignation,
+                            expensesCategory,
+                            nationality,
+                            religion,
+                            dateOfBirth,
+                            dateOfArrival,
+                            departurePort,
+                            dateOfJoin,
+                            passportNo,
+                            iqamaNo,
+                            assignedWorkOrder,
+                            recruitmentType,
+                            agentName,
+                            referredByName,
+                            localMobNo,
+                            bloodGroup,
+                            emergencyContactAddress,
+                            emergencyContactTele,
+                            education,
+                            experienceYears,
+                            basicSalary,
+                            dutyHours,
+                            otRate,
+                            foodAllowance,
+                            otAllowance,
+                            teleAllowance,
+                            houseAllowance,
+                            vehicleAllowance,
+                            otherAllowance,
+                            leaveContractPeriod,
+                            yearlyLeaveDays,
+                            coverallSize,
+                            shoeSize,
+                            status,
+                            benefits: {
+                                joiningDate: dateOfJoin,
+                                totalDaysWorked: 30,
+                                leaveSalaryCalculationRule: `one year ${yearlyLeaveDays} days`,
+                                cumulativeAmountLeaveSalary: Math.round((basicSalary / 30) * yearlyLeaveDays),
+                                paidLeaveSalary: 0,
+                                balanceLeaveSalary: Math.round((basicSalary / 30) * yearlyLeaveDays),
+                                indemnityReason: 'Resignation',
+                                indemnityFormula: 'basic / 1/3 for 2-5 yrs service',
+                                actualIndemnityCalculation: 0,
+                                indemnityCumulativeAmount: 0,
+                                contractCompletedPeriod: 'Not completed',
+                                actualIndemnityAmount: 0,
+                                totalDurationDaysWorked: 30,
+                                isActive: status === 'Active'
+                            },
+                            salaryRevisions: []
+                        };
+                    });
+
+                    saveEmployees([...importedEmployees, ...employees]);
+                    showToast(`✅ Successfully imported ${importedEmployees.length} employee(s) from "${file.name}"!`);
+                } catch (err) {
+                    console.error('Error importing Excel:', err);
+                    alert('Failed to parse Excel file. Please ensure it is a valid .xlsx, .xls, or .csv spreadsheet.');
+                } finally {
+                    event.target.value = '';
+                }
+            };
+            reader.readAsArrayBuffer(file);
         }
 
         // ============================================================================
