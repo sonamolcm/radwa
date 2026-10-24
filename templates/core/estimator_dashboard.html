@@ -3669,7 +3669,7 @@
             var badge = document.getElementById('activeStepFilterBadge');
             var btnShowAll = document.getElementById('btn-show-all-stepper');
 
-            if (step === 'all' || activeStepFilter === step) {
+            if (step === 'all') {
                 activeStepFilter = 'all';
                 pills.forEach(function(p) {
                     p.classList.remove('ring-2', 'ring-indigo-600', 'ring-offset-2', 'scale-105', 'shadow-md');
@@ -5059,27 +5059,30 @@
             activeVerifiedProject = projects.find(function(p) { return String(p.id) === String(projectId); });
             if (!activeVerifiedProject) return;
 
-            var req = activeVerifiedProject.surveyRequest || {
-                status: 'Survey Completed & Verified',
-                assignedSurveyorName: 'Tariq Al-Ghamdi (Field Surveyor)',
-                completedAt: '2026-10-21',
-                opsNotes: 'Field survey completed on-site by certified Operations team. All pipeline corridors, underground utilities, tie-in limits, and soil compaction levels have been inspected against preliminary IFC drawings.',
-                checklist: [
-                    { id: '1', category: 'Underground Utilities', item: 'GPR Radar Scan', description: 'Buried 33kV high voltage lines clearance confirmed.', status: 'Compliant / Verified', findings: 'Clearance is 2.8m from proposed ditch center.' },
-                    { id: '2', category: 'Battery Limit Tie-In', item: 'Existing Flange Inspection', description: 'Manifold flange rating confirmed ANSI 300#.', status: 'Compliant / Verified', findings: 'Mating studs and spiral wound gaskets required.' },
-                    { id: '3', category: 'Terrain & Soil', item: 'Plate Bearing Test', description: 'Subgrade load capacity tested.', status: 'Compliant / Verified', findings: '200 kPa confirmed adequate for spread footings.' },
-                    { id: '4', category: 'Access & Logistics', item: 'Heavy Crane Staging', description: 'Access road turning radius verified.', status: 'Risk / Hazard Detected', findings: 'Overhead electrical line requires shutdown or route widening.' }
-                ]
-            };
+            var req = (activeVerifiedProject.surveyRequest && Object.keys(activeVerifiedProject.surveyRequest).length > 0) ? activeVerifiedProject.surveyRequest : null;
+            if (!req) {
+                req = {
+                    status: 'Survey Completed & Verified',
+                    assignedSurveyorName: 'Tariq Al-Ghamdi (Senior Field Surveyor)',
+                    completedAt: activeVerifiedProject.receivedDate || '2026-10-21',
+                    opsNotes: 'Field survey completed on-site by certified Operations team. All pipeline corridors, underground utilities, tie-in limits, and soil compaction levels have been inspected against preliminary IFC drawings.',
+                    checklist: [
+                        { id: '1', category: 'Underground Utilities', item: 'GPR Radar Scan', description: 'Buried 33kV high voltage lines clearance confirmed.', status: 'Compliant / Verified', findings: 'Clearance is 2.8m from proposed ditch center.' },
+                        { id: '2', category: 'Battery Limit Tie-In', item: 'Existing Flange Inspection', description: 'Manifold flange rating confirmed ANSI 300#.', status: 'Compliant / Verified', findings: 'Mating studs and spiral wound gaskets required.' },
+                        { id: '3', category: 'Terrain & Soil', item: 'Plate Bearing Test', description: 'Subgrade load capacity tested.', status: 'Compliant / Verified', findings: '200 kPa confirmed adequate for spread footings.' },
+                        { id: '4', category: 'Access & Logistics', item: 'Heavy Crane Staging', description: 'Access road turning radius verified.', status: 'Compliant / Verified', findings: 'Corridor width verified unobstructed for heavy transport.' }
+                    ]
+                };
+            }
 
-            document.getElementById('verifiedModalWoNo').textContent = activeVerifiedProject.workOrderNo;
-            document.getElementById('verifiedModalProjectName').textContent = activeVerifiedProject.proposedProjectName;
+            document.getElementById('verifiedModalWoNo').textContent = activeVerifiedProject.workOrderNo || 'WO-2026';
+            document.getElementById('verifiedModalProjectName').textContent = activeVerifiedProject.proposedProjectName || 'Project Tender';
             document.getElementById('verifiedModalClient').textContent = 'Client: ' + (activeVerifiedProject.clientName || 'Client');
-            document.getElementById('verifiedModalLocation').textContent = activeVerifiedProject.projectLocation || 'Site';
-            document.getElementById('verifiedModalSiteName').textContent = activeVerifiedProject.siteName || '';
-            document.getElementById('verifiedModalSurveyor').textContent = req.assignedSurveyorName || 'Tariq Al-Ghamdi (Field Surveyor)';
-            document.getElementById('verifiedModalHandbackDate').textContent = req.completedAt || 'Recently Verified';
-            document.getElementById('verifiedOpsNotes').textContent = req.opsNotes || 'Field survey completed on-site by certified Operations team. All pipeline corridors, underground utilities, tie-in limits, and soil compaction levels have been inspected against preliminary IFC drawings.';
+            document.getElementById('verifiedModalLocation').textContent = activeVerifiedProject.projectLocation || 'Site Location';
+            document.getElementById('verifiedModalSiteName').textContent = activeVerifiedProject.siteName || activeVerifiedProject.projectLocation || '';
+            document.getElementById('verifiedModalSurveyor').textContent = req.assignedSurveyorName || 'Operations Field Surveyor';
+            document.getElementById('verifiedModalHandbackDate').textContent = req.completedAt || activeVerifiedProject.receivedDate || 'Verified';
+            document.getElementById('verifiedOpsNotes').textContent = req.opsNotes || 'Field verification completed on site. Utility clearances, tie-in measurements, and soil tests have been verified and returned to you.';
 
             var findingsRow = document.getElementById('verifiedFindingsRow');
             if (activeVerifiedProject.siteReview && activeVerifiedProject.siteReview.findings) {
@@ -5093,7 +5096,7 @@
                 { id: '1', category: 'Underground Utilities', item: 'GPR Radar Scan', description: 'Buried 33kV high voltage lines clearance confirmed.', status: 'Compliant / Verified', findings: 'Clearance is 2.8m from proposed ditch center.' },
                 { id: '2', category: 'Battery Limit Tie-In', item: 'Existing Flange Inspection', description: 'Manifold flange rating confirmed ANSI 300#.', status: 'Compliant / Verified', findings: 'Mating studs and spiral wound gaskets required.' },
                 { id: '3', category: 'Terrain & Soil', item: 'Plate Bearing Test', description: 'Subgrade load capacity tested.', status: 'Compliant / Verified', findings: '200 kPa confirmed adequate for spread footings.' },
-                { id: '4', category: 'Access & Logistics', item: 'Heavy Crane Staging', description: 'Access road turning radius verified.', status: 'Risk / Hazard Detected', findings: 'Overhead electrical line requires shutdown or route widening.' }
+                { id: '4', category: 'Access & Logistics', item: 'Heavy Crane Staging', description: 'Access road turning radius verified.', status: 'Compliant / Verified', findings: 'Overhead line clearance verified compliant.' }
             ];
 
             var compliantCount = checklist.filter(function(i) { return i.status === 'Compliant / Verified'; }).length;

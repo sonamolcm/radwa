@@ -1872,7 +1872,7 @@
             const countText = document.getElementById('rfqTableCountText');
             const btnShowAll = document.getElementById('btn-show-all');
 
-            if (step === 'all' || activeStepFilter === step) {
+            if (step === 'all') {
                 // Reset filter
                 activeStepFilter = 'all';
                 rows.forEach(r => r.style.display = '');

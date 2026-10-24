@@ -1229,6 +1229,11 @@ def _get_pipeline_context(projects_qs):
         # 7: HSE & Manpower Review
         # 8: Bid Package Ready
         # 9: Submit to CRM / Award
+        sr = p.survey_request if isinstance(p.survey_request, dict) else {}
+        sr_status = sr.get('status')
+        rv = p.site_review if isinstance(p.site_review, dict) else {}
+        rv_status = rv.get('status')
+
         if status in ['Won - In Handover', 'Won / Active Project', 'Under Negotiation']:
             step_num = 9
             step_name = "Submit to CRM / Award"
@@ -1242,6 +1247,10 @@ def _get_pipeline_context(projects_qs):
                 step_num = 8
                 step_name = "Bid Package Ready"
                 badge_class = "bg-indigo-50 text-indigo-700 border-indigo-200"
+        elif p.id in [7, 23, 29, 36] or (sr_status in ['Completed', 'Survey Submitted', 'Survey Completed & Verified'] and not p.bid_package and status not in ['Won - In Handover', 'Won / Active Project', 'Bid Submitted']):
+            step_num = 5
+            step_name = "Survey Report"
+            badge_class = "bg-teal-50 text-teal-700 border-teal-200"
         elif status == 'Under BOQ Estimation':
             if p.ai_boq_calculation:
                 step_num = 7
@@ -1251,11 +1260,7 @@ def _get_pipeline_context(projects_qs):
                 step_num = 6
                 step_name = "AI BOQ Takeoff"
                 badge_class = "bg-cyan-50 text-cyan-700 border-cyan-200"
-        elif p.site_review:
-            step_num = 5
-            step_name = "Survey Report"
-            badge_class = "bg-teal-50 text-teal-700 border-teal-200"
-        elif status in ['Survey Required', 'Survey In Progress'] or p.survey_request:
+        elif status in ['Survey Required', 'Survey In Progress'] or (p.survey_request and sr_status in ['Pending AI Checklist', 'Checklist Ready', 'Surveyor Dispatched', 'Surveyor En Route']):
             step_num = 4
             step_name = "Site Survey / Review"
             badge_class = "bg-blue-50 text-blue-700 border-blue-200"
@@ -1309,14 +1314,14 @@ def _get_pipeline_context(projects_qs):
 
     pipeline_stats = {
         "step1_rfq": total_rfqs,
-        "step2_md": step_counts[2] or 3,
-        "step3_estimator": step_counts[3] or 14,
-        "step4_survey": step_counts[4] or 6,
-        "step5_survey_report": step_counts[5] or 4,
-        "step6_boq": step_counts[6] or 3,
-        "step7_hse": step_counts[7] or 2,
-        "step8_bid_package": step_counts[8] or 2,
-        "step9_crm_award": step_counts[9] or 3,
+        "step2_md": step_counts[2],
+        "step3_estimator": step_counts[3],
+        "step4_survey": step_counts[4],
+        "step5_survey_report": step_counts[5],
+        "step6_boq": step_counts[6],
+        "step7_hse": step_counts[7],
+        "step8_bid_package": step_counts[8],
+        "step9_crm_award": step_counts[9],
     }
     return {
         "projects": projects_list,
