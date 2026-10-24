@@ -1211,14 +1211,34 @@ def radwa_dashboard(request):
     Radwa Executive Operations Dashboard matching the official operations cockpit design.
     Served on /radwa-dashboard/ and /dashboard/
     """
+    initial_view = request.GET.get("view", "operations")
     projects_qs = ProjectRFQ.objects.all().order_by("-id")
     projects_list = [p.to_dict() for p in projects_qs]
     context = {
         "projects": projects_list,
         "projects_json": json.dumps(projects_list),
         "total_projects": len(projects_list),
+        "initial_view": initial_view,
     }
     return render(request, "core/radwa_dashboard.html", context)
+
+
+@csrf_exempt
+def rfq_to_work_order(request):
+    """
+    Direct route for RFQ to Work Order Dashboard.
+    Served on /rfq-to-work-order/
+    """
+    projects_qs = ProjectRFQ.objects.all().order_by("-id")
+    projects_list = [p.to_dict() for p in projects_qs]
+    context = {
+        "projects": projects_list,
+        "projects_json": json.dumps(projects_list),
+        "total_projects": len(projects_list),
+        "initial_view": "rfq",
+    }
+    return render(request, "core/radwa_dashboard.html", context)
+
 
 
 

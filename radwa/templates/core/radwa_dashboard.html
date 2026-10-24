@@ -59,6 +59,10 @@
       .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
       .sidebar-scroll::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 4px; }
 
+      .custom-scroll::-webkit-scrollbar { height: 6px; }
+      .custom-scroll::-webkit-scrollbar-track { background: #F1F5F9; border-radius: 4px; }
+      .custom-scroll::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+
       .card-shadow {
         box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
       }
@@ -99,115 +103,124 @@
         <!-- Sidebar Navigation List -->
         <nav class="flex-1 overflow-y-auto px-3.5 py-4 space-y-1 sidebar-scroll text-[13px] font-medium">
             
-            <!-- 1. Dashboard (Active Pill) -->
-            <a href="{% url 'core:radwa-dashboard' %}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg bg-[#2563EB] text-white font-semibold shadow-sm transition">
+            <!-- 1. Operations Dashboard (Default) -->
+            <a href="javascript:void(0)" onclick="switchDashboardView('operations')" id="nav-item-dashboard" class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg bg-[#2563EB] text-white font-semibold shadow-sm transition cursor-pointer">
                 <i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0 text-white"></i>
                 <span>Dashboard</span>
             </a>
 
-            <!-- 2. Daily Work Report -->
+            <!-- 2. RFQ to Work Order (New Requested Feature) -->
+            <a href="javascript:void(0)" onclick="switchDashboardView('rfq')" id="nav-item-rfq" class="flex items-center justify-between px-3.5 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group cursor-pointer">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="git-pull-request" class="w-4 h-4 shrink-0 text-cyan-400 group-hover:text-cyan-300 transition"></i>
+                    <span class="font-semibold">RFQ to Work Order</span>
+                </div>
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">10 Stages</span>
+            </a>
+
+            <!-- 3. Daily Work Report -->
             <a href="#" onclick="openQuickActionModal('Daily Work Report'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
                 <i data-lucide="file-text" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-blue-400 transition"></i>
                 <span>Daily Work Report</span>
             </a>
 
-            <!-- 3. Daily Attendance (DMR) -->
+            <!-- 4. Daily Attendance (DMR) -->
             <a href="#" onclick="openQuickActionModal('Daily Attendance (DMR)'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
                 <i data-lucide="users" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-teal-400 transition"></i>
                 <span>Daily Attendance (DMR)</span>
             </a>
 
-            <!-- 4. Weekly Report -->
+            <!-- 5. Weekly Report -->
             <a href="#" onclick="openQuickActionModal('Weekly Report'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
                 <i data-lucide="calendar" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-blue-400 transition"></i>
                 <span>Weekly Report</span>
             </a>
 
-            <!-- 5. Monthly Report -->
+            <!-- 6. Monthly Report -->
             <a href="#" onclick="openQuickActionModal('Monthly Report'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
                 <i data-lucide="bar-chart-3" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-purple-400 transition"></i>
                 <span>Monthly Report</span>
             </a>
 
-            <!-- 6. Planning Update -->
+            <!-- 7. Planning Update -->
             <a href="#" onclick="openQuickActionModal('Planning Update'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
                 <i data-lucide="percent" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-amber-400 transition"></i>
                 <span>Planning Update</span>
             </a>
 
-            <!-- 7. Forecast Update -->
+            <!-- 8. Forecast Update -->
             <a href="#" onclick="openQuickActionModal('Forecast Update'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
                 <i data-lucide="trending-up" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-emerald-400 transition"></i>
                 <span>Forecast Update</span>
             </a>
 
-            <!-- 8. Purchase Request (PR) -->
+            <!-- 9. Purchase Request (PR) -->
             <a href="#" onclick="openQuickActionModal('Purchase Request (PR)'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
                 <i data-lucide="shopping-cart" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-orange-400 transition"></i>
                 <span>Purchase Request (PR)</span>
             </a>
 
-            <!-- 9. ETM (Equipment, Tools & Manpower) -->
+            <!-- 10. ETM (Equipment, Tools & Manpower) -->
             <a href="#" onclick="openQuickActionModal('ETM Requests'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
                 <i data-lucide="boxes" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-purple-400 transition"></i>
                 <span>ETM (Equipment, Tools & Manpower)</span>
             </a>
 
-            <!-- 10. Site Advance -->
+            <!-- 11. Site Advance -->
             <a href="#" onclick="openQuickActionModal('Site Advance'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
                 <i data-lucide="circle-dollar-sign" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-emerald-400 transition"></i>
                 <span>Site Advance</span>
             </a>
 
-            <!-- 11. Equipment Checklist -->
+            <!-- 12. Equipment Checklist -->
             <a href="#" onclick="openQuickActionModal('Equipment Checklist'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
                 <i data-lucide="clipboard-check" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-cyan-400 transition"></i>
                 <span>Equipment Checklist</span>
             </a>
 
-            <!-- 12. Machinery Checklist -->
+            <!-- 13. Machinery Checklist -->
             <a href="#" onclick="openQuickActionModal('Machinery Checklist'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
                 <i data-lucide="truck" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-yellow-400 transition"></i>
                 <span>Machinery Checklist</span>
             </a>
 
-            <!-- 13. Tools Checklist -->
+            <!-- 14. Tools Checklist -->
             <a href="#" onclick="openQuickActionModal('Tools Checklist'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
                 <i data-lucide="wrench" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-indigo-400 transition"></i>
                 <span>Tools Checklist</span>
             </a>
 
-            <!-- 14. Certification Tracker -->
+            <!-- 15. Certification Tracker -->
             <a href="#" onclick="openQuickActionModal('Certification Tracker'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
                 <i data-lucide="award" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-rose-400 transition"></i>
                 <span>Certification Tracker</span>
             </a>
 
-            <!-- 15. Task Management -->
+            <!-- 16. Task Management -->
             <a href="#" onclick="openQuickActionModal('Task Management'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
                 <i data-lucide="check-square" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-blue-400 transition"></i>
                 <span>Task Management</span>
             </a>
 
-            <!-- 16. Approvals -->
+            <!-- 17. Approvals -->
             <a href="#" onclick="openQuickActionModal('Approvals'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
                 <i data-lucide="check-circle-2" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-emerald-400 transition"></i>
                 <span>Approvals</span>
             </a>
 
-            <!-- 17. Reports -->
+            <!-- 18. Reports -->
             <a href="#" onclick="openQuickActionModal('Reports'); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
                 <i data-lucide="pie-chart" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-violet-400 transition"></i>
                 <span>Reports</span>
             </a>
 
-            <!-- 18. Notifications -->
+            <!-- 19. Notifications -->
             <a href="#" onclick="toggleNotificationDrawer(); return false;" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group">
                 <i data-lucide="bell" class="w-4 h-4 shrink-0 text-slate-400 group-hover:text-amber-400 transition"></i>
                 <span>Notifications</span>
             </a>
 
-            <!-- 19. Back to Main ERP Menu -->
+            <!-- 20. Back to Main ERP Menu -->
             <div class="pt-2 border-t border-[#15254D]">
                 <a href="{% url 'core:menu' %}" class="flex items-center gap-3 px-3.5 py-2 rounded-lg text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 transition font-semibold">
                     <i data-lucide="grid" class="w-4 h-4 shrink-0"></i>
@@ -310,614 +323,1149 @@
         <!-- DASHBOARD BODY CONTENT -->
         <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl w-full mx-auto">
             
-            <!-- ------------------------------------------------------------- -->
-            <!-- 1. GREETING & DATE / ACTION HEADER -->
-            <!-- ------------------------------------------------------------- -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                        <span>Good Morning, Akshai!</span>
-                        <span class="text-xl">👋</span>
-                    </h1>
-                    <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-                        Here's what's happening with your projects today.
-                    </p>
-                </div>
+            <!-- ========================================================= -->
+            <!-- VIEW A: OPERATIONS COCKPIT (Default View matching Image 1) -->
+            <!-- ========================================================= -->
+            <div id="viewOperationsCockpit" class="space-y-6">
 
-                <div class="flex items-center gap-2.5 flex-wrap">
-                    <!-- Date Pill -->
-                    <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-semibold shadow-2xs">
-                        <i data-lucide="calendar" class="w-4 h-4 text-slate-500"></i>
-                        <span>24 May 2024, Friday</span>
-                        <i data-lucide="file-text" class="w-3.5 h-3.5 text-slate-400 ml-1"></i>
+                <!-- 1. GREETING & DATE / ACTION HEADER -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                            <span>Good Morning, Akshai!</span>
+                            <span class="text-xl">👋</span>
+                        </h1>
+                        <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+                            Here's what's happening with your projects today.
+                        </p>
                     </div>
 
-                    <!-- Quick Create Dropdown Button -->
-                    <div class="relative inline-block text-left">
-                        <button 
-                            type="button" 
-                            onclick="toggleQuickCreateDropdown()"
-                            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition"
-                        >
-                            <i data-lucide="plus" class="w-4 h-4"></i>
-                            <span>Quick Create</span>
-                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 ml-0.5"></i>
-                        </button>
-
-                        <!-- Quick Create Menu Dropdown -->
-                        <div id="quickCreateDropdown" class="hidden absolute right-0 mt-2 w-56 rounded-xl bg-white border border-slate-200 shadow-xl z-30 py-1.5 text-xs font-semibold text-slate-700">
-                            <a href="#" onclick="openQuickActionModal('Daily Work Report'); return false;" class="flex items-center gap-2.5 px-3.5 py-2 hover:bg-slate-50 hover:text-blue-600 transition">
-                                <i data-lucide="file-text" class="w-4 h-4 text-blue-600"></i>
-                                <span>New Daily Work Report</span>
-                            </a>
-                            <a href="#" onclick="openQuickActionModal('Purchase Request (PR)'); return false;" class="flex items-center gap-2.5 px-3.5 py-2 hover:bg-slate-50 hover:text-orange-600 transition">
-                                <i data-lucide="shopping-cart" class="w-4 h-4 text-orange-500"></i>
-                                <span>New Purchase Request (PR)</span>
-                            </a>
-                            <a href="#" onclick="openQuickActionModal('ETM Requests'); return false;" class="flex items-center gap-2.5 px-3.5 py-2 hover:bg-slate-50 hover:text-purple-600 transition">
-                                <i data-lucide="boxes" class="w-4 h-4 text-purple-600"></i>
-                                <span>New ETM Request</span>
-                            </a>
-                            <a href="#" onclick="openQuickActionModal('Site Advance'); return false;" class="flex items-center gap-2.5 px-3.5 py-2 hover:bg-slate-50 hover:text-emerald-600 transition">
-                                <i data-lucide="circle-dollar-sign" class="w-4 h-4 text-emerald-600"></i>
-                                <span>Request Site Advance</span>
-                            </a>
-                            <div class="h-px bg-slate-100 my-1"></div>
-                            <a href="#" onclick="openQuickActionModal('Task Management'); return false;" class="flex items-center gap-2.5 px-3.5 py-2 hover:bg-slate-50 hover:text-blue-600 transition">
-                                <i data-lucide="check-square" class="w-4 h-4 text-slate-600"></i>
-                                <span>Assign New Task</span>
-                            </a>
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <!-- Date Pill -->
+                        <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-semibold shadow-2xs">
+                            <i data-lucide="calendar" class="w-4 h-4 text-slate-500"></i>
+                            <span>24 May 2024, Friday</span>
+                            <i data-lucide="file-text" class="w-3.5 h-3.5 text-slate-400 ml-1"></i>
                         </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- ------------------------------------------------------------- -->
-            <!-- 2. TOP 5 KPI SUMMARY CARDS -->
-            <!-- ------------------------------------------------------------- -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                
-                <!-- Card 1: Overall Progress -->
-                <div class="bg-white rounded-2xl border border-slate-200/80 p-4 card-shadow card-hover flex flex-col justify-between">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <p class="text-xs font-semibold text-slate-500">Overall Progress</p>
-                            <h3 class="text-2xl font-black text-slate-900 mt-1">58.40%</h3>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs">
-                            <i data-lucide="briefcase" class="w-5 h-5"></i>
-                        </div>
-                    </div>
-                    <div class="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
-                        <span>Planned: 60.00%</span>
-                        <span class="text-red-500 font-bold">-1.60%</span>
-                    </div>
-                </div>
+                        <!-- Quick Create Dropdown Button -->
+                        <div class="relative inline-block text-left">
+                            <button 
+                                type="button" 
+                                onclick="toggleQuickCreateDropdown()"
+                                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition"
+                            >
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                                <span>Quick Create</span>
+                                <i data-lucide="chevron-down" class="w-3.5 h-3.5 ml-0.5"></i>
+                            </button>
 
-                <!-- Card 2: Manpower On Site -->
-                <div class="bg-white rounded-2xl border border-slate-200/80 p-4 card-shadow card-hover flex flex-col justify-between">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <p class="text-xs font-semibold text-slate-500">Manpower On Site</p>
-                            <h3 class="text-2xl font-black text-slate-900 mt-1">1,236</h3>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-teal-600 text-white flex items-center justify-center shadow-xs">
-                            <i data-lucide="users" class="w-5 h-5"></i>
-                        </div>
-                    </div>
-                    <div class="mt-3 text-[11px] font-medium text-slate-400">
-                        Average / Month
-                    </div>
-                </div>
-
-                <!-- Card 3: Pending PR -->
-                <div class="bg-white rounded-2xl border border-slate-200/80 p-4 card-shadow card-hover flex flex-col justify-between">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <p class="text-xs font-semibold text-slate-500">Pending PR</p>
-                            <h3 class="text-2xl font-black text-slate-900 mt-1">27</h3>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-xs">
-                            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-                        </div>
-                    </div>
-                    <div class="mt-3 text-[11px] font-medium text-slate-400">
-                        Total Requests
-                    </div>
-                </div>
-
-                <!-- Card 4: Pending ETM -->
-                <div class="bg-white rounded-2xl border border-slate-200/80 p-4 card-shadow card-hover flex flex-col justify-between">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <p class="text-xs font-semibold text-slate-500">Pending ETM</p>
-                            <h3 class="text-2xl font-black text-slate-900 mt-1">12</h3>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-xs">
-                            <i data-lucide="wrench" class="w-5 h-5"></i>
-                        </div>
-                    </div>
-                    <div class="mt-3 text-[11px] font-medium text-slate-400">
-                        Total Requests
-                    </div>
-                </div>
-
-                <!-- Card 5: Site Advance Balance -->
-                <div class="bg-white rounded-2xl border border-slate-200/80 p-4 card-shadow card-hover flex flex-col justify-between">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <p class="text-xs font-semibold text-slate-500">Site Advance Balance</p>
-                            <h3 class="text-2xl font-black text-slate-900 mt-1">SAR 65,000</h3>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs">
-                            <i data-lucide="dollar-sign" class="w-5 h-5"></i>
-                        </div>
-                    </div>
-                    <div class="mt-3 text-[11px] font-medium text-slate-400">
-                        Available Balance
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- ------------------------------------------------------------- -->
-            <!-- 3. MIDDLE GRID (PROGRESS LINE CHART, TODAY'S SUMMARY, RECENT ACTIVITY) -->
-            <!-- ------------------------------------------------------------- -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-                
-                <!-- 3.1 Progress Overview Chart (span 5) -->
-                <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
-                    <div class="flex items-center justify-between mb-2">
-                        <h4 class="text-sm font-bold text-slate-900">Progress Overview</h4>
-                        <button type="button" onclick="openDetailsModal('Progress Overview', 'Comprehensive planned vs actual performance breakdown for active EPC site lines.')" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">View Details</button>
-                    </div>
-
-                    <!-- Custom Chart Legend -->
-                    <div class="flex items-center gap-4 text-[11px] font-semibold mb-3">
-                        <div class="flex items-center gap-1.5 text-slate-600">
-                            <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
-                            <span>Planned Progress (%)</span>
-                        </div>
-                        <div class="flex items-center gap-1.5 text-slate-600">
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                            <span>Actual Progress (%)</span>
-                        </div>
-                    </div>
-
-                    <!-- Chart Container -->
-                    <div class="relative h-56 w-full">
-                        <canvas id="progressOverviewChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- 3.2 Today's Summary (span 3.5) -->
-                <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
-                    <div class="flex items-center justify-between mb-3">
-                        <h4 class="text-sm font-bold text-slate-900">Today's Summary</h4>
-                        <button type="button" onclick="openDetailsModal('Today Summary', 'Daily operations log aggregation for work reports, labor turnout, and pending inspections.')" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">View All</button>
-                    </div>
-
-                    <div class="space-y-3.5 divide-y divide-slate-100 text-xs">
-                        
-                        <!-- Item 1: DWR -->
-                        <div class="pt-2 first:pt-0 flex items-center justify-between gap-2">
-                            <div class="flex items-center gap-2.5 text-slate-700">
-                                <i data-lucide="file-text" class="w-4 h-4 text-blue-600 shrink-0"></i>
-                                <span class="font-medium">Daily Work Report</span>
+                            <!-- Quick Create Menu Dropdown -->
+                            <div id="quickCreateDropdown" class="hidden absolute right-0 mt-2 w-56 rounded-xl bg-white border border-slate-200 shadow-xl z-30 py-1.5 text-xs font-semibold text-slate-700">
+                                <a href="#" onclick="openQuickActionModal('Daily Work Report'); return false;" class="flex items-center gap-2.5 px-3.5 py-2 hover:bg-slate-50 hover:text-blue-600 transition">
+                                    <i data-lucide="file-text" class="w-4 h-4 text-blue-600"></i>
+                                    <span>New Daily Work Report</span>
+                                </a>
+                                <a href="#" onclick="openQuickActionModal('Purchase Request (PR)'); return false;" class="flex items-center gap-2.5 px-3.5 py-2 hover:bg-slate-50 hover:text-orange-600 transition">
+                                    <i data-lucide="shopping-cart" class="w-4 h-4 text-orange-500"></i>
+                                    <span>New Purchase Request (PR)</span>
+                                </a>
+                                <a href="#" onclick="openQuickActionModal('ETM Requests'); return false;" class="flex items-center gap-2.5 px-3.5 py-2 hover:bg-slate-50 hover:text-purple-600 transition">
+                                    <i data-lucide="boxes" class="w-4 h-4 text-purple-600"></i>
+                                    <span>New ETM Request</span>
+                                </a>
+                                <a href="#" onclick="openQuickActionModal('Site Advance'); return false;" class="flex items-center gap-2.5 px-3.5 py-2 hover:bg-slate-50 hover:text-emerald-600 transition">
+                                    <i data-lucide="circle-dollar-sign" class="w-4 h-4 text-emerald-600"></i>
+                                    <span>Request Site Advance</span>
+                                </a>
+                                <div class="h-px bg-slate-100 my-1"></div>
+                                <a href="#" onclick="openQuickActionModal('Task Management'); return false;" class="flex items-center gap-2.5 px-3.5 py-2 hover:bg-slate-50 hover:text-blue-600 transition">
+                                    <i data-lucide="check-square" class="w-4 h-4 text-slate-600"></i>
+                                    <span>Assign New Task</span>
+                                </a>
                             </div>
-                            <span class="font-bold text-slate-900 text-[11px] bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">3 submitted</span>
                         </div>
-
-                        <!-- Item 2: DMR -->
-                        <div class="pt-2 flex items-center justify-between gap-2">
-                            <div class="flex items-center gap-2.5 text-slate-700">
-                                <i data-lucide="users" class="w-4 h-4 text-teal-600 shrink-0"></i>
-                                <span class="font-medium">Daily Attendance (DMR)</span>
-                            </div>
-                            <span class="font-bold text-slate-900 text-[11px] bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">1,120 present</span>
-                        </div>
-
-                        <!-- Item 3: Safety Observations -->
-                        <div class="pt-2 flex items-center justify-between gap-2">
-                            <div class="flex items-center gap-2.5 text-slate-700">
-                                <i data-lucide="map-pin" class="w-4 h-4 text-amber-500 shrink-0"></i>
-                                <span class="font-medium">Safety Observations</span>
-                            </div>
-                            <span class="font-bold text-slate-900 text-[11px] bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">5 reported</span>
-                        </div>
-
-                        <!-- Item 4: Equipment Inspections -->
-                        <div class="pt-2 flex items-center justify-between gap-2">
-                            <div class="flex items-center gap-2.5 text-slate-700">
-                                <i data-lucide="wrench" class="w-4 h-4 text-purple-600 shrink-0"></i>
-                                <span class="font-medium">Equipment Inspections</span>
-                            </div>
-                            <span class="font-bold text-slate-900 text-[11px] bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">8 pending</span>
-                        </div>
-
-                        <!-- Item 5: Certification Expiring Soon -->
-                        <div class="pt-2 flex items-center justify-between gap-2">
-                            <div class="flex items-center gap-2.5 text-slate-700">
-                                <i data-lucide="shield-alert" class="w-4 h-4 text-amber-600 shrink-0"></i>
-                                <span class="font-medium">Certification Expiring Soon</span>
-                            </div>
-                            <span class="font-bold text-slate-900 text-[11px] bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">24 items</span>
-                        </div>
-
-                        <!-- Item 6: Tasks Due Today -->
-                        <div class="pt-2 flex items-center justify-between gap-2">
-                            <div class="flex items-center gap-2.5 text-slate-700">
-                                <i data-lucide="clipboard-list" class="w-4 h-4 text-orange-500 shrink-0"></i>
-                                <span class="font-medium">Tasks Due Today</span>
-                            </div>
-                            <span class="font-bold text-slate-900 text-[11px] bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">6 tasks</span>
-                        </div>
-
                     </div>
                 </div>
 
-                <!-- 3.3 Recent Activity (span 3.5) -->
-                <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
-                    <div class="flex items-center justify-between mb-3">
-                        <h4 class="text-sm font-bold text-slate-900">Recent Activity</h4>
-                        <button type="button" onclick="openDetailsModal('Activity Log', 'Real-time timeline of approvals, submittals, and site advance verifications.')" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">View All</button>
+                <!-- 2. TOP 5 KPI SUMMARY CARDS -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    
+                    <!-- Card 1: Overall Progress -->
+                    <div class="bg-white rounded-2xl border border-slate-200/80 p-4 card-shadow card-hover flex flex-col justify-between">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-500">Overall Progress</p>
+                                <h3 class="text-2xl font-black text-slate-900 mt-1">58.40%</h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                                <i data-lucide="briefcase" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
+                            <span>Planned: 60.00%</span>
+                            <span class="text-red-500 font-bold">-1.60%</span>
+                        </div>
                     </div>
 
-                    <div class="space-y-3.5 text-xs">
-                        
-                        <!-- Activity 1 -->
-                        <div class="flex items-start justify-between gap-2">
-                            <div class="flex items-start gap-2.5">
-                                <div class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
-                                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                    <!-- Card 2: Manpower On Site -->
+                    <div class="bg-white rounded-2xl border border-slate-200/80 p-4 card-shadow card-hover flex flex-col justify-between">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-500">Manpower On Site</p>
+                                <h3 class="text-2xl font-black text-slate-900 mt-1">1,236</h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-teal-600 text-white flex items-center justify-center shadow-xs">
+                                <i data-lucide="users" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-[11px] font-medium text-slate-400">
+                            Average / Month
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Pending PR -->
+                    <div class="bg-white rounded-2xl border border-slate-200/80 p-4 card-shadow card-hover flex flex-col justify-between">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-500">Pending PR</p>
+                                <h3 class="text-2xl font-black text-slate-900 mt-1">27</h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-xs">
+                                <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-[11px] font-medium text-slate-400">
+                            Total Requests
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Pending ETM -->
+                    <div class="bg-white rounded-2xl border border-slate-200/80 p-4 card-shadow card-hover flex flex-col justify-between">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-500">Pending ETM</p>
+                                <h3 class="text-2xl font-black text-slate-900 mt-1">12</h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-xs">
+                                <i data-lucide="wrench" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-[11px] font-medium text-slate-400">
+                            Total Requests
+                        </div>
+                    </div>
+
+                    <!-- Card 5: Site Advance Balance -->
+                    <div class="bg-white rounded-2xl border border-slate-200/80 p-4 card-shadow card-hover flex flex-col justify-between">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-500">Site Advance Balance</p>
+                                <h3 class="text-2xl font-black text-slate-900 mt-1">SAR 65,000</h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                                <i data-lucide="dollar-sign" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-[11px] font-medium text-slate-400">
+                            Available Balance
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 3. MIDDLE GRID (PROGRESS LINE CHART, TODAY'S SUMMARY, RECENT ACTIVITY) -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                    
+                    <!-- 3.1 Progress Overview Chart (span 5) -->
+                    <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-sm font-bold text-slate-900">Progress Overview</h4>
+                            <button type="button" onclick="openDetailsModal('Progress Overview', 'Comprehensive planned vs actual performance breakdown for active EPC site lines.')" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">View Details</button>
+                        </div>
+
+                        <!-- Custom Chart Legend -->
+                        <div class="flex items-center gap-4 text-[11px] font-semibold mb-3">
+                            <div class="flex items-center gap-1.5 text-slate-600">
+                                <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                                <span>Planned Progress (%)</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 text-slate-600">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                                <span>Actual Progress (%)</span>
+                            </div>
+                        </div>
+
+                        <!-- Chart Container -->
+                        <div class="relative h-56 w-full">
+                            <canvas id="progressOverviewChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 3.2 Today's Summary (span 3.5) -->
+                    <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="text-sm font-bold text-slate-900">Today's Summary</h4>
+                            <button type="button" onclick="openDetailsModal('Today Summary', 'Daily operations log aggregation for work reports, labor turnout, and pending inspections.')" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">View All</button>
+                        </div>
+
+                        <div class="space-y-3.5 divide-y divide-slate-100 text-xs">
+                            <div class="pt-2 first:pt-0 flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2.5 text-slate-700">
+                                    <i data-lucide="file-text" class="w-4 h-4 text-blue-600 shrink-0"></i>
+                                    <span class="font-medium">Daily Work Report</span>
                                 </div>
-                                <div>
-                                    <p class="font-bold text-slate-900 leading-snug">PR-2024-0056 approved</p>
-                                    <p class="text-[11px] text-slate-500">by Akshai A.T</p>
-                                </div>
+                                <span class="font-bold text-slate-900 text-[11px] bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">3 submitted</span>
                             </div>
-                            <span class="text-[11px] text-slate-400 font-medium shrink-0">10 min ago</span>
+                            <div class="pt-2 flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2.5 text-slate-700">
+                                    <i data-lucide="users" class="w-4 h-4 text-teal-600 shrink-0"></i>
+                                    <span class="font-medium">Daily Attendance (DMR)</span>
+                                </div>
+                                <span class="font-bold text-slate-900 text-[11px] bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">1,120 present</span>
+                            </div>
+                            <div class="pt-2 flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2.5 text-slate-700">
+                                    <i data-lucide="map-pin" class="w-4 h-4 text-amber-500 shrink-0"></i>
+                                    <span class="font-medium">Safety Observations</span>
+                                </div>
+                                <span class="font-bold text-slate-900 text-[11px] bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">5 reported</span>
+                            </div>
+                            <div class="pt-2 flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2.5 text-slate-700">
+                                    <i data-lucide="wrench" class="w-4 h-4 text-purple-600 shrink-0"></i>
+                                    <span class="font-medium">Equipment Inspections</span>
+                                </div>
+                                <span class="font-bold text-slate-900 text-[11px] bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">8 pending</span>
+                            </div>
+                            <div class="pt-2 flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2.5 text-slate-700">
+                                    <i data-lucide="shield-alert" class="w-4 h-4 text-amber-600 shrink-0"></i>
+                                    <span class="font-medium">Certification Expiring Soon</span>
+                                </div>
+                                <span class="font-bold text-slate-900 text-[11px] bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">24 items</span>
+                            </div>
+                            <div class="pt-2 flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2.5 text-slate-700">
+                                    <i data-lucide="clipboard-list" class="w-4 h-4 text-orange-500 shrink-0"></i>
+                                    <span class="font-medium">Tasks Due Today</span>
+                                </div>
+                                <span class="font-bold text-slate-900 text-[11px] bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">6 tasks</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3.3 Recent Activity (span 3.5) -->
+                    <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="text-sm font-bold text-slate-900">Recent Activity</h4>
+                            <button type="button" onclick="openDetailsModal('Activity Log', 'Real-time timeline of approvals, submittals, and site advance verifications.')" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">View All</button>
                         </div>
 
-                        <!-- Activity 2 -->
-                        <div class="flex items-start justify-between gap-2">
-                            <div class="flex items-start gap-2.5">
-                                <div class="w-6 h-6 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">
+                        <div class="space-y-3.5 text-xs">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex items-start gap-2.5">
+                                    <div class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-slate-900 leading-snug">PR-2024-0056 approved</p>
+                                        <p class="text-[11px] text-slate-500">by Akshai A.T</p>
+                                    </div>
+                                </div>
+                                <span class="text-[11px] text-slate-400 font-medium shrink-0">10 min ago</span>
+                            </div>
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex items-start gap-2.5">
+                                    <div class="w-6 h-6 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-slate-900 leading-snug">ETM-2024-0030 pending</p>
+                                        <p class="text-[11px] text-slate-500">for approval</p>
+                                    </div>
+                                </div>
+                                <span class="text-[11px] text-slate-400 font-medium shrink-0">25 min ago</span>
+                            </div>
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex items-start gap-2.5">
+                                    <div class="w-6 h-6 rounded-full bg-teal-600 text-white font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">B</div>
+                                    <div>
+                                        <p class="font-bold text-slate-900 leading-snug">DWR for 23/05/2024 submitted</p>
+                                        <p class="text-[11px] text-slate-500">by Shambu N.</p>
+                                    </div>
+                                </div>
+                                <span class="text-[11px] text-slate-400 font-medium shrink-0">1 hour ago</span>
+                            </div>
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex items-start gap-2.5">
+                                    <div class="w-6 h-6 rounded-full bg-purple-600 text-white font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">S</div>
+                                    <div>
+                                        <p class="font-bold text-slate-900 leading-snug">Site Advance request submitted</p>
+                                        <p class="text-[11px] text-slate-500">by Hari Krishnan</p>
+                                    </div>
+                                </div>
+                                <span class="text-[11px] text-slate-400 font-medium shrink-0">2 hours ago</span>
+                            </div>
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex items-start gap-2.5">
+                                    <div class="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-slate-900 leading-snug">Welding machine certificate</p>
+                                        <p class="text-[11px] text-slate-500">expiring in 7 days</p>
+                                    </div>
+                                </div>
+                                <span class="text-[11px] text-slate-400 font-medium shrink-0">3 hours ago</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 4. LOWER GRID (REQUESTS OVERVIEW, UPCOMING DEADLINES, SAFETY SUMMARY) -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                    
+                    <!-- 4.1 Requests Overview Donut (span 4) -->
+                    <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-sm font-bold text-slate-900">Requests Overview</h4>
+                            <button type="button" onclick="openDetailsModal('Requests Breakdown', 'Status pipeline of purchase, manpower, and civil engineering requests.')" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">View All</button>
+                        </div>
+
+                        <div class="flex items-center justify-between gap-4 py-2">
+                            <div class="relative w-36 h-36 shrink-0 flex items-center justify-center">
+                                <canvas id="requestsOverviewChart"></canvas>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                    <span class="text-xl font-black text-slate-900 leading-none">44</span>
+                                    <span class="text-[10px] font-semibold text-slate-400 uppercase mt-0.5">Total</span>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2 text-xs flex-1">
+                                <div class="flex items-center justify-between gap-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                                        <span class="font-medium text-slate-700">Submitted</span>
+                                    </div>
+                                    <span class="font-bold text-slate-900">18 <span class="text-slate-400 font-normal text-[11px]">(40.91%)</span></span>
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                                        <span class="font-medium text-slate-700">Pending</span>
+                                    </div>
+                                    <span class="font-bold text-slate-900">18 <span class="text-slate-400 font-normal text-[11px]">(40.91%)</span></span>
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                                        <span class="font-medium text-slate-700">Approved</span>
+                                    </div>
+                                    <span class="font-bold text-slate-900">6 <span class="text-slate-400 font-normal text-[11px]">(13.64%)</span></span>
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                                        <span class="font-medium text-slate-700">Rejected</span>
+                                    </div>
+                                    <span class="font-bold text-slate-900">2 <span class="text-slate-400 font-normal text-[11px]">(4.54%)</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4.2 Upcoming Deadlines (span 4) -->
+                    <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="text-sm font-bold text-slate-900">Upcoming Deadlines</h4>
+                            <button type="button" onclick="openDetailsModal('Upcoming Deadlines', 'Milestone dates for hydrotesting, spool fabrication, and critical path activities.')" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">View All</button>
+                        </div>
+
+                        <div class="space-y-2.5 text-xs">
+                            <div class="flex items-center justify-between gap-3 p-1.5 rounded-lg hover:bg-slate-50 transition">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <div class="w-10 text-center shrink-0">
+                                        <span class="block text-sm font-black text-slate-800 leading-none">25</span>
+                                        <span class="block text-[9px] font-bold text-slate-400 uppercase">MAY</span>
+                                    </div>
+                                    <p class="font-semibold text-slate-800 truncate text-[11px]">Hydrotest Line 12"-HT-04</p>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-100 text-red-600 shrink-0">Overdue</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-3 p-1.5 rounded-lg hover:bg-slate-50 transition">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <div class="w-10 text-center shrink-0">
+                                        <span class="block text-sm font-black text-slate-800 leading-none">27</span>
+                                        <span class="block text-[9px] font-bold text-slate-400 uppercase">MAY</span>
+                                    </div>
+                                    <p class="font-semibold text-slate-800 truncate text-[11px]">Complete welding for Spool 32-45</p>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-700 shrink-0">2 days left</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-3 p-1.5 rounded-lg hover:bg-slate-50 transition">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <div class="w-10 text-center shrink-0">
+                                        <span class="block text-sm font-black text-slate-800 leading-none">29</span>
+                                        <span class="block text-[9px] font-bold text-slate-400 uppercase">MAY</span>
+                                    </div>
+                                    <p class="font-semibold text-slate-800 truncate text-[11px]">Install valve block near Decant Pond</p>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-100 text-sky-700 shrink-0">4 days left</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-3 p-1.5 rounded-lg hover:bg-slate-50 transition">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <div class="w-10 text-center shrink-0">
+                                        <span class="block text-sm font-black text-slate-800 leading-none">01</span>
+                                        <span class="block text-[9px] font-bold text-slate-400 uppercase">JUN</span>
+                                    </div>
+                                    <p class="font-semibold text-slate-800 truncate text-[11px]">Scaffolding at HX-02 area</p>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-600 shrink-0">7 days left</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-3 p-1.5 rounded-lg hover:bg-slate-50 transition">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <div class="w-10 text-center shrink-0">
+                                        <span class="block text-sm font-black text-slate-800 leading-none">05</span>
+                                        <span class="block text-[9px] font-bold text-slate-400 uppercase">JUN</span>
+                                    </div>
+                                    <p class="font-semibold text-slate-800 truncate text-[11px]">Painting touch up for supports</p>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-600 shrink-0">11 days left</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4.3 Safety Summary (This Month) (span 4) -->
+                    <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-sm font-bold text-slate-900">Safety Summary <span class="text-xs font-normal text-slate-400">(This Month)</span></h4>
+                            <button type="button" onclick="openDetailsModal('Safety Summary Details', 'HSE statistics including observations, near-misses, and 0 Lost Time Injury compliance.')" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">View All</button>
+                        </div>
+
+                        <div class="flex items-center gap-3.5 my-2 p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-100">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                                <i data-lucide="shield-check" class="w-7 h-7"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-600">Safety Compliance</p>
+                                <h3 class="text-2xl font-black text-emerald-600 leading-tight">100%</h3>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-4 gap-2 pt-2 border-t border-slate-100 text-center">
+                            <div>
+                                <div class="flex items-center justify-center text-slate-400 mb-1">
+                                    <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="block text-sm font-black text-slate-900">45</span>
+                                <span class="block text-[9px] font-medium text-slate-500 mt-0.5">Safety<br>Observations</span>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-center text-amber-500 mb-1">
+                                    <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="block text-sm font-black text-slate-900">12</span>
+                                <span class="block text-[9px] font-medium text-slate-500 mt-0.5">Unsafe<br>Acts</span>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-center text-red-500 mb-1">
+                                    <i data-lucide="flame" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="block text-sm font-black text-slate-900">5</span>
+                                <span class="block text-[9px] font-medium text-slate-500 mt-0.5">Incidents</span>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-center text-blue-600 mb-1">
                                     <i data-lucide="clock" class="w-3.5 h-3.5"></i>
                                 </div>
-                                <div>
-                                    <p class="font-bold text-slate-900 leading-snug">ETM-2024-0030 pending</p>
-                                    <p class="text-[11px] text-slate-500">for approval</p>
-                                </div>
+                                <span class="block text-sm font-black text-slate-900">0</span>
+                                <span class="block text-[9px] font-medium text-slate-500 mt-0.5">Lost Time<br>Injury</span>
                             </div>
-                            <span class="text-[11px] text-slate-400 font-medium shrink-0">25 min ago</span>
                         </div>
+                    </div>
 
-                        <!-- Activity 3 -->
-                        <div class="flex items-start justify-between gap-2">
-                            <div class="flex items-start gap-2.5">
-                                <div class="w-6 h-6 rounded-full bg-teal-600 text-white font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">
-                                    B
-                                </div>
-                                <div>
-                                    <p class="font-bold text-slate-900 leading-snug">DWR for 23/05/2024 submitted</p>
-                                    <p class="text-[11px] text-slate-500">by Shambu N.</p>
-                                </div>
+                </div>
+
+                <!-- 5. QUICK ACCESS ACTION TILES (10 COLORFUL ICONS) -->
+                <div class="space-y-3 pt-2">
+                    <h4 class="text-sm font-bold text-slate-900">Quick Access</h4>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-3">
+                        <button type="button" onclick="openQuickActionModal('Daily Work Report')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
+                            <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                                <i data-lucide="file-text" class="w-5 h-5"></i>
                             </div>
-                            <span class="text-[11px] text-slate-400 font-medium shrink-0">1 hour ago</span>
-                        </div>
-
-                        <!-- Activity 4 -->
-                        <div class="flex items-start justify-between gap-2">
-                            <div class="flex items-start gap-2.5">
-                                <div class="w-6 h-6 rounded-full bg-purple-600 text-white font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">
-                                    S
-                                </div>
-                                <div>
-                                    <p class="font-bold text-slate-900 leading-snug">Site Advance request submitted</p>
-                                    <p class="text-[11px] text-slate-500">by Hari Krishnan</p>
-                                </div>
+                            <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Daily Work<br>Report</span>
+                        </button>
+                        <button type="button" onclick="openQuickActionModal('Daily Attendance (DMR)')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                                <i data-lucide="users" class="w-5 h-5"></i>
                             </div>
-                            <span class="text-[11px] text-slate-400 font-medium shrink-0">2 hours ago</span>
-                        </div>
-
-                        <!-- Activity 5 -->
-                        <div class="flex items-start justify-between gap-2">
-                            <div class="flex items-start gap-2.5">
-                                <div class="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0 mt-0.5">
-                                    <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div>
-                                    <p class="font-bold text-slate-900 leading-snug">Welding machine certificate</p>
-                                    <p class="text-[11px] text-slate-500">expiring in 7 days</p>
-                                </div>
+                            <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Daily Attendance<br>(DMR)</span>
+                        </button>
+                        <button type="button" onclick="openQuickActionModal('Planning Update')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
+                            <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                                <i data-lucide="percent" class="w-5 h-5"></i>
                             </div>
-                            <span class="text-[11px] text-slate-400 font-medium shrink-0">3 hours ago</span>
-                        </div>
-
+                            <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Planning<br>Update</span>
+                        </button>
+                        <button type="button" onclick="openQuickActionModal('Purchase Request (PR)')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
+                            <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                                <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                            </div>
+                            <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Purchase<br>Request (PR)</span>
+                        </button>
+                        <button type="button" onclick="openQuickActionModal('ETM Requests')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
+                            <div class="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                                <i data-lucide="boxes" class="w-5 h-5"></i>
+                            </div>
+                            <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">ETM<br>Requests</span>
+                        </button>
+                        <button type="button" onclick="openQuickActionModal('Site Advance')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
+                            <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                                <i data-lucide="circle-dollar-sign" class="w-5 h-5"></i>
+                            </div>
+                            <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Site<br>Advance</span>
+                        </button>
+                        <button type="button" onclick="openQuickActionModal('Tools Checklist')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                                <i data-lucide="wrench" class="w-5 h-5"></i>
+                            </div>
+                            <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Tools<br>Checklist</span>
+                        </button>
+                        <button type="button" onclick="openQuickActionModal('Certification Tracker')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
+                            <div class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                                <i data-lucide="award" class="w-5 h-5"></i>
+                            </div>
+                            <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Certifications</span>
+                        </button>
+                        <button type="button" onclick="openQuickActionModal('Task Management')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
+                            <div class="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                                <i data-lucide="check-square" class="w-5 h-5"></i>
+                            </div>
+                            <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Task<br>Management</span>
+                        </button>
+                        <button type="button" onclick="openQuickActionModal('Reports')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-700 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                                <i data-lucide="pie-chart" class="w-5 h-5"></i>
+                            </div>
+                            <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Reports</span>
+                        </button>
                     </div>
                 </div>
 
             </div>
 
-            <!-- ------------------------------------------------------------- -->
-            <!-- 4. LOWER GRID (REQUESTS OVERVIEW, UPCOMING DEADLINES, SAFETY SUMMARY) -->
-            <!-- ------------------------------------------------------------- -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <!-- ========================================================= -->
+            <!-- VIEW B: RFQ TO WORK ORDER DASHBOARD (Matching Image 3)    -->
+            <!-- ========================================================= -->
+            <div id="viewRfqToWorkOrder" class="space-y-6 hidden">
                 
-                <!-- 4.1 Requests Overview Donut (span 4) -->
-                <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
-                    <div class="flex items-center justify-between mb-2">
-                        <h4 class="text-sm font-bold text-slate-900">Requests Overview</h4>
-                        <button type="button" onclick="openDetailsModal('Requests Breakdown', 'Status pipeline of purchase, manpower, and civil engineering requests.')" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">View All</button>
+                <!-- B1. RFQ DASHBOARD HEADER -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                            <span>RFQ to Work Order Dashboard</span>
+                        </h1>
+                        <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+                            From Enquiry to Project Execution
+                        </p>
                     </div>
 
-                    <div class="flex items-center justify-between gap-4 py-2">
-                        <!-- Donut Canvas -->
-                        <div class="relative w-36 h-36 shrink-0 flex items-center justify-center">
-                            <canvas id="requestsOverviewChart"></canvas>
-                            <!-- Absolute Center Metric -->
-                            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                <span class="text-xl font-black text-slate-900 leading-none">44</span>
-                                <span class="text-[10px] font-semibold text-slate-400 uppercase mt-0.5">Total</span>
-                            </div>
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <span class="text-xs font-semibold text-slate-500 hidden md:inline">Tuesday, 19 August 2025</span>
+                        <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-semibold shadow-2xs">
+                            <i data-lucide="calendar" class="w-4 h-4 text-slate-500"></i>
+                            <span>01 Jan 2025 - 31 Dec 2025</span>
+                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 ml-1"></i>
                         </div>
-
-                        <!-- Donut Legend Details -->
-                        <div class="space-y-2 text-xs flex-1">
-                            <div class="flex items-center justify-between gap-2">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
-                                    <span class="font-medium text-slate-700">Submitted</span>
-                                </div>
-                                <span class="font-bold text-slate-900">18 <span class="text-slate-400 font-normal text-[11px]">(40.91%)</span></span>
-                            </div>
-
-                            <div class="flex items-center justify-between gap-2">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                                    <span class="font-medium text-slate-700">Pending</span>
-                                </div>
-                                <span class="font-bold text-slate-900">18 <span class="text-slate-400 font-normal text-[11px]">(40.91%)</span></span>
-                            </div>
-
-                            <div class="flex items-center justify-between gap-2">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                                    <span class="font-medium text-slate-700">Approved</span>
-                                </div>
-                                <span class="font-bold text-slate-900">6 <span class="text-slate-400 font-normal text-[11px]">(13.64%)</span></span>
-                            </div>
-
-                            <div class="flex items-center justify-between gap-2">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
-                                    <span class="font-medium text-slate-700">Rejected</span>
-                                </div>
-                                <span class="font-bold text-slate-900">2 <span class="text-slate-400 font-normal text-[11px]">(4.54%)</span></span>
-                            </div>
-                        </div>
+                        <a href="{% url 'core:home' %}" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition">
+                            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                            <span>Open CRM Desk</span>
+                        </a>
                     </div>
                 </div>
 
-                <!-- 4.2 Upcoming Deadlines (span 4) -->
-                <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
-                    <div class="flex items-center justify-between mb-3">
-                        <h4 class="text-sm font-bold text-slate-900">Upcoming Deadlines</h4>
-                        <button type="button" onclick="openDetailsModal('Upcoming Deadlines', 'Milestone dates for hydrotesting, spool fabrication, and critical path activities.')" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">View All</button>
-                    </div>
-
-                    <div class="space-y-2.5 text-xs">
-                        
-                        <!-- Deadline 1 -->
-                        <div class="flex items-center justify-between gap-3 p-1.5 rounded-lg hover:bg-slate-50 transition">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-10 text-center shrink-0">
-                                    <span class="block text-sm font-black text-slate-800 leading-none">25</span>
-                                    <span class="block text-[9px] font-bold text-slate-400 uppercase">MAY</span>
-                                </div>
-                                <p class="font-semibold text-slate-800 truncate text-[11px]">Hydrotest Line 12"-HT-04</p>
-                            </div>
-                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-100 text-red-600 shrink-0">Overdue</span>
-                        </div>
-
-                        <!-- Deadline 2 -->
-                        <div class="flex items-center justify-between gap-3 p-1.5 rounded-lg hover:bg-slate-50 transition">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-10 text-center shrink-0">
-                                    <span class="block text-sm font-black text-slate-800 leading-none">27</span>
-                                    <span class="block text-[9px] font-bold text-slate-400 uppercase">MAY</span>
-                                </div>
-                                <p class="font-semibold text-slate-800 truncate text-[11px]">Complete welding for Spool 32-45</p>
-                            </div>
-                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-700 shrink-0">2 days left</span>
-                        </div>
-
-                        <!-- Deadline 3 -->
-                        <div class="flex items-center justify-between gap-3 p-1.5 rounded-lg hover:bg-slate-50 transition">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-10 text-center shrink-0">
-                                    <span class="block text-sm font-black text-slate-800 leading-none">29</span>
-                                    <span class="block text-[9px] font-bold text-slate-400 uppercase">MAY</span>
-                                </div>
-                                <p class="font-semibold text-slate-800 truncate text-[11px]">Install valve block near Decant Pond</p>
-                            </div>
-                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-100 text-sky-700 shrink-0">4 days left</span>
-                        </div>
-
-                        <!-- Deadline 4 -->
-                        <div class="flex items-center justify-between gap-3 p-1.5 rounded-lg hover:bg-slate-50 transition">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-10 text-center shrink-0">
-                                    <span class="block text-sm font-black text-slate-800 leading-none">01</span>
-                                    <span class="block text-[9px] font-bold text-slate-400 uppercase">JUN</span>
-                                </div>
-                                <p class="font-semibold text-slate-800 truncate text-[11px]">Scaffolding at HX-02 area</p>
-                            </div>
-                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-600 shrink-0">7 days left</span>
-                        </div>
-
-                        <!-- Deadline 5 -->
-                        <div class="flex items-center justify-between gap-3 p-1.5 rounded-lg hover:bg-slate-50 transition">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-10 text-center shrink-0">
-                                    <span class="block text-sm font-black text-slate-800 leading-none">05</span>
-                                    <span class="block text-[9px] font-bold text-slate-400 uppercase">JUN</span>
-                                </div>
-                                <p class="font-semibold text-slate-800 truncate text-[11px]">Painting touch up for supports</p>
-                            </div>
-                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-600 shrink-0">11 days left</span>
-                        </div>
-
-                    </div>
-                </div>
-
-                <!-- 4.3 Safety Summary (This Month) (span 4) -->
-                <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
-                    <div class="flex items-center justify-between mb-2">
-                        <h4 class="text-sm font-bold text-slate-900">Safety Summary <span class="text-xs font-normal text-slate-400">(This Month)</span></h4>
-                        <button type="button" onclick="openDetailsModal('Safety Summary Details', 'HSE statistics including observations, near-misses, and 0 Lost Time Injury compliance.')" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">View All</button>
-                    </div>
-
-                    <!-- Shield & Compliance Header -->
-                    <div class="flex items-center gap-3.5 my-2 p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-100">
-                        <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                            <i data-lucide="shield-check" class="w-7 h-7"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs font-bold text-slate-600">Safety Compliance</p>
-                            <h3 class="text-2xl font-black text-emerald-600 leading-tight">100%</h3>
-                        </div>
-                    </div>
-
-                    <!-- 4 Safety Metric Columns -->
-                    <div class="grid grid-cols-4 gap-2 pt-2 border-t border-slate-100 text-center">
-                        <div>
-                            <div class="flex items-center justify-center text-slate-400 mb-1">
-                                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-                            </div>
-                            <span class="block text-sm font-black text-slate-900">45</span>
-                            <span class="block text-[9px] font-medium text-slate-500 mt-0.5">Safety<br>Observations</span>
-                        </div>
-
-                        <div>
-                            <div class="flex items-center justify-center text-amber-500 mb-1">
-                                <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
-                            </div>
-                            <span class="block text-sm font-black text-slate-900">12</span>
-                            <span class="block text-[9px] font-medium text-slate-500 mt-0.5">Unsafe<br>Acts</span>
-                        </div>
-
-                        <div>
-                            <div class="flex items-center justify-center text-red-500 mb-1">
-                                <i data-lucide="flame" class="w-3.5 h-3.5"></i>
-                            </div>
-                            <span class="block text-sm font-black text-slate-900">5</span>
-                            <span class="block text-[9px] font-medium text-slate-500 mt-0.5">Incidents</span>
-                        </div>
-
-                        <div>
-                            <div class="flex items-center justify-center text-blue-600 mb-1">
-                                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
-                            </div>
-                            <span class="block text-sm font-black text-slate-900">0</span>
-                            <span class="block text-[9px] font-medium text-slate-500 mt-0.5">Lost Time<br>Injury</span>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- ------------------------------------------------------------- -->
-            <!-- 5. QUICK ACCESS ACTION TILES (10 COLORFUL ICONS) -->
-            <!-- ------------------------------------------------------------- -->
-            <div class="space-y-3 pt-2">
-                <h4 class="text-sm font-bold text-slate-900">Quick Access</h4>
-
-                <div class="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-3">
+                <!-- B2. ROW OF 9 KEY METRIC CARDS -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-3">
                     
-                    <!-- 1. Daily Work Report -->
-                    <button type="button" onclick="openQuickActionModal('Daily Work Report')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
-                        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
-                            <i data-lucide="file-text" class="w-5 h-5"></i>
+                    <!-- KPI 1: Total RFQs -->
+                    <div class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="file-text" class="w-4 h-4"></i>
                         </div>
-                        <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Daily Work<br>Report</span>
-                    </button>
+                        <div class="min-w-0">
+                            <p class="text-[10px] font-semibold text-slate-400 truncate">Total RFQs</p>
+                            <h4 class="text-base font-extrabold text-slate-900 leading-tight">124</h4>
+                        </div>
+                    </div>
 
-                    <!-- 2. Daily Attendance (DMR) -->
-                    <button type="button" onclick="openQuickActionModal('Daily Attendance (DMR)')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
-                        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
-                            <i data-lucide="users" class="w-5 h-5"></i>
+                    <!-- KPI 2: Active Bids -->
+                    <div class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="users" class="w-4 h-4"></i>
                         </div>
-                        <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Daily Attendance<br>(DMR)</span>
-                    </button>
+                        <div class="min-w-0">
+                            <p class="text-[10px] font-semibold text-slate-400 truncate">Active Bids</p>
+                            <h4 class="text-base font-extrabold text-slate-900 leading-tight">78</h4>
+                        </div>
+                    </div>
 
-                    <!-- 3. Planning Update -->
-                    <button type="button" onclick="openQuickActionModal('Planning Update')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
-                        <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
-                            <i data-lucide="percent" class="w-5 h-5"></i>
+                    <!-- KPI 3: Site Surveys -->
+                    <div class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="compass" class="w-4 h-4"></i>
                         </div>
-                        <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Planning<br>Update</span>
-                    </button>
+                        <div class="min-w-0">
+                            <p class="text-[10px] font-semibold text-slate-400 truncate">Site Surveys</p>
+                            <h4 class="text-base font-extrabold text-slate-900 leading-tight">46</h4>
+                        </div>
+                    </div>
 
-                    <!-- 4. Purchase Request (PR) -->
-                    <button type="button" onclick="openQuickActionModal('Purchase Request (PR)')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
-                        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
-                            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                    <!-- KPI 4: Estimations -->
+                    <div class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="calculator" class="w-4 h-4"></i>
                         </div>
-                        <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Purchase<br>Request (PR)</span>
-                    </button>
+                        <div class="min-w-0">
+                            <p class="text-[10px] font-semibold text-slate-400 truncate">Estimations</p>
+                            <h4 class="text-base font-extrabold text-slate-900 leading-tight">52</h4>
+                        </div>
+                    </div>
 
-                    <!-- 5. ETM Requests -->
-                    <button type="button" onclick="openQuickActionModal('ETM Requests')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
-                        <div class="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
-                            <i data-lucide="boxes" class="w-5 h-5"></i>
+                    <!-- KPI 5: Quotations Submitted -->
+                    <div class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="send" class="w-4 h-4"></i>
                         </div>
-                        <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">ETM<br>Requests</span>
-                    </button>
+                        <div class="min-w-0">
+                            <p class="text-[10px] font-semibold text-slate-400 truncate">Quotations Sub.</p>
+                            <h4 class="text-base font-extrabold text-slate-900 leading-tight">48</h4>
+                        </div>
+                    </div>
 
-                    <!-- 6. Site Advance -->
-                    <button type="button" onclick="openQuickActionModal('Site Advance')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
-                        <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
-                            <i data-lucide="circle-dollar-sign" class="w-5 h-5"></i>
+                    <!-- KPI 6: Awaiting Client -->
+                    <div class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="clock" class="w-4 h-4"></i>
                         </div>
-                        <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Site<br>Advance</span>
-                    </button>
+                        <div class="min-w-0">
+                            <p class="text-[10px] font-semibold text-slate-400 truncate">Awaiting Client</p>
+                            <h4 class="text-base font-extrabold text-slate-900 leading-tight">32</h4>
+                        </div>
+                    </div>
 
-                    <!-- 7. Tools Checklist -->
-                    <button type="button" onclick="openQuickActionModal('Tools Checklist')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
-                        <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
-                            <i data-lucide="wrench" class="w-5 h-5"></i>
+                    <!-- KPI 7: Awarded / PO -->
+                    <div class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="trophy" class="w-4 h-4"></i>
                         </div>
-                        <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Tools<br>Checklist</span>
-                    </button>
+                        <div class="min-w-0">
+                            <p class="text-[10px] font-semibold text-slate-400 truncate">Awarded / PO</p>
+                            <h4 class="text-base font-extrabold text-slate-900 leading-tight">18</h4>
+                        </div>
+                    </div>
 
-                    <!-- 8. Certifications -->
-                    <button type="button" onclick="openQuickActionModal('Certification Tracker')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
-                        <div class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
-                            <i data-lucide="award" class="w-5 h-5"></i>
+                    <!-- KPI 8: Work Orders -->
+                    <div class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                            <i data-lucide="check-square" class="w-4 h-4"></i>
                         </div>
-                        <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Certifications</span>
-                    </button>
+                        <div class="min-w-0">
+                            <p class="text-[10px] font-semibold text-slate-400 truncate">Work Orders</p>
+                            <h4 class="text-base font-extrabold text-slate-900 leading-tight">16</h4>
+                        </div>
+                    </div>
 
-                    <!-- 9. Task Management -->
-                    <button type="button" onclick="openQuickActionModal('Task Management')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
-                        <div class="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
-                            <i data-lucide="check-square" class="w-5 h-5"></i>
+                    <!-- KPI 9: Total Award Value -->
+                    <div class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-cyan-50 text-cyan-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="trending-up" class="w-4 h-4"></i>
                         </div>
-                        <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Task<br>Management</span>
-                    </button>
-
-                    <!-- 10. Reports -->
-                    <button type="button" onclick="openQuickActionModal('Reports')" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex flex-col items-center justify-center text-center group cursor-pointer">
-                        <div class="w-10 h-10 rounded-xl bg-emerald-700 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
-                            <i data-lucide="pie-chart" class="w-5 h-5"></i>
+                        <div class="min-w-0">
+                            <p class="text-[10px] font-semibold text-slate-400 truncate">Total Award</p>
+                            <h4 class="text-sm font-extrabold text-slate-900 leading-tight">SAR 48.6M</h4>
                         </div>
-                        <span class="mt-2 text-[11px] font-bold text-slate-700 leading-tight">Reports</span>
-                    </button>
+                    </div>
 
                 </div>
+
+                <!-- B3. 10-STEP PIPELINE CHEVRON STEPPER -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 p-4 card-shadow overflow-x-auto custom-scroll">
+                    <div class="flex items-center justify-between min-w-[1020px] gap-1 text-xs select-none">
+                        
+                        <!-- Step 1 -->
+                        <div class="flex items-center gap-2 p-2 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 font-bold shrink-0">
+                            <span class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px]">1</span>
+                            <div class="leading-tight">
+                                <span class="block text-[11px]">RFQ Received</span>
+                                <span class="text-xs font-black">124</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 shrink-0"></i>
+
+                        <!-- Step 2 -->
+                        <div class="flex items-center gap-2 p-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 font-bold shrink-0">
+                            <span class="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px]">2</span>
+                            <div class="leading-tight">
+                                <span class="block text-[11px]">Site Survey</span>
+                                <span class="text-xs font-black">46</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 shrink-0"></i>
+
+                        <!-- Step 3 -->
+                        <div class="flex items-center gap-2 p-2 rounded-xl bg-cyan-50 border border-cyan-200 text-cyan-900 font-bold shrink-0">
+                            <span class="w-5 h-5 rounded-full bg-cyan-600 text-white flex items-center justify-center text-[10px]">3</span>
+                            <div class="leading-tight">
+                                <span class="block text-[11px]">BOQ Review</span>
+                                <span class="text-xs font-black">52</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 shrink-0"></i>
+
+                        <!-- Step 4 -->
+                        <div class="flex items-center gap-2 p-2 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 font-bold shrink-0">
+                            <span class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px]">4</span>
+                            <div class="leading-tight">
+                                <span class="block text-[11px]">Estimation</span>
+                                <span class="text-xs font-black">52</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 shrink-0"></i>
+
+                        <!-- Step 5 -->
+                        <div class="flex items-center gap-2 p-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 font-bold shrink-0">
+                            <span class="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px]">5</span>
+                            <div class="leading-tight">
+                                <span class="block text-[11px]">Approval</span>
+                                <span class="text-xs font-black">36</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 shrink-0"></i>
+
+                        <!-- Step 6 -->
+                        <div class="flex items-center gap-2 p-2 rounded-xl bg-orange-50 border border-orange-200 text-orange-900 font-bold shrink-0">
+                            <span class="w-5 h-5 rounded-full bg-orange-500 text-white flex items-center justify-center text-[10px]">6</span>
+                            <div class="leading-tight">
+                                <span class="block text-[11px]">Quotation</span>
+                                <span class="text-xs font-black">48</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 shrink-0"></i>
+
+                        <!-- Step 7 -->
+                        <div class="flex items-center gap-2 p-2 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 font-bold shrink-0">
+                            <span class="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[10px]">7</span>
+                            <div class="leading-tight">
+                                <span class="block text-[11px]">Client Follow-up</span>
+                                <span class="text-xs font-black">32</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 shrink-0"></i>
+
+                        <!-- Step 8 -->
+                        <div class="flex items-center gap-2 p-2 rounded-xl bg-pink-50 border border-pink-200 text-pink-900 font-bold shrink-0">
+                            <span class="w-5 h-5 rounded-full bg-pink-600 text-white flex items-center justify-center text-[10px]">8</span>
+                            <div class="leading-tight">
+                                <span class="block text-[11px]">Negotiation</span>
+                                <span class="text-xs font-black">14</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 shrink-0"></i>
+
+                        <!-- Step 9 -->
+                        <div class="flex items-center gap-2 p-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 font-bold shrink-0">
+                            <span class="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px]">9</span>
+                            <div class="leading-tight">
+                                <span class="block text-[11px]">Award / PO</span>
+                                <span class="text-xs font-black">18</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 shrink-0"></i>
+
+                        <!-- Step 10 -->
+                        <div class="flex items-center gap-2 p-2 rounded-xl bg-slate-900 text-white font-bold shrink-0">
+                            <span class="w-5 h-5 rounded-full bg-slate-700 text-white flex items-center justify-center text-[10px]">10</span>
+                            <div class="leading-tight">
+                                <span class="block text-[11px] text-slate-300">Work Order</span>
+                                <span class="text-xs font-black">16</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- B4. MAIN PIPELINE SECTION (TABLE + RIGHT SIDE METRICS) -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                    
+                    <!-- B4.1 Recent RFQs / Tenders Table (span 8) -->
+                    <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
+                        <div>
+                            <!-- Header & Filter Controls -->
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                                <h4 class="text-sm font-bold text-slate-900">Recent RFQs / Tenders</h4>
+                                <div class="flex items-center gap-2 flex-wrap text-xs">
+                                    <select class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 font-semibold text-slate-600 focus:outline-none">
+                                        <option>All Statuses</option>
+                                        <option>Active</option>
+                                        <option>Pending</option>
+                                        <option>Overdue</option>
+                                    </select>
+                                    <select class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 font-semibold text-slate-600 focus:outline-none">
+                                        <option>All Clients</option>
+                                        <option>Saudi Aramco</option>
+                                        <option>NEOM</option>
+                                        <option>SABIC</option>
+                                        <option>Red Sea Global</option>
+                                    </select>
+                                    <div class="relative">
+                                        <input type="text" id="rfqTableSearch" oninput="filterRfqTable(this.value)" placeholder="Search..." class="pl-7 pr-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                        <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Table Container -->
+                            <div class="overflow-x-auto custom-scroll -mx-5 px-5">
+                                <table class="w-full text-left text-[11px] whitespace-nowrap">
+                                    <thead class="bg-slate-50/80 text-slate-500 uppercase tracking-wider font-bold border-y border-slate-100">
+                                        <tr>
+                                            <th class="py-2.5 px-3">#</th>
+                                            <th class="py-2.5 px-3">Enquiry No.</th>
+                                            <th class="py-2.5 px-3">Client</th>
+                                            <th class="py-2.5 px-3">Project Title</th>
+                                            <th class="py-2.5 px-3">RFQ No.</th>
+                                            <th class="py-2.5 px-3">Bid Closing</th>
+                                            <th class="py-2.5 px-3 text-center">Days Left</th>
+                                            <th class="py-2.5 px-3">Current Stage</th>
+                                            <th class="py-2.5 px-3">Est. Value (SAR)</th>
+                                            <th class="py-2.5 px-3">Status</th>
+                                            <th class="py-2.5 px-3 text-center">Priority</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="rfqTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
+                                        <!-- Row 1 -->
+                                        <tr class="hover:bg-slate-50/80 transition">
+                                            <td class="py-2 px-3 text-slate-400">1</td>
+                                            <td class="py-2 px-3 font-bold text-blue-600">ENQ-2025-001</td>
+                                            <td class="py-2 px-3">Saudi Aramco</td>
+                                            <td class="py-2 px-3 font-semibold text-slate-800">Pipeline Support Works</td>
+                                            <td class="py-2 px-3 text-slate-500 font-mono">SA-8890</td>
+                                            <td class="py-2 px-3">25 Aug 2025</td>
+                                            <td class="py-2 px-3 text-center font-bold text-slate-800">6</td>
+                                            <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 font-bold text-[10px]">Estimation</span></td>
+                                            <td class="py-2 px-3 font-mono font-bold text-slate-900">5,200,000</td>
+                                            <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold text-[10px]">Active</span></td>
+                                            <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-md bg-red-100 text-red-700 font-bold text-[10px]">High</span></td>
+                                        </tr>
+
+                                        <!-- Row 2 -->
+                                        <tr class="hover:bg-slate-50/80 transition">
+                                            <td class="py-2 px-3 text-slate-400">2</td>
+                                            <td class="py-2 px-3 font-bold text-blue-600">ENQ-2025-002</td>
+                                            <td class="py-2 px-3">NEOM</td>
+                                            <td class="py-2 px-3 font-semibold text-slate-800">Site Infrastructure</td>
+                                            <td class="py-2 px-3 text-slate-500 font-mono">NEOM-5543</td>
+                                            <td class="py-2 px-3">28 Aug 2025</td>
+                                            <td class="py-2 px-3 text-center font-bold text-slate-800">9</td>
+                                            <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md bg-teal-50 text-teal-700 font-bold text-[10px]">Site Survey</span></td>
+                                            <td class="py-2 px-3 font-mono font-bold text-slate-900">12,400,000</td>
+                                            <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold text-[10px]">Active</span></td>
+                                            <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-md bg-red-100 text-red-700 font-bold text-[10px]">High</span></td>
+                                        </tr>
+
+                                        <!-- Row 3 -->
+                                        <tr class="hover:bg-slate-50/80 transition">
+                                            <td class="py-2 px-3 text-slate-400">3</td>
+                                            <td class="py-2 px-3 font-bold text-blue-600">ENQ-2025-003</td>
+                                            <td class="py-2 px-3">Red Sea Global</td>
+                                            <td class="py-2 px-3 font-semibold text-slate-800">Utilities Construction</td>
+                                            <td class="py-2 px-3 text-slate-500 font-mono">RSG-2211</td>
+                                            <td class="py-2 px-3">20 Aug 2025</td>
+                                            <td class="py-2 px-3 text-center font-bold text-red-500">1</td>
+                                            <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 font-bold text-[10px]">Client Follow-up</span></td>
+                                            <td class="py-2 px-3 font-mono font-bold text-slate-900">8,750,000</td>
+                                            <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 font-bold text-[10px]">Pending</span></td>
+                                            <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-md bg-red-100 text-red-700 font-bold text-[10px]">High</span></td>
+                                        </tr>
+
+                                        <!-- Row 4 -->
+                                        <tr class="hover:bg-slate-50/80 transition">
+                                            <td class="py-2 px-3 text-slate-400">4</td>
+                                            <td class="py-2 px-3 font-bold text-blue-600">ENQ-2025-004</td>
+                                            <td class="py-2 px-3">Ministry of Housing</td>
+                                            <td class="py-2 px-3 font-semibold text-slate-800">Building Works</td>
+                                            <td class="py-2 px-3 text-slate-500 font-mono">MOH-7788</td>
+                                            <td class="py-2 px-3">15 Sep 2025</td>
+                                            <td class="py-2 px-3 text-center font-bold text-slate-800">27</td>
+                                            <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md bg-orange-50 text-orange-700 font-bold text-[10px]">Quotation</span></td>
+                                            <td class="py-2 px-3 font-mono font-bold text-slate-900">3,600,000</td>
+                                            <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold text-[10px]">Active</span></td>
+                                            <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 font-bold text-[10px]">Medium</span></td>
+                                        </tr>
+
+                                        <!-- Row 5 -->
+                                        <tr class="hover:bg-slate-50/80 transition">
+                                            <td class="py-2 px-3 text-slate-400">5</td>
+                                            <td class="py-2 px-3 font-bold text-blue-600">ENQ-2025-005</td>
+                                            <td class="py-2 px-3">Royal Commission</td>
+                                            <td class="py-2 px-3 font-semibold text-slate-800">Road Improvement</td>
+                                            <td class="py-2 px-3 text-slate-500 font-mono">RC-6622</td>
+                                            <td class="py-2 px-3">10 Sep 2025</td>
+                                            <td class="py-2 px-3 text-center font-bold text-slate-800">22</td>
+                                            <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 font-bold text-[10px]">Approval</span></td>
+                                            <td class="py-2 px-3 font-mono font-bold text-slate-900">6,800,000</td>
+                                            <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold text-[10px]">Active</span></td>
+                                            <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 font-bold text-[10px]">Medium</span></td>
+                                        </tr>
+
+                                        <!-- Row 6 -->
+                                        <tr class="hover:bg-slate-50/80 transition">
+                                            <td class="py-2 px-3 text-slate-400">6</td>
+                                            <td class="py-2 px-3 font-bold text-blue-600">ENQ-2025-006</td>
+                                            <td class="py-2 px-3">SABIC</td>
+                                            <td class="py-2 px-3 font-semibold text-slate-800">Tank Farm Works</td>
+                                            <td class="py-2 px-3 text-slate-500 font-mono">SABIC-4433</td>
+                                            <td class="py-2 px-3">18 Aug 2025</td>
+                                            <td class="py-2 px-3 text-center font-bold text-red-600">-1</td>
+                                            <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md bg-pink-50 text-pink-700 font-bold text-[10px]">Negotiation</span></td>
+                                            <td class="py-2 px-3 font-mono font-bold text-slate-900">15,200,000</td>
+                                            <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md bg-red-100 text-red-700 font-bold text-[10px]">Overdue</span></td>
+                                            <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-md bg-red-100 text-red-700 font-bold text-[10px]">High</span></td>
+                                        </tr>
+
+                                        <!-- Row 7 -->
+                                        <tr class="hover:bg-slate-50/80 transition">
+                                            <td class="py-2 px-3 text-slate-400">7</td>
+                                            <td class="py-2 px-3 font-bold text-blue-600">ENQ-2025-007</td>
+                                            <td class="py-2 px-3">SEC</td>
+                                            <td class="py-2 px-3 font-semibold text-slate-800">Substation Civil Works</td>
+                                            <td class="py-2 px-3 text-slate-500 font-mono">SEC-9981</td>
+                                            <td class="py-2 px-3">05 Sep 2025</td>
+                                            <td class="py-2 px-3 text-center font-bold text-slate-800">17</td>
+                                            <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 font-bold text-[10px]">Estimation</span></td>
+                                            <td class="py-2 px-3 font-mono font-bold text-slate-900">9,500,000</td>
+                                            <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold text-[10px]">Active</span></td>
+                                            <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 font-bold text-[10px]">Medium</span></td>
+                                        </tr>
+
+                                        <!-- Row 8 -->
+                                        <tr class="hover:bg-slate-50/80 transition">
+                                            <td class="py-2 px-3 text-slate-400">8</td>
+                                            <td class="py-2 px-3 font-bold text-blue-600">ENQ-2025-008</td>
+                                            <td class="py-2 px-3">Ma'aden</td>
+                                            <td class="py-2 px-3 font-semibold text-slate-800">Plant Maintenance</td>
+                                            <td class="py-2 px-3 text-slate-500 font-mono">MA-3300</td>
+                                            <td class="py-2 px-3">30 Aug 2025</td>
+                                            <td class="py-2 px-3 text-center font-bold text-slate-800">11</td>
+                                            <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md bg-teal-50 text-teal-700 font-bold text-[10px]">Site Survey</span></td>
+                                            <td class="py-2 px-3 font-mono font-bold text-slate-900">4,300,000</td>
+                                            <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold text-[10px]">Active</span></td>
+                                            <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-md bg-green-100 text-green-700 font-bold text-[10px]">Low</span></td>
+                                        </tr>
+
+                                        <!-- Row 9 -->
+                                        <tr class="hover:bg-slate-50/80 transition">
+                                            <td class="py-2 px-3 text-slate-400">9</td>
+                                            <td class="py-2 px-3 font-bold text-blue-600">ENQ-2025-009</td>
+                                            <td class="py-2 px-3">Qiddiya</td>
+                                            <td class="py-2 px-3 font-semibold text-slate-800">Facility Construction</td>
+                                            <td class="py-2 px-3 text-slate-500 font-mono">QID-7722</td>
+                                            <td class="py-2 px-3">22 Aug 2025</td>
+                                            <td class="py-2 px-3 text-center font-bold text-slate-800">3</td>
+                                            <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 font-bold text-[10px]">Client Follow-up</span></td>
+                                            <td class="py-2 px-3 font-mono font-bold text-slate-900">11,000,000</td>
+                                            <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 font-bold text-[10px]">Pending</span></td>
+                                            <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-md bg-red-100 text-red-700 font-bold text-[10px]">High</span></td>
+                                        </tr>
+
+                                        <!-- Row 10 -->
+                                        <tr class="hover:bg-slate-50/80 transition">
+                                            <td class="py-2 px-3 text-slate-400">10</td>
+                                            <td class="py-2 px-3 font-bold text-blue-600">ENQ-2025-010</td>
+                                            <td class="py-2 px-3">Diriyah Company</td>
+                                            <td class="py-2 px-3 font-semibold text-slate-800">Infrastructure Works</td>
+                                            <td class="py-2 px-3 text-slate-500 font-mono">DIR-1100</td>
+                                            <td class="py-2 px-3">12 Sep 2025</td>
+                                            <td class="py-2 px-3 text-center font-bold text-slate-800">24</td>
+                                            <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 font-bold text-[10px]">RFQ Received</span></td>
+                                            <td class="py-2 px-3 font-mono font-bold text-slate-900">7,600,000</td>
+                                            <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold text-[10px]">Active</span></td>
+                                            <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 font-bold text-[10px]">Medium</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Table Pagination Footer -->
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                            <span>Showing 1 to 10 of 124 entries</span>
+                            <div class="flex items-center gap-1">
+                                <button class="w-6 h-6 rounded border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition">&lt;</button>
+                                <button class="w-6 h-6 rounded bg-blue-600 text-white font-bold flex items-center justify-center">1</button>
+                                <button class="w-6 h-6 rounded border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition">2</button>
+                                <button class="w-6 h-6 rounded border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition">3</button>
+                                <button class="w-6 h-6 rounded border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition">4</button>
+                                <button class="w-6 h-6 rounded border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition">5</button>
+                                <button class="w-6 h-6 rounded border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition">&gt;</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- B4.2 Right Column Modules (Key Stats, Alerts, Deadlines) (span 4) -->
+                    <div class="lg:col-span-4 space-y-5">
+                        
+                        <!-- Key Statistics Donut -->
+                        <div class="bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow">
+                            <div class="flex items-center justify-between mb-3">
+                                <h4 class="text-sm font-bold text-slate-900">Key Statistics</h4>
+                            </div>
+
+                            <div class="flex items-center justify-between gap-4">
+                                <div class="relative w-32 h-32 shrink-0 flex items-center justify-center">
+                                    <canvas id="rfqKeyStatsChart"></canvas>
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                        <span class="text-lg font-black text-slate-900 leading-none">124</span>
+                                        <span class="text-[9px] font-semibold text-slate-400 uppercase">Total RFQs</span>
+                                    </div>
+                                </div>
+                                <div class="space-y-1.5 text-xs flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-emerald-500"></span><span class="font-medium text-slate-700">Active Bids</span></div>
+                                        <span class="font-bold text-slate-900">78</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-purple-600"></span><span class="font-medium text-slate-700">Awaiting Client</span></div>
+                                        <span class="font-bold text-slate-900">32</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-blue-600"></span><span class="font-medium text-slate-700">Awarded / PO</span></div>
+                                        <span class="font-bold text-slate-900">18</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-orange-500"></span><span class="font-medium text-slate-700">Not Awarded</span></div>
+                                        <span class="font-bold text-slate-900">12</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-red-500"></span><span class="font-medium text-slate-700">Cancelled</span></div>
+                                        <span class="font-bold text-slate-900">4</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Critical Alerts -->
+                        <div class="bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow">
+                            <div class="flex items-center justify-between mb-3">
+                                <h4 class="text-sm font-bold text-slate-900">Critical Alerts</h4>
+                                <button type="button" onclick="openDetailsModal('Critical Alerts', 'Active tenders requiring immediate estimator or management intervention.')" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">View All</button>
+                            </div>
+                            <div class="space-y-2.5 text-xs">
+                                <div class="flex items-center gap-2.5 text-red-600 font-semibold leading-tight">
+                                    <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+                                    <span>3 RFQs overdue for submission</span>
+                                </div>
+                                <div class="flex items-center gap-2.5 text-red-600 font-semibold leading-tight">
+                                    <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+                                    <span>2 Estimations pending approval</span>
+                                </div>
+                                <div class="flex items-center gap-2.5 text-red-600 font-semibold leading-tight">
+                                    <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+                                    <span>1 Client clarification pending (ENQ-2025-003)</span>
+                                </div>
+                                <div class="flex items-center gap-2.5 text-red-600 font-semibold leading-tight">
+                                    <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+                                    <span>1 PO pending Work Order (ENQ-2025-006)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Upcoming Deadlines -->
+                        <div class="bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow">
+                            <div class="flex items-center justify-between mb-3">
+                                <h4 class="text-sm font-bold text-slate-900">Upcoming Deadlines</h4>
+                                <button type="button" onclick="openDetailsModal('Tender Deadlines', 'Commercial bid closing deadlines scheduled for this month.')" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition">View All</button>
+                            </div>
+                            <div class="space-y-2 text-[11px]">
+                                <div class="flex items-center justify-between p-1.5 rounded-lg bg-slate-50 font-medium">
+                                    <span class="font-bold text-blue-600">ENQ-2025-003</span>
+                                    <span>Red Sea Global</span>
+                                    <span class="text-slate-500">20 Aug 2025</span>
+                                    <span class="px-2 py-0.5 rounded bg-red-100 text-red-700 font-bold">1</span>
+                                </div>
+                                <div class="flex items-center justify-between p-1.5 rounded-lg bg-slate-50 font-medium">
+                                    <span class="font-bold text-blue-600">ENQ-2025-009</span>
+                                    <span>Qiddiya</span>
+                                    <span class="text-slate-500">22 Aug 2025</span>
+                                    <span class="px-2 py-0.5 rounded bg-red-100 text-red-700 font-bold">3</span>
+                                </div>
+                                <div class="flex items-center justify-between p-1.5 rounded-lg bg-slate-50 font-medium">
+                                    <span class="font-bold text-blue-600">ENQ-2025-001</span>
+                                    <span>Saudi Aramco</span>
+                                    <span class="text-slate-500">25 Aug 2025</span>
+                                    <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-700 font-bold">6</span>
+                                </div>
+                                <div class="flex items-center justify-between p-1.5 rounded-lg bg-slate-50 font-medium">
+                                    <span class="font-bold text-blue-600">ENQ-2025-002</span>
+                                    <span>NEOM</span>
+                                    <span class="text-slate-500">28 Aug 2025</span>
+                                    <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-700 font-bold">9</span>
+                                </div>
+                                <div class="flex items-center justify-between p-1.5 rounded-lg bg-slate-50 font-medium">
+                                    <span class="font-bold text-blue-600">ENQ-2025-008</span>
+                                    <span>Ma'aden</span>
+                                    <span class="text-slate-500">30 Aug 2025</span>
+                                    <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-700 font-bold">11</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- B5. LOWER ROW CHARTS (RFQ STATUS, MONTHLY TREND, TOP CLIENTS) -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                    
+                    <!-- Chart 1: RFQ Status Bar Chart (span 4) -->
+                    <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-sm font-bold text-slate-900">RFQ Status</h4>
+                        </div>
+                        <div class="relative h-48 w-full">
+                            <canvas id="rfqStatusBarChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Chart 2: Monthly RFQs Trend (span 4) -->
+                    <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-sm font-bold text-slate-900">Monthly RFQs Trend</h4>
+                            <div class="flex items-center gap-3 text-[10px] font-semibold">
+                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500"></span> RFQs Received</span>
+                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Awarded</span>
+                            </div>
+                        </div>
+                        <div class="relative h-48 w-full">
+                            <canvas id="rfqMonthlyTrendChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Chart 3: Top Clients by RFQ Value (span 4) -->
+                    <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 p-5 card-shadow flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-sm font-bold text-slate-900">Top Clients <span class="text-xs text-slate-400 font-normal">(By RFQ Value)</span></h4>
+                        </div>
+                        <div class="relative h-48 w-full">
+                            <canvas id="rfqTopClientsChart"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
 
         </main>
@@ -928,7 +1476,6 @@
     <!-- ================================================================= -->
     <div id="quickActionModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
-            <!-- Modal Header -->
             <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
                     <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
@@ -944,7 +1491,6 @@
                 </button>
             </div>
 
-            <!-- Modal Body Form -->
             <form onsubmit="handleActionSubmit(event)" class="p-6 space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Project Work Order / Reference</label>
@@ -984,9 +1530,7 @@
         </div>
     </div>
 
-    <!-- ================================================================= -->
     <!-- DETAILS DRILLDOWN MODAL -->
-    <!-- ================================================================= -->
     <div id="detailsDrilldownModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
             <div class="px-6 py-4 bg-[#0B1736] text-white flex items-center justify-between">
@@ -1010,9 +1554,7 @@
         </div>
     </div>
 
-    <!-- ================================================================= -->
     <!-- NOTIFICATIONS SLIDE DRAWER -->
-    <!-- ================================================================= -->
     <div id="notificationDrawer" class="fixed inset-y-0 right-0 z-50 w-80 bg-white shadow-2xl border-l border-slate-200 transition-transform duration-300 translate-x-full flex flex-col">
         <div class="p-4 bg-[#0B1736] text-white flex items-center justify-between">
             <div class="flex items-center gap-2">
@@ -1060,6 +1602,67 @@
         // Initialize Lucide Icons
         lucide.createIcons();
 
+        // Server-passed initial view
+        const SERVER_INITIAL_VIEW = "{{ initial_view|default:'operations' }}";
+
+        // View Switcher between Operations Cockpit & RFQ to Work Order Dashboard
+        function switchDashboardView(viewName) {
+            const opsView = document.getElementById('viewOperationsCockpit');
+            const rfqView = document.getElementById('viewRfqToWorkOrder');
+            const navOps = document.getElementById('nav-item-dashboard');
+            const navRfq = document.getElementById('nav-item-rfq');
+
+            if (viewName === 'rfq') {
+                opsView.classList.add('hidden');
+                rfqView.classList.remove('hidden');
+
+                // Update nav classes
+                navOps.className = "flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group cursor-pointer";
+                const opsIcon = navOps.querySelector('[data-lucide], svg');
+                if (opsIcon) { opsIcon.classList.remove('text-white'); opsIcon.classList.add('text-slate-400'); }
+
+                navRfq.className = "flex items-center justify-between px-3.5 py-2.5 rounded-lg bg-[#2563EB] text-white font-semibold shadow-sm transition cursor-pointer";
+                const rfqIcon = navRfq.querySelector('[data-lucide], svg');
+                if (rfqIcon) { rfqIcon.classList.remove('text-cyan-400'); rfqIcon.classList.add('text-white'); }
+
+                // Initialize RFQ charts on first switch
+                initRfqCharts();
+
+                // Update URL without full refresh
+                if (history.pushState) {
+                    const newUrl = window.location.pathname + '?view=rfq';
+                    history.replaceState({ view: 'rfq' }, '', newUrl);
+                }
+            } else {
+                rfqView.classList.add('hidden');
+                opsView.classList.remove('hidden');
+
+                navRfq.className = "flex items-center justify-between px-3.5 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition group cursor-pointer";
+                const rfqIcon = navRfq.querySelector('[data-lucide], svg');
+                if (rfqIcon) { rfqIcon.classList.add('text-cyan-400'); rfqIcon.classList.remove('text-white'); }
+
+                navOps.className = "flex items-center gap-3 px-3.5 py-2.5 rounded-lg bg-[#2563EB] text-white font-semibold shadow-sm transition cursor-pointer";
+                const opsIcon = navOps.querySelector('[data-lucide], svg');
+                if (opsIcon) { opsIcon.classList.add('text-white'); opsIcon.classList.remove('text-slate-400'); }
+
+                if (history.pushState) {
+                    history.replaceState({ view: 'operations' }, '', window.location.pathname);
+                }
+            }
+            lucide.createIcons();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Live Table Search for RFQ Table
+        function filterRfqTable(query) {
+            const q = (query || '').toLowerCase().trim();
+            const rows = document.querySelectorAll('#rfqTableBody tr');
+            rows.forEach(r => {
+                const text = r.innerText.toLowerCase();
+                r.style.display = text.includes(q) ? '' : 'none';
+            });
+        }
+
         // Mobile Sidebar Toggle
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -1081,11 +1684,10 @@
             dropdown.classList.toggle('hidden');
         }
 
-        // Close dropdown when clicking outside
         window.addEventListener('click', function(e) {
             const btn = e.target.closest('button');
             const dropdown = document.getElementById('quickCreateDropdown');
-            if (!dropdown.contains(e.target) && (!btn || !btn.innerText.includes('Quick Create'))) {
+            if (dropdown && !dropdown.contains(e.target) && (!btn || !btn.innerText.includes('Quick Create'))) {
                 dropdown.classList.add('hidden');
             }
         });
@@ -1137,11 +1739,9 @@
         }
 
         // -------------------------------------------------------------
-        // CHART 1: PROGRESS OVERVIEW (Dual Line Chart)
+        // OPERATIONS COCKPIT CHARTS (Line Chart & Donut)
         // -------------------------------------------------------------
         const ctxProgress = document.getElementById('progressOverviewChart').getContext('2d');
-        
-        // Custom Plugin for Line Chart Data Point Labels
         const linePointDataLabelPlugin = {
             id: 'linePointDataLabel',
             afterDatasetsDraw(chart) {
@@ -1202,50 +1802,29 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: '#0F172A',
-                        padding: 10,
-                        titleFont: { size: 11, weight: 'bold' },
-                        bodyFont: { size: 10 },
-                        cornerRadius: 8,
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': ' + context.parsed.y + '%';
-                            }
-                        }
-                    }
+                    legend: { display: false }
                 },
                 scales: {
                     x: {
                         grid: { display: false },
-                        ticks: {
-                            font: { size: 10, family: '"Plus Jakarta Sans", sans-serif' },
-                            color: '#64748B'
-                        }
+                        ticks: { font: { size: 10 }, color: '#64748B' }
                     },
                     y: {
                         min: 0,
                         max: 100,
                         ticks: {
                             stepSize: 25,
-                            callback: function(value) { return value + '%'; },
-                            font: { size: 10, family: '"Plus Jakarta Sans", sans-serif' },
+                            callback: function(val) { return val + '%'; },
+                            font: { size: 10 },
                             color: '#64748B'
                         },
-                        grid: {
-                            color: '#F1F5F9',
-                            borderDash: [3, 3]
-                        }
+                        grid: { color: '#F1F5F9', borderDash: [3, 3] }
                     }
                 }
             },
             plugins: [linePointDataLabelPlugin]
         });
 
-        // -------------------------------------------------------------
-        // CHART 2: REQUESTS OVERVIEW (Donut Chart)
-        // -------------------------------------------------------------
         const ctxRequests = document.getElementById('requestsOverviewChart').getContext('2d');
         new Chart(ctxRequests, {
             type: 'doughnut',
@@ -1253,12 +1832,7 @@
                 labels: ['Submitted', 'Pending', 'Approved', 'Rejected'],
                 datasets: [{
                     data: [18, 18, 6, 2],
-                    backgroundColor: [
-                        '#2563EB', // Blue
-                        '#F59E0B', // Amber/Orange
-                        '#10B981', // Green
-                        '#EF4444'  // Red
-                    ],
+                    backgroundColor: ['#2563EB', '#F59E0B', '#10B981', '#EF4444'],
                     borderWidth: 2,
                     borderColor: '#FFFFFF',
                     hoverOffset: 4
@@ -1268,24 +1842,147 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 cutout: '72%',
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: '#0F172A',
-                        padding: 8,
-                        titleFont: { size: 11 },
-                        bodyFont: { size: 10 },
-                        cornerRadius: 8,
-                        callbacks: {
-                            label: function(context) {
-                                const val = context.parsed;
-                                const total = 44;
-                                const pct = ((val / total) * 100).toFixed(2);
-                                return context.label + ': ' + val + ' (' + pct + '%)';
-                            }
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // -------------------------------------------------------------
+        // RFQ TO WORK ORDER CHARTS (Lazy Initialized)
+        // -------------------------------------------------------------
+        let rfqChartsInitialized = false;
+
+        function initRfqCharts() {
+            if (rfqChartsInitialized) return;
+            rfqChartsInitialized = true;
+
+            // 1. Key Statistics Donut
+            const ctxKeyStats = document.getElementById('rfqKeyStatsChart');
+            if (ctxKeyStats) {
+                new Chart(ctxKeyStats.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Active Bids', 'Awaiting Client', 'Awarded / PO', 'Not Awarded', 'Cancelled'],
+                        datasets: [{
+                            data: [78, 32, 18, 12, 4],
+                            backgroundColor: ['#10B981', '#8B5CF6', '#2563EB', '#F97316', '#EF4444'],
+                            borderWidth: 2,
+                            borderColor: '#FFFFFF'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            // 2. RFQ Status Bar Chart
+            const ctxStatus = document.getElementById('rfqStatusBarChart');
+            if (ctxStatus) {
+                new Chart(ctxStatus.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Active', 'Pending', 'Awarded', 'Not Awarded', 'Cancelled'],
+                        datasets: [{
+                            data: [78, 32, 18, 12, 4],
+                            backgroundColor: ['#2563EB', '#F59E0B', '#10B981', '#F97316', '#EF4444'],
+                            borderRadius: 6,
+                            barThickness: 24
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { size: 9 }, color: '#64748B' } },
+                            y: { grid: { color: '#F1F5F9' }, ticks: { font: { size: 9 }, color: '#64748B' } }
                         }
                     }
-                }
+                });
+            }
+
+            // 3. Monthly RFQs Trend
+            const ctxTrend = document.getElementById('rfqMonthlyTrendChart');
+            if (ctxTrend) {
+                new Chart(ctxTrend.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        datasets: [
+                            {
+                                label: 'Total RFQs',
+                                data: [8, 12, 19, 25, 42, 48, 55, 60, 45, 38, 25, 20],
+                                borderColor: '#0284C7',
+                                backgroundColor: 'rgba(2, 132, 199, 0.08)',
+                                tension: 0.4,
+                                fill: true,
+                                pointRadius: 2.5
+                            },
+                            {
+                                label: 'Awarded',
+                                data: [2, 4, 6, 8, 12, 15, 18, 20, 16, 12, 8, 6],
+                                borderColor: '#10B981',
+                                tension: 0.4,
+                                pointRadius: 2.5
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { size: 9 }, color: '#64748B' } },
+                            y: { grid: { color: '#F1F5F9' }, ticks: { font: { size: 9 }, color: '#64748B' } }
+                        }
+                    }
+                });
+            }
+
+            // 4. Top Clients by RFQ Value (Horizontal Bar)
+            const ctxClients = document.getElementById('rfqTopClientsChart');
+            if (ctxClients) {
+                new Chart(ctxClients.getContext('2d'), {
+                    type: 'bar',
+                    indexAxis: 'y',
+                    data: {
+                        labels: ['NEOM', 'SABIC', 'Qiddiya', 'Saudi Aramco', 'SEC'],
+                        datasets: [{
+                            data: [12.4, 15.2, 11.0, 5.2, 9.5],
+                            backgroundColor: ['#0284C7', '#10B981', '#8B5CF6', '#F59E0B', '#06B6D4'],
+                            borderRadius: 4,
+                            barThickness: 14
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: {
+                                grid: { color: '#F1F5F9' },
+                                ticks: {
+                                    font: { size: 9 },
+                                    color: '#64748B',
+                                    callback: function(v) { return v + 'M'; }
+                                }
+                            },
+                            y: { grid: { display: false }, ticks: { font: { size: 9 }, color: '#64748B' } }
+                        }
+                    }
+                });
+            }
+        }
+
+        // On Page Load: Check URL parameters or server view to activate RFQ to Work Order if requested
+        window.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewParam = urlParams.get('view');
+            if (viewParam === 'rfq' || window.location.hash === '#rfq' || SERVER_INITIAL_VIEW === 'rfq') {
+                switchDashboardView('rfq');
             }
         });
     </script>
