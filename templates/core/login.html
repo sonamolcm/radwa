@@ -76,144 +76,200 @@
       }
     </style>
 </head>
-<body class="h-screen w-full bg-[#122146] flex items-center justify-center overflow-hidden antialiased select-none">
+<body class="h-screen w-full bg-[#f8f9fa] flex overflow-hidden antialiased select-none font-sans">
 
-    <!-- Ambient Split Background for Ultrawide Displays -->
-    <div class="fixed inset-0 flex pointer-events-none z-0">
-        <div class="w-1/2 h-full bg-[#122146]"></div>
-        <div class="w-1/2 h-full bg-[#f2f3f8]"></div>
-    </div>
+    <!-- ================================================================= -->
+    <!-- MAIN TWO-COLUMN SPLIT: LEFT BRANDING & RIGHT SHARP AUTH CARD     -->
+    <!-- ================================================================= -->
+    <div class="h-screen w-full flex flex-col lg:flex-row relative overflow-hidden">
 
-    <!-- Master Screen Container (Exact Aspect Ratio 1024x682, 100% Full Viewport Height) -->
-    <div class="relative z-10 h-screen max-w-full aspect-[1024/682] shadow-2xl overflow-hidden flex items-center justify-center">
-        
-        <!-- The Exact Reference Design Image in Lossless 2048x1364 Resolution -->
-        <img 
-            src="{% static 'images/radwa_login_bg_2x.png' %}" 
-            alt="Radwa Gulf - Building Excellence. Delivering Trust." 
-            class="absolute inset-0 w-full h-full object-contain pointer-events-none select-none z-0 filter brightness-100 contrast-[1.01]"
-        />
+        <!-- ============================================================= -->
+        <!-- LEFT PANEL: EXACT REFERENCE BRANDING (FULL HEIGHT & BUILDING) -->
+        <!-- ============================================================= -->
+        <div class="hidden lg:flex lg:w-1/2 h-full bg-[#071638] items-center justify-end relative overflow-hidden shrink-0">
+            <!-- Full Height Uncropped Left Artwork: Building & Cranes Fully Visible -->
+            <img 
+                src="{% static 'images/radwa_login_left.png' %}" 
+                alt="Radwa Gulf - Building Excellence. Delivering Trust." 
+                class="h-full w-auto max-w-none object-contain object-right select-none pointer-events-none filter brightness-100 contrast-[1.01]"
+            />
+        </div>
 
-        <!-- Overlay Interactive Controls Layer -->
-        <div class="absolute inset-0 z-10">
+        <!-- Mobile Branded Header for small screens -->
+        <div class="lg:hidden w-full bg-[#071638] py-4 px-6 text-center shrink-0">
+            <img 
+                src="{% static 'images/radwa_gulf_logo.png' %}" 
+                alt="Radwa Gulf" 
+                class="h-8 mx-auto object-contain brightness-0 invert"
+            />
+        </div>
+
+        <!-- ============================================================= -->
+        <!-- RIGHT PANEL: CRYSTAL CLEAR, RAZOR-SHARP AUTHENTICATION CARD  -->
+        <!-- ============================================================= -->
+        <div class="w-full lg:w-1/2 h-full bg-[#f8f9fa] flex flex-col justify-between items-center py-3 sm:py-4 px-4 sm:px-8 lg:px-12 relative z-10 overflow-y-auto lg:overflow-hidden">
             
-            <!-- Language Selector (Top Right) -->
-            <button 
-                type="button" 
-                class="absolute cursor-pointer rounded-xl border border-transparent hover:border-slate-300/80 hover:bg-white/40 transition"
-                style="left: 83.8%; top: 3.1%; width: 14.8%; height: 5.6%;"
-                title="Select Language"
-            >
-            </button>
-
-            <!-- Error Banner (Alert positioned directly above input fields in the card) -->
-            <div 
-                id="loginErrorMessage" 
-                class="hidden absolute z-30 p-2 sm:p-2.5 rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-red-600 text-white text-xs flex items-center gap-2 shadow-lg shadow-red-600/30 border border-red-400/50 transition-all duration-300"
-                style="left: 58.5%; top: 23.5%; width: 31.6%;"
-            >
-                <div class="w-5 h-5 rounded-md bg-white/20 flex items-center justify-center shrink-0">
-                    <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-white"></i>
-                </div>
-                <span id="loginErrorText" class="font-semibold text-white text-[11px] truncate">Invalid email or password</span>
+            <!-- Top Language Selector -->
+            <div class="w-full flex justify-end shrink-0">
+                <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200/90 bg-white text-[11px] font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 hover:border-slate-300 transition cursor-pointer">
+                    <i data-lucide="globe" class="w-3.5 h-3.5 text-slate-500"></i>
+                    <span>English</span>
+                    <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+                </button>
             </div>
 
-            <!-- Interactive Authentication Form -->
-            <form onsubmit="handleExecuteSignIn(event)">
+            <!-- Main Authentication Card (Vector-Crisp, Zero Blurring) -->
+            <div class="w-full max-w-[420px] my-auto py-2">
                 
-                <!-- Email / Employee ID Input -->
-                <div 
-                    class="absolute flex items-center"
-                    style="left: 58.5%; top: 31.96%; width: 31.54%; height: 5.13%;"
-                >
-                    <input 
-                        type="text" 
-                        id="loginEmailInput" 
-                        placeholder="Enter your email or employee ID" 
-                        required
-                        autocomplete="username"
-                        class="w-full h-full bg-white/95 focus:bg-white border border-slate-200/90 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl text-slate-800 placeholder-slate-400 text-xs sm:text-sm pl-9 pr-3 shadow-2xs outline-none transition"
-                    />
-                    <i data-lucide="user" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 absolute left-3 pointer-events-none"></i>
-                </div>
+                <div class="bg-white rounded-[24px] p-6 sm:p-7 shadow-xl shadow-slate-200/60 border border-slate-100 transition-all">
+                    
+                    <!-- Card Header -->
+                    <div class="mb-4">
+                        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                            <span>Welcome Back!</span>
+                            <span class="text-xl">👋</span>
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5 font-normal">
+                            Sign in to access your RADWA GULF portal
+                        </p>
+                    </div>
 
-                <!-- Forgot Password Button (Clickable Link over "Forgot Password?") -->
-                <button 
-                    type="button" 
-                    onclick="handleForgotPassword()"
-                    class="absolute cursor-pointer text-right text-[11px] sm:text-xs text-blue-600 hover:text-blue-800 font-medium transition"
-                    style="left: 79.5%; top: 39.8%; width: 10.6%; height: 3.5%;"
-                    title="Reset forgotten password"
-                >
-                    Forgot Password?
-                </button>
+                    <!-- Error Alert Box: Clean, High-Contrast Red Alert -->
+                    <div id="loginErrorMessage" class="hidden mb-3.5 p-2.5 rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-red-600 text-white text-xs flex items-center gap-2.5 shadow-md shadow-red-600/25 border border-red-400/50 transition-all duration-300">
+                        <div class="w-6 h-6 rounded-lg bg-white/20 border border-white/30 flex items-center justify-center shrink-0">
+                            <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-white"></i>
+                        </div>
+                        <div class="flex-1 text-left">
+                            <span id="loginErrorText" class="font-semibold text-white text-xs tracking-wide">Invalid email or password</span>
+                        </div>
+                    </div>
 
-                <!-- Password Input -->
-                <div 
-                    class="absolute flex items-center"
-                    style="left: 58.5%; top: 43.99%; width: 31.54%; height: 5.13%;"
-                >
-                    <input 
-                        type="password" 
-                        id="loginPasswordInput" 
-                        placeholder="Enter your password" 
-                        required
-                        autocomplete="current-password"
-                        class="w-full h-full bg-white/95 focus:bg-white border border-slate-200/90 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl text-slate-800 placeholder-slate-400 text-xs sm:text-sm pl-9 pr-8 shadow-2xs outline-none transition"
-                    />
-                    <i data-lucide="lock" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 absolute left-3 pointer-events-none"></i>
+                    <!-- Sign In Form -->
+                    <form onsubmit="handleExecuteSignIn(event)" class="space-y-3.5">
+                        
+                        <!-- Email Field -->
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">
+                                Email / Employee ID
+                            </label>
+                            <div class="relative flex items-center">
+                                <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none"></i>
+                                <input 
+                                    type="text" 
+                                    id="loginEmailInput" 
+                                    placeholder="Enter your email or employee ID" 
+                                    required
+                                    autocomplete="username"
+                                    class="w-full bg-white border border-slate-200/90 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 focus:outline-none rounded-xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 pl-10 pr-3.5 py-2.5 transition shadow-2xs"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-[11px] font-semibold text-slate-700">
+                                    Password
+                                </label>
+                                <button 
+                                    type="button" 
+                                    onclick="handleForgotPassword()"
+                                    class="text-[11px] text-blue-600 hover:text-blue-700 font-medium transition cursor-pointer"
+                                >
+                                    Forgot Password?
+                                </button>
+                            </div>
+                            <div class="relative flex items-center">
+                                <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none"></i>
+                                <input 
+                                    type="password" 
+                                    id="loginPasswordInput" 
+                                    placeholder="Enter your password" 
+                                    required
+                                    autocomplete="current-password"
+                                    class="w-full bg-white border border-slate-200/90 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 focus:outline-none rounded-xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 pl-10 pr-9 py-2.5 transition shadow-2xs"
+                                />
+                                <button 
+                                    type="button" 
+                                    onclick="togglePasswordVisibility('loginPasswordInput', 'pwdToggleIcon')"
+                                    class="absolute right-3 text-slate-400 hover:text-slate-600 transition cursor-pointer p-1"
+                                    title="Toggle Password"
+                                >
+                                    <i data-lucide="eye" id="pwdToggleIcon" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Remember Me Checkbox -->
+                        <div class="flex items-center text-xs text-slate-600 pt-0.5">
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <input 
+                                    type="checkbox" 
+                                    id="rememberMeCheckbox" 
+                                    checked 
+                                    class="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                />
+                                <span class="font-normal text-slate-600 text-[11px]">Remember me</span>
+                            </label>
+                        </div>
+
+                        <!-- Primary Sign In Button: Royal Blue with Right Arrow -->
+                        <button 
+                            type="submit" 
+                            id="signInSubmitBtn"
+                            class="w-full py-2.5 sm:py-3 px-5 rounded-xl bg-[#0e43b8] hover:bg-[#0a3597] text-white font-semibold text-xs sm:text-sm transition duration-200 shadow-md shadow-blue-700/20 cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] mt-2"
+                        >
+                            <span>Sign In</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </form>
+
+                    <!-- "or continue with" Divider -->
+                    <div class="relative flex items-center justify-center my-3.5">
+                        <div class="border-t border-slate-200 w-full"></div>
+                        <span class="bg-white px-2.5 text-[10px] font-medium text-slate-400 uppercase tracking-wider absolute">
+                            or continue with
+                        </span>
+                    </div>
+
+                    <!-- Sign in with Microsoft Button -->
                     <button 
                         type="button" 
-                        onclick="togglePasswordVisibility('loginPasswordInput', 'pwdToggleIcon')"
-                        class="absolute right-2.5 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
-                        title="Toggle password visibility"
+                        onclick="handleMicrosoftSignIn()"
+                        class="w-full py-2.5 px-3.5 rounded-xl border border-slate-200/90 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs sm:text-sm transition shadow-2xs flex items-center justify-center gap-2.5 cursor-pointer"
                     >
-                        <i data-lucide="eye" id="pwdToggleIcon" class="w-3.5 h-3.5"></i>
+                        <!-- Official Microsoft 4-Color Grid Icon -->
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
+                            <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
+                            <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
+                            <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+                        </svg>
+                        <span>Sign in with Microsoft</span>
                     </button>
+
                 </div>
 
-                <!-- Remember Me Checkbox -->
-                <label 
-                    class="absolute flex items-center gap-1.5 cursor-pointer select-none text-[11px] sm:text-xs text-slate-600 hover:text-slate-900 transition"
-                    style="left: 58.5%; top: 51.5%; height: 3.5%;"
-                >
-                    <input 
-                        type="checkbox" 
-                        id="rememberMeCheckbox" 
-                        checked 
-                        class="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+            </div>
+
+            <!-- Footer & ISO Certifications (Non-scrolling bottom) -->
+            <div class="w-full max-w-[500px] text-center space-y-1.5 pt-1 pb-1 shrink-0">
+                
+                <p class="text-[11px] text-slate-400 font-normal">
+                    &copy; 2024 Radwa Gulf Engineering and Construction. All rights reserved.
+                </p>
+
+                <!-- 4 ISO Certification Badges Card from Reference Design -->
+                <div class="bg-white rounded-xl py-1 px-3.5 shadow-2xs border border-slate-200/80 inline-block max-w-full">
+                    <img 
+                        src="{% static 'images/iso_badges_exact.png' %}" 
+                        alt="ISO 9001 Quality, ISO 14001 Environmental, ISO 45001 Health & Safety, ISO 2015 QMS Certified"
+                        class="h-8 sm:h-9 w-auto object-contain mx-auto"
                     />
-                    <span class="text-[11px] text-slate-600">Remember me</span>
-                </label>
+                </div>
 
-                <!-- Primary Sign In Button -->
-                <button 
-                    type="submit" 
-                    id="signInSubmitBtn"
-                    class="absolute rounded-xl bg-[#0e43b8] hover:bg-[#0a3597] active:scale-[0.99] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-blue-700/25 transition duration-150 cursor-pointer"
-                    style="left: 58.5%; top: 56.74%; width: 31.54%; height: 5.13%;"
-                >
-                    <span>Sign In</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                </button>
+            </div>
 
-            </form>
-
-            <!-- Sign in with Microsoft Button -->
-            <button 
-                type="button" 
-                onclick="handleMicrosoftSignIn()"
-                class="absolute rounded-xl bg-white hover:bg-slate-50 border border-slate-200/90 text-slate-700 font-medium text-xs sm:text-sm flex items-center justify-center gap-2 shadow-2xs transition cursor-pointer"
-                style="left: 58.5%; top: 69.50%; width: 31.54%; height: 5.28%;"
-            >
-                <svg class="w-4 h-4 shrink-0" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
-                    <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
-                    <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
-                    <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
-                </svg>
-                <span>Sign in with Microsoft</span>
-            </button>
         </div>
 
     </div>
