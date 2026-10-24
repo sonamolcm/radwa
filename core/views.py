@@ -1034,10 +1034,8 @@ def login_view(request):
             'admin', 'crm', 'md', 'estimator', 'operations', 'surveyor', 'qaqc', 'hse', 'hr', 'inventory', 'purchase', 'mr'
         ] else 'admin'
 
-        target_url = f"/?role={role_key}"
-        if role_key == "mr":
-            target_url = "/material-requests/"
-        elif role_key == "admin":
+        target_url = f"/menu/?role={role_key}"
+        if role_key == "admin":
             target_url = "/menu/?view=admin_grid"
 
         if is_ajax:

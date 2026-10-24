@@ -1120,13 +1120,11 @@
                 inBtn.disabled = true;
             }
 
-            // Zero-delay instant redirect
-            if (user.role === 'mr' || user.launchUrl === '/material-requests/') {
-                window.location.href = '/material-requests/';
-            } else if (user.role === 'admin') {
+            // Zero-delay instant redirect: Show designated workspace cards + Radwa Dashboard
+            if (user.role === 'admin') {
                 window.location.href = '/menu/?view=admin_grid';
             } else {
-                window.location.href = user.launchUrl || `/?role=${encodeURIComponent(user.role)}`;
+                window.location.href = `/menu/?role=${encodeURIComponent(user.role)}`;
             }
         }
 

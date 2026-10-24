@@ -1751,17 +1751,18 @@
                 return;
             }
 
-            const storedUser = localStorage.getItem('radwa_auth_user');
-            const savedRole = localStorage.getItem('radwa_current_role');
+            let activeRole = (roleParam && PRESET_USERS[roleParam]) ? roleParam : (localStorage.getItem('radwa_current_role') || (document.cookie.match(/(?:^|;\s*)radwa_role=([^;]+)/) || [])[1]);
+            if (viewParam === 'admin_grid') activeRole = 'admin';
 
-            if (storedUser && savedRole && PRESET_USERS[savedRole]) {
-                if (roleParam && PRESET_USERS[roleParam]) {
-                    setRole(roleParam);
-                } else if (viewParam === 'admin_grid') {
-                    setRole('admin');
-                } else {
-                    setRole(savedRole);
+            if (activeRole && PRESET_USERS[activeRole]) {
+                const preset = PRESET_USERS[activeRole];
+                if (!localStorage.getItem('radwa_auth_user')) {
+                    try {
+                        localStorage.setItem('radwa_auth_user', JSON.stringify(preset));
+                        localStorage.setItem('radwa_current_role', activeRole);
+                    } catch(e) {}
                 }
+                setRole(activeRole);
             } else {
                 handleSignOut();
             }
