@@ -891,7 +891,7 @@
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-3">
                     
                     <!-- KPI 1: Total RFQs -->
-                    <div class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex items-center gap-3">
+                    <div onclick="filterByStep(1)" class="bg-white rounded-xl border border-slate-200/80 p-3 card-shadow card-hover flex items-center gap-3 cursor-pointer" title="Click to view all Client RFQ Intake tenders">
                         <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
                             <i data-lucide="file-text" class="w-4 h-4"></i>
                         </div>
@@ -999,10 +999,6 @@
                             <span class="text-xs font-bold text-slate-800 tracking-wider uppercase">Radwa ERP End-to-End Tender Lifecycle</span>
                             <span class="text-[11px] text-slate-400 font-medium">| Click any stage below to filter tenders</span>
                         </div>
-                        <button type="button" onclick="filterByStep('all')" id="btn-show-all" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition flex items-center gap-1.5">
-                            <i data-lucide="rotate-ccw" class="w-3 h-3 text-slate-500"></i>
-                            <span>Show All ({{ total_projects }})</span>
-                        </button>
                     </div>
 
                     <div class="overflow-x-auto custom-scroll pb-1">
@@ -1863,30 +1859,13 @@
         // -------------------------------------------------------------
         // PIPELINE STEPPER & TABLE FILTERING LOGIC
         // -------------------------------------------------------------
-        let activeStepFilter = 'all';
+        let activeStepFilter = 1;
 
         function filterByStep(step) {
             const rows = document.querySelectorAll('.pipeline-row');
             const pills = document.querySelectorAll('.step-pill');
             const badge = document.getElementById('activeStepFilterBadge');
             const countText = document.getElementById('rfqTableCountText');
-            const btnShowAll = document.getElementById('btn-show-all');
-
-            if (step === 'all') {
-                // Reset filter
-                activeStepFilter = 'all';
-                rows.forEach(r => r.style.display = '');
-                pills.forEach(p => {
-                    p.classList.remove('ring-2', 'ring-blue-600', 'ring-offset-2', 'scale-105', 'shadow-md');
-                });
-                if (badge) badge.classList.add('hidden');
-                if (btnShowAll) {
-                    btnShowAll.classList.remove('bg-blue-600', 'text-white');
-                    btnShowAll.classList.add('bg-slate-100', 'text-slate-700');
-                }
-                if (countText) countText.textContent = `Showing all ${rows.length} tenders in database`;
-                return;
-            }
 
             activeStepFilter = step;
             let visibleCount = 0;
@@ -1898,6 +1877,19 @@
             const activePill = document.getElementById(`step-pill-${step}`);
             if (activePill) {
                 activePill.classList.add('ring-2', 'ring-blue-600', 'ring-offset-2', 'scale-105', 'shadow-md');
+            }
+
+            if (step === 1 || step === 'all') {
+                rows.forEach(r => {
+                    r.style.display = '';
+                    visibleCount++;
+                });
+                if (badge) {
+                    badge.textContent = `Filtered: Step 1: Client RFQ Intake (${visibleCount} RFQs)`;
+                    badge.classList.remove('hidden');
+                }
+                if (countText) countText.textContent = `Showing all ${visibleCount} tenders in database`;
+                return;
             }
 
             rows.forEach(row => {
@@ -1991,6 +1983,7 @@
 
         // On Page Load: Check URL parameters or server view to activate RFQ to Work Order if requested
         window.addEventListener('DOMContentLoaded', function() {
+            filterByStep(1);
             const urlParams = new URLSearchParams(window.location.search);
             const viewParam = urlParams.get('view');
             if (viewParam === 'rfq' || window.location.hash === '#rfq' || SERVER_INITIAL_VIEW === 'rfq') {

@@ -274,7 +274,7 @@
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-3">
                 
                 <!-- KPI 1: Total RFQs -->
-                <div class="bg-white rounded-xl border border-slate-200/80 p-3 shadow-xs hover:shadow-sm flex items-center gap-3">
+                <div onclick="filterByStep(1)" class="bg-white rounded-xl border border-slate-200/80 p-3 shadow-xs hover:shadow-sm flex items-center gap-3 cursor-pointer" title="Click to view all 33 Client RFQ Intake tenders">
                     <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
                         <i data-lucide="file-text" class="w-4 h-4"></i>
                     </div>
@@ -384,10 +384,6 @@
                     </div>
                     <div class="flex items-center gap-2">
                         <span id="activeStepFilterBadge" class="hidden px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200"></span>
-                        <button type="button" onclick="filterByStep('all')" id="btn-show-all-stepper" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition flex items-center gap-1.5 cursor-pointer">
-                            <i data-lucide="rotate-ccw" class="w-3 h-3 text-slate-500"></i>
-                            <span>Show All ({{ total_projects|default:"33" }})</span>
-                        </button>
                     </div>
                 </div>
 
@@ -3594,7 +3590,7 @@
         // Initialize on DOM load
         document.addEventListener('DOMContentLoaded', function() {
             updateEstimatorSwitcherUI();
-            renderWorkspaceTenders();
+            filterByStep(1);
             lucide.createIcons();
         });
 
@@ -3661,23 +3657,24 @@
 
         // -------------------------------------------------------------
         // PIPELINE STEPPER FILTERING LOGIC
-        // -------------------------------------------------------------
-        var activeStepFilter = 'all';
+        var activeStepFilter = 1;
 
         function filterByStep(step) {
             var pills = document.querySelectorAll('.step-pill');
             var badge = document.getElementById('activeStepFilterBadge');
-            var btnShowAll = document.getElementById('btn-show-all-stepper');
 
-            if (step === 'all') {
-                activeStepFilter = 'all';
+            if (step === 'all' || step === 1) {
+                activeStepFilter = 1;
                 pills.forEach(function(p) {
                     p.classList.remove('ring-2', 'ring-indigo-600', 'ring-offset-2', 'scale-105', 'shadow-md');
                 });
-                if (badge) badge.classList.add('hidden');
-                if (btnShowAll) {
-                    btnShowAll.classList.remove('bg-indigo-600', 'text-white');
-                    btnShowAll.classList.add('bg-slate-100', 'text-slate-700');
+                var pill1 = document.getElementById('step-pill-1');
+                if (pill1) {
+                    pill1.classList.add('ring-2', 'ring-indigo-600', 'ring-offset-2', 'scale-105', 'shadow-md');
+                }
+                if (badge) {
+                    badge.textContent = 'Step 1: Client RFQ Intake (All ' + projects.length + ' Tenders)';
+                    badge.classList.remove('hidden');
                 }
                 renderWorkspaceTenders();
                 return;
@@ -3694,7 +3691,7 @@
             }
 
             var stepNames = {
-                1: 'Step 1: Client RFQ Intake',
+                1: 'Step 1: Client RFQ Intake (All ' + projects.length + ' Tenders)',
                 2: 'Step 2: MD Approval',
                 3: 'Step 3: Estimator Assigned',
                 4: 'Step 4: Site Survey / Review',
@@ -3708,11 +3705,6 @@
             if (badge) {
                 badge.textContent = 'Filtered: ' + (stepNames[step] || 'Step ' + step);
                 badge.classList.remove('hidden');
-            }
-
-            if (btnShowAll) {
-                btnShowAll.classList.remove('bg-slate-100', 'text-slate-700');
-                btnShowAll.classList.add('bg-indigo-600', 'text-white');
             }
 
             renderWorkspaceTenders();
@@ -3782,10 +3774,14 @@
             var displayed = currentSubTab === 'active' ? activeBids : currentSubTab === 'submitted' ? submittedBids : authorized;
 
             // Pipeline Stepper filter
-            if (activeStepFilter !== 'all') {
-                displayed = displayed.filter(function(p) {
-                    return String(p.step_number || p.stepNumber) === String(activeStepFilter);
+            if (activeStepFilter !== 1 && activeStepFilter !== 'all') {
+                var targetStep = parseInt(activeStepFilter, 10);
+                displayed = authorized.filter(function(p) {
+                    return (p.step_number || p.stepNumber) === targetStep;
                 });
+            } else {
+                // Step 1: Client RFQ Intake displays all 33 intake tenders in the database!
+                displayed = authorized.slice();
             }
 
             // Scope filter
