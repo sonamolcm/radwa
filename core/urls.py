@@ -7,6 +7,7 @@ app_name = "core"
 urlpatterns = [
     path("", views.login_view, name="login-root"),
     path("login/", views.login_view, name="login"),
+    path("logout/", views.logout_view, name="logout"),
     path("menu/", views.main_menu, name="menu"),
     path("crm/", views.home, name="home"),
     path("crm-desk/", views.home, name="home-crm"),
@@ -82,6 +83,12 @@ urlpatterns = [
     path("api/v1/generate-boq/", api_views.generate_boq_api, name="api-v1-generate-boq"),
     path("api/v1/generate-boq", api_views.generate_boq_api, name="api-v1-generate-boq-noslash"),
     path("api/v1/estimator/tenders/<int:project_id>/generate-boq/", api_views.generate_boq_api, name="api-v1-estimator-tender-generate-boq"),
+
+    # Tender PDF Upload & Drawing Extraction Engine
+    path("api/upload-tender-pdf/", api_views.upload_tender_pdf_api, name="api-upload-tender-pdf"),
+    path("api/upload-tender-pdf", api_views.upload_tender_pdf_api, name="api-upload-tender-pdf-noslash"),
+    path("api/v1/upload-tender-pdf/", api_views.upload_tender_pdf_api, name="api-v1-upload-tender-pdf"),
+    path("api/v1/estimator/tenders/<int:project_id>/upload-pdf/", api_views.upload_tender_pdf_api, name="api-v1-estimator-tender-upload-pdf"),
 
     # AI BOQ Comparison Engine
     path("api/compare-boq/", api_views.compare_boq_api, name="api-compare-boq"),

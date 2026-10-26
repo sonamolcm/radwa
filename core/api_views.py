@@ -53,6 +53,36 @@ ROLE_MAPPINGS = {
         "name": "Farhan Qureshi (Lead Estimator)",
         "apps": ["estimator", "material-requests"],
     },
+    "farhan@radwa.sa": {
+        "role": "Lead Piping & EPC Estimator",
+        "name": "Farhan Qureshi",
+        "apps": ["estimator", "material-requests"],
+    },
+    "tariq@radwa.sa": {
+        "role": "Senior Estimating Engineer",
+        "name": "Eng. Tariq Al-Mansoor",
+        "apps": ["estimator", "material-requests"],
+    },
+    "faisal@radwa.sa": {
+        "role": "Lead Civil Estimator",
+        "name": "Eng. Faisal Rahman",
+        "apps": ["estimator", "material-requests"],
+    },
+    "ahmed@radwa.sa": {
+        "role": "Lead Mechanical Estimator",
+        "name": "Ahmed Mansoor",
+        "apps": ["estimator", "material-requests"],
+    },
+    "rajesh@radwa.sa": {
+        "role": "Senior Electrical Estimator",
+        "name": "Rajesh Kumar",
+        "apps": ["estimator", "material-requests"],
+    },
+    "akshai@radwa.sa": {
+        "role": "Lead Project Estimator",
+        "name": "Akshai A.T",
+        "apps": ["estimator", "material-requests"],
+    },
     "operations@radwa.sa": {
         "role": "Operations Manager",
         "name": "Sultan Al-Otaibi (Operations Head)",
@@ -164,9 +194,15 @@ def auth_login(request):
         },
     )
 
-    role_key = resolved_username if resolved_username in [
-        'admin', 'crm', 'md', 'estimator', 'operations', 'surveyor', 'qaqc', 'hse', 'hr', 'inventory', 'purchase', 'mr'
-    ] else ('admin' if user.is_superuser else 'crm')
+    est_usernames = ['estimator', 'farhan', 'tariq', 'faisal', 'ahmed', 'rajesh', 'akshai']
+    if resolved_username in est_usernames:
+        role_key = 'estimator'
+    elif resolved_username in [
+        'admin', 'crm', 'md', 'operations', 'surveyor', 'qaqc', 'hse', 'hr', 'inventory', 'purchase', 'mr'
+    ]:
+        role_key = resolved_username
+    else:
+        role_key = 'admin' if user.is_superuser else 'crm'
 
     return JsonResponse(
         {
@@ -982,14 +1018,118 @@ def item_detail_update_delete(request, item_id):
 # ============================================================================
 # AI BOQ & Resources Takeoff Engine
 # ============================================================================
+# PDF Drawing & Engineering Specifications Extraction Engine
+# ============================================================================
+
+def extract_pdf_drawing_specs(file_source, filename="Tender_Document.pdf"):
+    """
+    Parses an uploaded engineering drawing or tender specifications PDF.
+    Extracts text from all pages, drawing titles/numbers/revisions, and detects key project parameters.
+    """
+    import re
+    import io
+
+    text_pages = []
+    drawing_sheets = []
+    page_count = 0
+
+    try:
+        import pypdf
+        if isinstance(file_source, (bytes, str, io.BytesIO)):
+            if isinstance(file_source, bytes):
+                file_obj = io.BytesIO(file_source)
+            elif isinstance(file_source, str):
+                file_obj = open(file_source, "rb")
+            else:
+                file_obj = file_source
+        else:
+            file_obj = file_source
+
+        reader = pypdf.PdfReader(file_obj)
+        page_count = len(reader.pages)
+        for i, page in enumerate(reader.pages):
+            page_text = page.extract_text() or ""
+            if page_text:
+                text_pages.append(f"--- Sheet / Page {i+1} ---\n{page_text}")
+                dwg_match = re.search(r'(?:DWG|DRAWING|SHEET|DRG)[\s\-.:#]+([A-Z0-9\-_/]+)', page_text, re.IGNORECASE)
+                rev_match = re.search(r'REV(?:ISION)?[\s\-.:#]+([A-Z0-9]+)', page_text, re.IGNORECASE)
+                title_match = re.search(r'(?:TITLE|DESCRIPTION)[\s\-.:#]+([^\n\r]+)', page_text, re.IGNORECASE)
+                if dwg_match:
+                    dwg_no = dwg_match.group(1).strip()
+                    rev_no = rev_match.group(1).strip() if rev_match else "A"
+                    title = title_match.group(1).strip()[:45] if title_match else f"Engineering Layout {i+1}"
+                    drawing_sheets.append(f"DWG {dwg_no} (Rev {rev_no}): {title}")
+                elif "pipeline" in page_text.lower() or "drawing" in page_text.lower() or "plan" in page_text.lower():
+                    drawing_sheets.append(f"Drawing Sheet #{i+1} (Engineering Plan & Profile)")
+    except Exception:
+        pass
+
+    full_text = "\n".join(text_pages)
+    text_lower = full_text.lower()
+
+    # Extract parameters from drawing / specifications text
+    extracted_km = None
+    m_km = re.search(r'(\d+(?:,\d+)*(?:\.\d+)?)\s*(?:kilometer|kilometres|kilometre|km)\b', text_lower)
+    if m_km:
+        extracted_km = float(m_km.group(1).replace(',', ''))
+    else:
+        m_lm = re.search(r'(\d+(?:,\d+)*(?:\.\d+)?)\s*(?:linear\s*meter|linear\s*metre|lm|meter|metre)\b', text_lower)
+        if m_lm:
+            val = float(m_lm.group(1).replace(',', ''))
+            if val >= 500:
+                extracted_km = val / 1000.0
+
+    # Detect pipe size and spec
+    pipe_size = "12-inch CS API 5L"
+    m_pipe = re.search(r'(\d{1,2}(?:\.\d+)?)\s*(?:inch|"|in)\b.*?(?:pipe|pipeline|cs|carbon steel)', text_lower)
+    if m_pipe:
+        pipe_size = f'{m_pipe.group(1)}-inch CS API 5L Gr. B'
+    elif "16-inch" in text_lower or '16"' in text_lower:
+        pipe_size = "16-inch CS API 5L Gr. B"
+    elif "24-inch" in text_lower or '24"' in text_lower:
+        pipe_size = "24-inch CS API 5L Gr. B"
+
+    # Detect valve stations
+    valves = 2
+    m_v = re.search(r'(\d+)\s*(?:valve\s*stations?|valves?|block\s*valves?)', text_lower)
+    if m_v:
+        valves = int(m_v.group(1))
+
+    # Detect soil / trench conditions
+    has_dewatering = "dewatering" in text_lower or "marshy" in text_lower or "water table" in text_lower or "sabkha" in text_lower
+    has_rock = "rock" in text_lower or "breaker" in text_lower or "blasting" in text_lower
+    is_24_7 = "24/7" in text_lower or "shift" in text_lower or "double shift" in text_lower
+
+    if not drawing_sheets and page_count > 0:
+        drawing_sheets = [f"Drawing Sheet #{i+1} (Tender Spec & Layout)" for i in range(min(page_count, 6))]
+
+    return {
+        "fileName": filename,
+        "pageCount": page_count,
+        "drawingSheets": drawing_sheets[:12],
+        "fullText": full_text[:25000],
+        "extractedParameters": {
+            "distanceKm": extracted_km,
+            "pipeSize": pipe_size,
+            "valveCount": valves,
+            "hasDewatering": has_dewatering,
+            "hasRock": has_rock,
+            "shifts": "24/7 Multi-Shift" if is_24_7 else "Single Shift",
+            "pageCount": page_count,
+        },
+        "summary": f"Analyzed {page_count} PDF drawing & specification sheets for '{filename}'." + (f" Identified {extracted_km} km alignment, {pipe_size}, and {valves} valve stations." if extracted_km else "")
+    }
+
 
 def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from drawings and tender specifications", step=1, api_key=None, api_endpoint=None, model=None):
     """
-    Synthesizes AI BOQ schedule and Project Resources takeoff.
+    Synthesizes AI BOQ schedule and Project Resources takeoff based on uploaded PDF drawings & operational prompt.
     Supports optional live OpenAI calls with fallback to domain-specific Saudi contractor heuristics.
     """
     import os
+    import re
     from django.conf import settings
+    from django.utils import timezone
 
     if not api_key or not str(api_key).strip():
         api_key = getattr(settings, "OPENAI_API_KEY", None) or os.getenv("OPENAI_API_KEY")
@@ -998,17 +1138,27 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
     attached_docs = project_data.get("attachedFiles") or []
     docs_summary = []
     primary_doc_name = None
+    pdf_text_corpus = []
+
     for doc in attached_docs:
         if isinstance(doc, dict):
             d_name = doc.get("name", "Tender_Drawing_Specs.pdf")
             if not primary_doc_name:
                 primary_doc_name = d_name
-            docs_summary.append(f"- Drawing / Document: {d_name} ({doc.get('size', 'PDF')})")
+            p_sheets = doc.get("drawingSheets") or []
+            sheet_str = f" ({len(p_sheets)} Drawing Sheets)" if p_sheets else ""
+            docs_summary.append(f"- Drawing / Document: {d_name} ({doc.get('size', 'PDF')}){sheet_str}")
+            if doc.get("extractedText"):
+                pdf_text_corpus.append(doc["extractedText"])
+            elif doc.get("summary"):
+                pdf_text_corpus.append(doc["summary"])
         elif isinstance(doc, str):
             if not primary_doc_name:
                 primary_doc_name = doc
             docs_summary.append(f"- Document: {doc}")
+
     docs_text = "\n".join(docs_summary) if docs_summary else "No external PDF files uploaded; synthesize from standard EPC drawings & technical specifications."
+    combined_pdf_context = "\n".join(pdf_text_corpus) if pdf_text_corpus else ""
 
     if api_key and str(api_key).strip():
         try:
@@ -1029,6 +1179,7 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
                 f"SOW Disciplines: {project_data.get('sowScopes', [])}\n"
                 f"Scope Description: {project_data.get('projectWorkDescription', '')}\n"
                 f"Attached Tender Documents & Engineering Drawings:\n{docs_text}\n"
+                f"Extracted Drawing & Specification Notes:\n{combined_pdf_context[:8000]}\n"
                 f"Operational Directive / Prompt: {prompt}\n"
                 f"Step: {step}\n\n"
                 "CRITICAL INSTRUCTIONS:\n"
@@ -1062,19 +1213,20 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
         except Exception:
             pass
 
-    # Intelligent procedural fallback tailored to project specifications and operational prompt
+    # Intelligent procedural fallback tailored to project specifications, drawings, and operational prompt
     p_name = project_data.get("proposedProjectName") or "Industrial Construction Project"
     client = project_data.get("clientName") or "Industrial Client"
     site = project_data.get("siteName") or "Jubail / Yanbu Industrial City"
     scopes = [s.strip() for s in (project_data.get("sowScopes") or []) if isinstance(s, str)]
     desc = (project_data.get("projectWorkDescription") or "").lower()
     prompt_lower = (prompt or "").lower()
+    corpus_lower = combined_pdf_context.lower()
+    combined_scope_text = f"{prompt_lower} {corpus_lower} {desc}"
 
     if not scopes:
         scopes = ["Civil", "Mechanical", "Piping", "Electrical"]
 
-    import re
-    # Extract distance in km or meters
+    # Extract distance in km or meters from prompt or PDF drawings
     km = None
     m_km = re.search(r'(\d+(?:,\d+)*(?:\.\d+)?)\s*(?:kilometer|kilometres|kilometre|km)\b', prompt_lower)
     if m_km:
@@ -1086,17 +1238,27 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
             if val_m >= 500:
                 km = val_m / 1000.0
 
+    # If prompt didn't specify km, check uploaded PDF drawing text
+    if km is None:
+        m_km_pdf = re.search(r'(\d+(?:,\d+)*(?:\.\d+)?)\s*(?:kilometer|kilometres|kilometre|km)\b', corpus_lower)
+        if m_km_pdf:
+            km = float(m_km_pdf.group(1).replace(',', ''))
+        else:
+            m_m_pdf = re.search(r'(\d+(?:,\d+)*(?:\.\d+)?)\s*(?:linear\s*meter|linear\s*metre|lm)\b', corpus_lower)
+            if m_m_pdf:
+                km = float(m_m_pdf.group(1).replace(',', '')) / 1000.0
+
     if km is None:
         m_desc = re.search(r'(\d+(?:,\d+)*(?:\.\d+)?)\s*(?:kilometer|kilometres|kilometre|km)\b', desc)
         if m_desc:
             km = float(m_desc.group(1).replace(',', ''))
 
-    if km is None and ("pipeline" in prompt_lower or "pipeline" in desc or "pipe" in prompt_lower):
+    if km is None and ("pipeline" in combined_scope_text or "pipe" in combined_scope_text):
         km = 10.0
 
     # Dynamic duration in months
     duration_months = 12
-    m_dur = re.search(r'(\d+)\s*month', prompt_lower)
+    m_dur = re.search(r'(\d+)\s*month', combined_scope_text)
     if m_dur:
         duration_months = max(3, min(60, int(m_dur.group(1))))
     elif km is not None:
@@ -1124,18 +1286,20 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
     else:
         spreads = 1.0
 
-    shift_multiplier = 1.6 if ("24/7" in prompt_lower or "shift" in prompt_lower) else 1.0
+    shift_multiplier = 1.6 if ("24/7" in combined_scope_text or "shift" in combined_scope_text) else 1.0
+    has_dewatering = "dewatering" in combined_scope_text or "marshy" in combined_scope_text or "water table" in combined_scope_text or "sabkha" in combined_scope_text
+    has_rock = "rock" in combined_scope_text or "breaker" in combined_scope_text or "blasting" in combined_scope_text
 
     # 1. BOQ Line Items (Step 1)
     line_items = []
     item_counter = 1
 
-    has_civil = any(s in ["Civil", "Site Preparation", "Structural"] for s in scopes) or "civil" in desc or "concrete" in desc or "foundation" in desc or "trench" in prompt_lower
-    has_piping = any(s in ["Piping", "Mechanical"] for s in scopes) or "pipe" in desc or "piping" in desc or "pipeline" in prompt_lower or "valve" in prompt_lower or km is not None
-    has_elec = any(s in ["Electrical", "Instrumentation"] for s in scopes) or "cable" in desc or "substation" in desc or "electrical" in desc or "power" in prompt_lower
-    has_struct = any(s in ["Structural", "Civil"] for s in scopes) or "steel" in desc or "structure" in desc or "crane pad" in prompt_lower
+    has_civil = any(s in ["Civil", "Site Preparation", "Structural"] for s in scopes) or "civil" in desc or "concrete" in desc or "foundation" in desc or "trench" in combined_scope_text
+    has_piping = any(s in ["Piping", "Mechanical"] for s in scopes) or "pipe" in desc or "piping" in desc or "pipeline" in combined_scope_text or "valve" in combined_scope_text or km is not None
+    has_elec = any(s in ["Electrical", "Instrumentation"] for s in scopes) or "cable" in desc or "substation" in desc or "electrical" in desc or "power" in combined_scope_text
+    has_struct = any(s in ["Structural", "Civil"] for s in scopes) or "steel" in desc or "structure" in desc or "crane pad" in combined_scope_text
 
-    if has_civil or "trench" in prompt_lower:
+    if has_civil or "trench" in combined_scope_text:
         survey_area = int(km * 2500) if km else 25000
         line_items.append({
             "id": f"boq-{item_counter}",
@@ -1149,7 +1313,7 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
         })
         item_counter += 1
 
-        if "dewatering" in prompt_lower or "marshy" in prompt_lower:
+        if has_dewatering:
             trench_lm = int(km * 1000) if km else 10000
             line_items.append({
                 "id": f"boq-{item_counter}",
@@ -1160,6 +1324,19 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
                 "quantity": trench_lm,
                 "unitRate": 340,
                 "totalAmount": trench_lm * 340
+            })
+            item_counter += 1
+        elif has_rock:
+            trench_vol = int(km * 2100) if km else 21000
+            line_items.append({
+                "id": f"boq-{item_counter}",
+                "itemNo": f"0{item_counter}.01",
+                "package": "Civil & Rock Breaking",
+                "description": "Heavy rock breaking, hydraulic pneumatic ripping, trench excavation and subgrade compaction to 95% MDD",
+                "unit": "M3",
+                "quantity": trench_vol,
+                "unitRate": 145,
+                "totalAmount": trench_vol * 145
             })
             item_counter += 1
         else:
@@ -1206,7 +1383,7 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
         item_counter += 1
 
         # Valve stations
-        m_valves = re.search(r'(\d+)\s*(?:valve\s*stations?|valves?)', prompt_lower)
+        m_valves = re.search(r'(\d+)\s*(?:valve\s*stations?|valves?)', combined_scope_text)
         if m_valves:
             v_qty = int(m_valves.group(1)) * 2
         elif km and km >= 50:
@@ -1226,7 +1403,7 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
         })
         item_counter += 1
 
-        if "hdpe" in prompt_lower or km:
+        if "hdpe" in combined_scope_text or km:
             hdpe_qty = int(km * 600) if km else 6000
             line_items.append({
                 "id": f"boq-{item_counter}",
@@ -1295,7 +1472,7 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
 
     direct_material_cost = sum(item["totalAmount"] for item in line_items)
 
-    # 2. Step 2 Resources (Scales with km, spreads, and shifts)
+    # 2. Step 2 Resources (Scales accurately with km, spreads, and shifts)
     welders_count = int(12 * shift_multiplier * spreads) if has_piping else int(4 * spreads)
     riggers_count = int(6 * shift_multiplier * spreads)
     fitters_count = int(16 * shift_multiplier * spreads)
@@ -1318,7 +1495,7 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
         {"id": "mp-9", "role": "Scaffolders & Civil General Helpers", "trade": "Civil", "count": helpers_count, "durationMonths": duration_months, "monthlyRate": 3900, "totalCost": helpers_count * duration_months * 3900}
     ]
 
-    # HSE Team (Scales dynamically with spreads and distance)
+    # HSE Team (Scales dynamically with spreads, shifts, and hazardous operations)
     hse_mgr_count = max(1, int(spreads / 3))
     safety_officers_count = int(max(2, 2 * shift_multiplier * spreads))
     ambulance_count = max(1, int(spreads / 2))
@@ -1361,7 +1538,7 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
         {"id": "eq-6", "equipmentName": "High-Pressure Hydrotest Pump Skid (Up to 5000 PSI)", "type": "Testing Rig", "quantity": hydro_skids_qty, "durationMonths": min(duration_months, 6), "monthlyRental": 24000, "totalCost": hydro_skids_qty * min(duration_months, 6) * 24000}
     ]
 
-    if "dewatering" in prompt_lower or "marshy" in prompt_lower:
+    if has_dewatering:
         dewater_qty = int(max(6, 6 * spreads))
         equipment.append({
             "id": "eq-7",
@@ -1386,10 +1563,11 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
     margin_amount = round(subtotal * (margin_pct / 100.0))
     total_commercial_bid_price = subtotal + margin_amount
 
-    from django.utils import timezone
+    doc_info = f" Synthesized from uploaded tender package ({primary_doc_name}) & specifications." if primary_doc_name else " Synthesized BOQ schedule and full project resource deployment."
+
     return {
         "promptUsed": prompt,
-        "projectSummary": f"{p_name} for {client} at {site}." + (f" Synthesized from uploaded tender package ({primary_doc_name}) & specifications." if primary_doc_name else " Synthesized BOQ schedule and full project resource deployment."),
+        "projectSummary": f"{p_name} for {client} at {site}.{doc_info}",
         "estimatedDurationMonths": duration_months,
         "manpower": manpower,
         "hse": hse,
@@ -1434,9 +1612,10 @@ def generate_boq_api(request, project_id=None):
             payload = {}
 
     project_data = payload.get("project") or {}
-    if project_id and not project_data:
+    p_id = project_id or (project_data.get("id") if isinstance(project_data, dict) else None)
+    if p_id and not project_data:
         try:
-            p = ProjectRFQ.objects.get(pk=project_id)
+            p = ProjectRFQ.objects.get(pk=p_id)
             project_data = p.to_dict()
         except ProjectRFQ.DoesNotExist:
             pass
@@ -1455,7 +1634,107 @@ def generate_boq_api(request, project_id=None):
         api_endpoint=api_endpoint,
         model=model
     )
+
+    # Persist calculation back to ProjectRFQ model in database
+    if p_id:
+        try:
+            db_proj = ProjectRFQ.objects.get(pk=p_id)
+            db_proj.ai_boq_calculation = calc_data
+            if calc_data.get("totals", {}).get("totalCommercialBidPrice"):
+                db_proj.estimated_value = calc_data["totals"]["totalCommercialBidPrice"]
+            db_proj.save(update_fields=["ai_boq_calculation", "estimated_value"])
+        except Exception:
+            pass
+
     return JsonResponse({"success": True, "data": calc_data}, status=200)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def upload_tender_pdf_api(request, project_id=None):
+    """
+    POST /api/upload-tender-pdf/
+    Accepts multipart file or JSON with base64 data.
+    Extracts drawings, specifications, text using pypdf.
+    Attaches to ProjectRFQ in database if project_id or projectId provided.
+    """
+    import os
+    import base64
+    from django.conf import settings
+    from django.utils import timezone
+
+    file_obj = None
+    file_name = "Tender_Drawing_Specs.pdf"
+    file_size = 0
+    p_id = project_id
+
+    if request.FILES and "file" in request.FILES:
+        f = request.FILES["file"]
+        file_obj = f.read()
+        file_name = f.name
+        file_size = len(file_obj)
+        p_id = p_id or request.POST.get("projectId") or request.POST.get("project_id")
+    else:
+        try:
+            payload = json.loads(request.body.decode("utf-8")) if request.body else {}
+        except Exception:
+            payload = {}
+        p_id = p_id or payload.get("projectId") or payload.get("project_id")
+        file_name = payload.get("fileName") or file_name
+        b64 = payload.get("fileData")
+        if b64:
+            if "," in b64:
+                b64 = b64.split(",", 1)[1]
+            file_obj = base64.b64decode(b64)
+            file_size = len(file_obj)
+
+    if not file_obj:
+        return JsonResponse({"success": False, "message": "No PDF file provided for upload."}, status=400)
+
+    # Save to media/tender_documents/
+    save_dir = os.path.join(settings.MEDIA_ROOT, "tender_documents")
+    os.makedirs(save_dir, exist_ok=True)
+    safe_name = f"doc_{int(timezone.now().timestamp())}_{file_name.replace(' ', '_')}"
+    save_path = os.path.join(save_dir, safe_name)
+    with open(save_path, "wb") as dest:
+        dest.write(file_obj)
+
+    # Extract drawing metadata & specifications with pypdf
+    analysis = extract_pdf_drawing_specs(file_obj, filename=file_name)
+
+    size_mb = f"{round(file_size / (1024 * 1024), 2)} MB" if file_size > 1024 * 1024 else f"{round(file_size / 1024, 1)} KB"
+
+    file_record = {
+        "id": f"pdf-{int(timezone.now().timestamp()*1000)}",
+        "name": file_name,
+        "size": size_mb,
+        "type": "application/pdf",
+        "uploadedAt": timezone.now().strftime("%Y-%m-%d"),
+        "pageCount": analysis.get("pageCount", 1),
+        "drawingSheets": analysis.get("drawingSheets", []),
+        "extractedText": analysis.get("fullText", "")[:15000],
+        "extractedParameters": analysis.get("extractedParameters", {}),
+        "url": f"/media/tender_documents/{safe_name}"
+    }
+
+    if p_id:
+        try:
+            p = ProjectRFQ.objects.get(pk=p_id)
+            attached = p.attached_files or []
+            if not isinstance(attached, list):
+                attached = []
+            attached.append(file_record)
+            p.attached_files = attached
+            p.save(update_fields=["attached_files"])
+        except Exception:
+            pass
+
+    return JsonResponse({
+        "success": True,
+        "message": f"Successfully parsed {analysis.get('pageCount', 1)} pages and drawings from {file_name}",
+        "file": file_record,
+        "analysis": analysis
+    }, status=200)
 
 
 def synthesize_boq_comparison(project_data, ai_boq=None, manual_file_name=None, api_key=None, api_endpoint=None, model=None):

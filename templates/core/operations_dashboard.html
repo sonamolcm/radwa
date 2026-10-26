@@ -1389,31 +1389,27 @@
                         <!-- Step 3 Field Findings (if present) -->
                         ${findingsHtml}
 
-                        <!-- Action Bar -->
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-100">
-                            <div class="flex items-center gap-3 text-xs">
-                                <button
-                                    type="button"
-                                    onclick="openReportModal('${project.id}')"
-                                    class="text-slate-600 hover:text-slate-900 font-semibold underline cursor-pointer flex items-center gap-1"
-                                >
-                                    <i data-lucide="file-text" class="w-3.5 h-3.5 text-slate-400"></i>
-                                    <span>View Estimator Report</span>
-                                </button>
+                        <!-- Action Bar: All Buttons Properly Aligned Horizontally from Left to Right -->
+                        <div class="pt-2.5 border-t border-slate-100 flex flex-wrap items-center justify-start gap-2.5 text-xs">
+                            <button
+                                type="button"
+                                onclick="openReportModal('${project.id}')"
+                                class="px-3 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs flex items-center gap-1.5 transition cursor-pointer shadow-2xs"
+                            >
+                                <i data-lucide="file-text" class="w-3.5 h-3.5 text-slate-500"></i>
+                                <span>Estimator Report</span>
+                            </button>
 
-                                <button
-                                    type="button"
-                                    onclick="openDetailModal('${project.id}')"
-                                    class="text-slate-500 hover:text-slate-800 text-xs cursor-pointer flex items-center gap-1"
-                                >
-                                    <i data-lucide="eye" class="w-3.5 h-3.5 text-slate-400"></i>
-                                    <span>Tender Details</span>
-                                </button>
-                            </div>
+                            <button
+                                type="button"
+                                onclick="openDetailModal('${project.id}')"
+                                class="px-3 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs flex items-center gap-1.5 transition cursor-pointer shadow-2xs"
+                            >
+                                <i data-lucide="eye" class="w-3.5 h-3.5 text-slate-500"></i>
+                                <span>Tender Details</span>
+                            </button>
 
-                            <div class="flex items-center gap-2">
-                                ${mainActionButtonHtml}
-                            </div>
+                            ${mainActionButtonHtml}
                         </div>
 
                     </div>

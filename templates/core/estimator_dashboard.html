@@ -185,13 +185,15 @@
                 </div>
 
                 <!-- Direct Logout Icon Button -->
-                <a
-                    href="/menu/"
+                <button
+                    type="button"
+                    onclick="handleNavLogout()"
                     class="p-2 rounded-xl border border-slate-200 hover:bg-rose-50 hover:text-rose-600 text-slate-400 transition cursor-pointer shadow-2xs inline-flex items-center justify-center"
-                    title="Sign Out / Return to Main Menu"
+                    title="Sign Out / Logout"
+                    aria-label="Logout"
                 >
                     <i data-lucide="log-out" class="w-4 h-4"></i>
-                </a>
+                </button>
 
             </div>
         </div>
@@ -1718,33 +1720,52 @@
                     <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <div class="flex items-center gap-2">
-                                <i data-lucide="paperclip" class="h-4 w-4 text-slate-500"></i>
+                                <i data-lucide="file-text" class="h-4 w-4 text-blue-600"></i>
                                 <span class="text-xs font-bold uppercase tracking-wider text-slate-800" id="boqDocsAnalyzedTitle">
-                                    TENDER DOCUMENTS ANALYZED BY AI (0 FILES)
+                                    TENDER DRAWINGS &amp; DOCUMENTS ANALYZED (0 FILES)
                                 </span>
                             </div>
 
-                            <button
-                                type="button"
-                                onclick="triggerAiBoqScan()"
-                                id="btnRescanBoq"
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 text-xs font-semibold shadow-2xs transition cursor-pointer"
-                            >
-                                <i data-lucide="refresh-cw" class="h-3.5 w-3.5 text-blue-600" id="boqScanIcon"></i>
-                                <span>Re-Scan Documents &amp; Regenerate BOQ</span>
-                            </button>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <input type="file" id="boqPdfFileInput" accept=".pdf,.dwg,.dxf,.png,.jpg" class="hidden" onchange="handleBoqPdfUpload(event)">
+                                <button
+                                    type="button"
+                                    onclick="document.getElementById('boqPdfFileInput').click()"
+                                    id="btnUploadBoqPdf"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-700 text-xs font-bold shadow-2xs transition cursor-pointer"
+                                    title="Upload PDF drawings or specifications to read with pypdf engine"
+                                >
+                                    <i data-lucide="upload-cloud" class="h-3.5 w-3.5 text-blue-600"></i>
+                                    <span>+ Upload Drawing / Spec PDF</span>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onclick="triggerAiBoqScan()"
+                                    id="btnRescanBoq"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 text-xs font-semibold shadow-2xs transition cursor-pointer"
+                                >
+                                    <i data-lucide="refresh-cw" class="h-3.5 w-3.5 text-blue-600" id="boqScanIcon"></i>
+                                    <span>Re-Scan &amp; Regenerate</span>
+                                </button>
+                            </div>
                         </div>
 
                         <!-- SOW chips & Location -->
                         <div class="flex items-center gap-2 flex-wrap text-xs text-slate-600">
-                            <span>SOW: <strong id="boqModalScopes" class="text-slate-800">Electrical</strong></span>
+                            <span>SOW: <strong id="boqModalScopes" class="text-slate-800">Civil &amp; Infra, Mechanical</strong></span>
                             <span>•</span>
                             <span>Location: <strong id="boqModalSiteName" class="text-slate-800">m,g,</strong></span>
                         </div>
 
+                        <!-- List of Analyzed Drawing Files & Sheets -->
+                        <div id="boqAttachedDocsList" class="space-y-1.5 pt-1">
+                            <!-- Populated dynamically via renderBoqAttachedDocs() -->
+                        </div>
+
                         <div id="boqGeneratingNotice" class="hidden text-xs font-semibold text-blue-700 flex items-center gap-2 animate-pulse pt-1">
                             <i data-lucide="sparkles" class="h-4 w-4 text-amber-500"></i>
-                            <span id="boqGeneratingStepText">Scanning attached drawings Revision C &amp; SOW specifications...</span>
+                            <span id="boqGeneratingStepText">Scanning attached drawings Revision C &amp; SOW specifications with pypdf...</span>
                         </div>
                     </div>
 
@@ -3587,6 +3608,30 @@
             return 'SAR ' + (Number(num) || 0).toLocaleString('en-US');
         }
 
+        // Global Toast Notification
+        function showToast(message, type) {
+            var existing = document.getElementById('radwaToastNotice');
+            if (existing) existing.remove();
+            var toast = document.createElement('div');
+            toast.id = 'radwaToastNotice';
+            var isErr = type === 'error';
+            var bg = isErr ? 'bg-rose-600' : 'bg-slate-900';
+            var icon = isErr ? 'alert-circle' : 'check-circle';
+            toast.className = 'fixed bottom-5 right-5 z-[99999] px-4 py-3 rounded-xl shadow-2xl text-white text-xs font-semibold flex items-center gap-2 border border-white/10 transition-all duration-300 ' + bg;
+            toast.innerHTML = '<i data-lucide="' + icon + '" class="w-4 h-4 text-emerald-400 shrink-0"></i><span>' + message + '</span>';
+            document.body.appendChild(toast);
+            if (window.lucide) window.lucide.createIcons();
+            setTimeout(function() {
+                if (toast && toast.parentNode) {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(10px)';
+                    setTimeout(function() {
+                        if (toast && toast.parentNode) toast.parentNode.removeChild(toast);
+                    }, 300);
+                }
+            }, 3500);
+        }
+
         // Initialize on DOM load
         document.addEventListener('DOMContentLoaded', function() {
             updateEstimatorSwitcherUI();
@@ -3903,10 +3948,7 @@
                 });
                 html += '      </div>';
 
-                // Site Review Status Pill
-                html += '      <div class="pt-2 flex items-center gap-2 flex-wrap">';
-                html +=           siteReviewBadgeHtml;
-                html += '      </div>';
+                // Site Review button moved to unified bottom action bar for clean horizontal alignment
                 html += '    </div>';
 
                 // Center Column: Commercial Bid Estimate (lg:col-span-3)
@@ -4010,8 +4052,8 @@
                     html += '  </div>';
                 }
 
-                // Bottom Action Bar: State-Aware Helper Text & Action Buttons (Exact Match to Next.js)
-                html += '  <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">';
+                // Bottom Action Bar: State-Aware Helper Text & Unified Horizontal Left-to-Right Action Buttons
+                html += '  <div class="pt-3 border-t border-slate-100 space-y-2.5 text-xs">';
                 
                 var helperTextHtml = '';
                 if (p.mdRemarks) {
@@ -4023,21 +4065,37 @@
                 } else {
                     helperTextHtml = '<span>Ready for quantity survey &amp; rate takeoff calculations</span>';
                 }
-                html += '    <div class="text-xs text-slate-500">' + helperTextHtml + '</div>';
+                html += '    <div class="text-xs text-slate-500 font-medium">' + helperTextHtml + '</div>';
 
-                html += '    <div class="flex items-center gap-2 flex-wrap">';
+                html += '    <div class="flex items-center gap-2 flex-wrap justify-start">';
+                
+                // 1. Dossier
                 html += '      <button type="button" onclick="openDossierModal(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-medium border border-slate-300 text-slate-700 hover:bg-slate-50 transition cursor-pointer flex items-center gap-1"><i data-lucide="eye" class="h-3.5 w-3.5"></i> Dossier</button>';
 
+                // 2. Site Review (Consistent horizontal positioning right next to Dossier)
+                if (p.siteReview && p.siteReview.status === 'Completed') {
+                    html += '      <button type="button" onclick="openSiteReviewModal(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition cursor-pointer flex items-center gap-1"><i data-lucide="check-circle-2" class="h-3.5 w-3.5 text-emerald-600"></i> Site Review (Done)</button>';
+                } else if (p.siteReview && p.siteReview.status === 'Scheduled') {
+                    html += '      <button type="button" onclick="openSiteReviewModal(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition cursor-pointer flex items-center gap-1"><i data-lucide="compass" class="h-3.5 w-3.5 text-amber-600"></i> Site Review (Scheduled)</button>';
+                } else if (p.siteReview && p.siteReview.status === 'Not Required') {
+                    html += '      <button type="button" onclick="openSiteReviewModal(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 transition cursor-pointer flex items-center gap-1"><i data-lucide="check" class="h-3.5 w-3.5 text-slate-500"></i> Site Review (Desk Clear)</button>';
+                } else {
+                    html += '      <button type="button" onclick="openSiteReviewModal(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-medium border border-blue-200 bg-white text-blue-700 hover:bg-blue-50 transition cursor-pointer flex items-center gap-1"><i data-lucide="compass" class="h-3.5 w-3.5 text-blue-600"></i> Site Review</button>';
+                }
+
+                // 3. Survey Action (Survey Report / Request Survey / Track Survey)
                 if (isBoqLocked) {
                     var srvStatus = (p.surveyRequest && p.surveyRequest.status) || 'Pending AI Checklist';
                     html += '      <button type="button" onclick="openTrackOpsModal(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-300 hover:bg-amber-100 transition cursor-pointer flex items-center gap-1.5 shadow-2xs"><i data-lucide="compass" class="h-3.5 w-3.5 text-amber-600"></i><span>Track Survey (' + srvStatus + ')</span></button>';
                     html += '      <button type="button" onclick="openTrackOpsModal(\'' + p.id + '\')" class="px-3.5 py-1.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed flex items-center gap-1.5" title="Locked: Physical site measurements required before BOQ calculation"><i data-lucide="lock" class="h-3.5 w-3.5 text-amber-600"></i><span>BOQ Locked (Awaiting Survey)</span></button>';
                     html += '      <button type="button" disabled class="px-3 py-1.5 rounded-md text-xs font-medium border border-slate-200 text-slate-300 bg-slate-50 cursor-not-allowed flex items-center gap-1"><i data-lucide="lock" class="h-3.5 w-3.5 text-slate-300"></i><span>Proposal Sheet</span></button>';
+                    html += '      <button type="button" onclick="openCompareBoq(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-semibold border border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-900 transition cursor-pointer flex items-center gap-1 shadow-2xs"><i data-lucide="scale" class="h-3.5 w-3.5 text-purple-600"></i> Compare BOQ</button>';
+                    html += '      <button type="button" onclick="openBidDocs(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-semibold border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 transition cursor-pointer flex items-center gap-1 shadow-2xs"><i data-lucide="file-text" class="h-3.5 w-3.5 text-indigo-600"></i> Bid Docs (40)</button>';
                     html += '      <button type="button" disabled class="px-4 py-1.5 rounded-md text-xs font-semibold text-slate-400 bg-slate-200 border border-slate-200 cursor-not-allowed flex items-center gap-1.5"><i data-lucide="lock" class="h-3.5 w-3.5 text-slate-400"></i><span>Submit Bid Proposal</span></button>';
                 } else if (isSurveyCompleted) {
-                    html += '      <button type="button" onclick="openVerifiedReportModal(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 transition cursor-pointer flex items-center gap-1.5"><i data-lucide="check-check" class="h-3.5 w-3.5 text-emerald-600"></i><span>View Site Report</span></button>';
-                    html += '      <button type="button" onclick="openProposalModal(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-medium border border-slate-300 text-slate-700 hover:bg-slate-50 transition cursor-pointer flex items-center gap-1"><i data-lucide="file-spreadsheet" class="h-3.5 w-3.5 text-slate-500"></i> Proposal Sheet</button>';
+                    html += '      <button type="button" onclick="openVerifiedReportModal(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 transition cursor-pointer flex items-center gap-1.5 shadow-2xs"><i data-lucide="clipboard-check" class="h-3.5 w-3.5 text-emerald-600"></i><span>Survey Report</span></button>';
                     html += '      <button type="button" onclick="openBoqModal(\'' + p.id + '\')" class="px-3.5 py-1.5 rounded-md text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 ring-2 ring-emerald-500/20 shadow-xs transition cursor-pointer flex items-center gap-1.5"><i data-lucide="sparkles" class="h-3.5 w-3.5 text-amber-300"></i><span>⚡ AI BOQ (Using Site Data)</span></button>';
+                    html += '      <button type="button" onclick="openProposalModal(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-medium border border-slate-300 text-slate-700 hover:bg-slate-50 transition cursor-pointer flex items-center gap-1"><i data-lucide="file-spreadsheet" class="h-3.5 w-3.5 text-slate-500"></i> Proposal Sheet</button>';
                     html += '      <button type="button" onclick="openCompareBoq(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-semibold border border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-900 transition cursor-pointer flex items-center gap-1 shadow-2xs"><i data-lucide="scale" class="h-3.5 w-3.5 text-purple-600"></i> Compare BOQ</button>';
                     html += '      <button type="button" onclick="openBidDocs(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-semibold border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 transition cursor-pointer flex items-center gap-1 shadow-2xs"><i data-lucide="file-text" class="h-3.5 w-3.5 text-indigo-600"></i> Bid Docs (40)</button>';
                     if (!isSubmitted) {
@@ -4046,10 +4104,9 @@
                         html += '      <span class="px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-md border border-emerald-200 flex items-center gap-1"><i data-lucide="check-circle-2" class="h-3.5 w-3.5 text-emerald-600"></i> Proposal Submitted</span>';
                     }
                 } else {
-                    html += '      <button type="button" onclick="openSiteReviewModal(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-medium border border-blue-200 bg-white text-blue-700 hover:bg-blue-50 transition cursor-pointer flex items-center gap-1"><i data-lucide="compass" class="h-3.5 w-3.5 text-blue-600"></i> Site Review</button>';
                     html += '      <button type="button" onclick="openRequestSurveyModal(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-semibold border border-amber-300 bg-amber-50/70 text-amber-800 hover:bg-amber-100 transition cursor-pointer flex items-center gap-1.5"><i data-lucide="compass" class="h-3.5 w-3.5 text-amber-700"></i> Request Survey</button>';
-                    html += '      <button type="button" onclick="openProposalModal(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-medium border border-slate-300 text-slate-700 hover:bg-slate-50 transition cursor-pointer flex items-center gap-1"><i data-lucide="file-spreadsheet" class="h-3.5 w-3.5 text-slate-500"></i> Proposal Sheet</button>';
                     html += '      <button type="button" onclick="openBoqModal(\'' + p.id + '\')" class="px-3.5 py-1.5 rounded-md text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-xs transition cursor-pointer flex items-center gap-1.5"><i data-lucide="sparkles" class="h-3.5 w-3.5 text-amber-300"></i> AI BOQ &amp; Resources Takeoff</button>';
+                    html += '      <button type="button" onclick="openProposalModal(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-medium border border-slate-300 text-slate-700 hover:bg-slate-50 transition cursor-pointer flex items-center gap-1"><i data-lucide="file-spreadsheet" class="h-3.5 w-3.5 text-slate-500"></i> Proposal Sheet</button>';
                     html += '      <button type="button" onclick="openCompareBoq(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-semibold border border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-900 transition cursor-pointer flex items-center gap-1 shadow-2xs"><i data-lucide="scale" class="h-3.5 w-3.5 text-purple-600"></i> Compare BOQ</button>';
                     html += '      <button type="button" onclick="openBidDocs(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-semibold border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 transition cursor-pointer flex items-center gap-1 shadow-2xs"><i data-lucide="file-text" class="h-3.5 w-3.5 text-indigo-600"></i> Bid Docs (40)</button>';
                     if (!isSubmitted) {
@@ -4072,7 +4129,7 @@
         // SITE REVIEW MODAL LOGIC (SCREENSHOT 1)
         // =====================================================================
         function openSiteReviewModal(projectId) {
-            activeSiteProject = projects.find(function(p) { return String(p.id) === String(projectId); });
+            activeSiteProject = projects.find(function(p) { return String(p.id) === String(projectId) || String(p.workOrderNo) === String(projectId); });
             if (!activeSiteProject) return;
 
             document.getElementById('siteModalWoNo').textContent = activeSiteProject.workOrderNo;
@@ -4094,12 +4151,23 @@
             toggleSiteFindingsArea(isComp);
             document.getElementById('siteFindingsInput').value = rev.findings || '';
 
-            document.getElementById('modalSiteReview').classList.remove('hidden');
+            var m = document.getElementById('modalSiteReview');
+            if (m) {
+                m.style.display = 'flex';
+                m.style.zIndex = '99999';
+                m.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
             lucide.createIcons();
         }
 
         function closeSiteReviewModal() {
-            document.getElementById('modalSiteReview').classList.add('hidden');
+            var m = document.getElementById('modalSiteReview');
+            if (m) {
+                m.style.display = 'none';
+                m.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
         }
 
         function setSiteReviewRequired(required) {
@@ -4179,7 +4247,7 @@
         // DOSSIER MODAL LOGIC
         // =====================================================================
         function openDossierModal(projectId) {
-            var project = projects.find(function(p) { return String(p.id) === String(projectId); });
+            var project = projects.find(function(p) { return String(p.id) === String(projectId) || String(p.workOrderNo) === String(projectId); });
             if (!project) return;
 
             document.getElementById('dossierModalWoNo').textContent = project.workOrderNo;
@@ -4212,12 +4280,23 @@
                 }).join('');
             }
 
-            document.getElementById('modalDossier').classList.remove('hidden');
+            var m = document.getElementById('modalDossier');
+            if (m) {
+                m.style.display = 'flex';
+                m.style.zIndex = '99999';
+                m.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
             lucide.createIcons();
         }
 
         function closeDossierModal() {
-            document.getElementById('modalDossier').classList.add('hidden');
+            var m = document.getElementById('modalDossier');
+            if (m) {
+                m.style.display = 'none';
+                m.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
         }
 
         // =====================================================================
@@ -4313,15 +4392,18 @@
             var hseFootTotal = document.getElementById('hseFootTotal');
             var badgeHse = document.getElementById('badgeTabHse');
             var totalHseCost = 0;
+            var totalHseStaff = 0;
 
             if (hseBody) {
                 if (currentHse && currentHse.length > 0) {
                     hseBody.innerHTML = currentHse.map(function(h) {
                         var cost = Number(h.totalCost || 0);
+                        var cnt = Number(h.count || 1);
                         totalHseCost += cost;
+                        totalHseStaff += cnt;
                         return '<tr class="hover:bg-slate-50/70">' +
                             '<td class="px-4 py-2.5 font-medium text-slate-800">' + (h.role || '-') + '</td>' +
-                            '<td class="px-4 py-2.5 text-center font-mono font-bold text-slate-900">' + (h.count || 1) + '</td>' +
+                            '<td class="px-4 py-2.5 text-center font-mono font-bold text-slate-900">' + cnt + '</td>' +
                             '<td class="px-4 py-2.5 text-slate-600">' + (h.requirements || '-') + '</td>' +
                             '<td class="px-4 py-2.5 text-right font-mono text-slate-600">SAR ' + Number(h.monthlyCost || 0).toLocaleString() + '</td>' +
                             '<td class="px-4 py-2.5 text-right font-mono font-bold text-slate-900">SAR ' + cost.toLocaleString() + '</td>' +
@@ -4332,7 +4414,7 @@
                 }
             }
             if (hseFootTotal) hseFootTotal.textContent = 'SAR ' + totalHseCost.toLocaleString();
-            if (badgeHse) badgeHse.textContent = 'SAR ' + Math.round(totalHseCost / 1000) + 'k';
+            if (badgeHse) badgeHse.textContent = totalHseStaff + ' Staff (SAR ' + Math.round(totalHseCost / 1000) + 'k)';
 
             // 3. QA/QC
             var qaqcBody = document.getElementById('qaqcTableBody');
@@ -4395,7 +4477,7 @@
             if (equipText) equipText.textContent = totalEqUnits + ' Units';
 
             var step2Sub = document.getElementById('step-2-subtitle');
-            if (step2Sub) step2Sub.textContent = 'Manpower (' + totalHeadcount + '), HSE, QA/QC & Equipment';
+            if (step2Sub) step2Sub.textContent = 'Manpower (' + totalHeadcount + '), HSE (' + totalHseStaff + '), QA/QC & Equipment';
 
             lucide.createIcons();
         }
@@ -4432,7 +4514,7 @@
         }
 
         function openBoqModal(projectId) {
-            activeBoqProject = projects.find(function(p) { return String(p.id) === String(projectId); });
+            activeBoqProject = projects.find(function(p) { return String(p.id) === String(projectId) || String(p.workOrderNo) === String(projectId); });
             if (!activeBoqProject) return;
 
             var p = activeBoqProject;
@@ -4485,6 +4567,9 @@
             if (siteLocEl) {
                 siteLocEl.textContent = p.siteName || 'm,g,';
             }
+
+            // Render drawing PDFs & sheets list
+            renderBoqAttachedDocs(p);
 
             var emptyState = document.getElementById('boqEmptyState');
             var tableWrapper = document.getElementById('boqTableWrapper');
@@ -4543,12 +4628,23 @@
             // Reset to Step 1
             switchBoqStep(1);
 
-            document.getElementById('modalBoqEstimation').classList.remove('hidden');
+            var m = document.getElementById('modalBoqEstimation');
+            if (m) {
+                m.style.display = 'flex';
+                m.style.zIndex = '99999';
+                m.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
             lucide.createIcons();
         }
 
         function closeBoqModal() {
-            document.getElementById('modalBoqEstimation').classList.add('hidden');
+            var m = document.getElementById('modalBoqEstimation');
+            if (m) {
+                m.style.display = 'none';
+                m.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
         }
 
         function switchBoqStep(step) {
@@ -4741,6 +4837,12 @@
 
                     renderResourceTables();
                     updateCalculatedTotals();
+
+                    var totMp = currentManpower.reduce(function(a, b) { return a + (b.count || 1); }, 0);
+                    var totHse = currentHse.reduce(function(a, b) { return a + (b.count || 1); }, 0);
+                    if (typeof showToast === 'function') {
+                        showToast('✓ AI Resources Calculated: ' + totMp + ' Manpower, ' + totHse + ' HSE Safety personnel scaled to prompt!');
+                    }
                 }
             })
             .catch(function(err) {
@@ -4751,6 +4853,108 @@
                     btn.innerHTML = origText;
                     lucide.createIcons();
                 }
+            });
+        }
+
+        function renderBoqAttachedDocs(project) {
+            var container = document.getElementById('boqAttachedDocsList');
+            if (!container) return;
+            var p = project || activeBoqProject;
+            if (!p) {
+                container.innerHTML = '';
+                return;
+            }
+            var files = p.attachedFiles || [];
+            if (!Array.isArray(files)) files = [];
+
+            var docsTitle = document.getElementById('boqDocsAnalyzedTitle');
+            if (docsTitle) {
+                docsTitle.textContent = 'TENDER DRAWINGS & DOCUMENTS ANALYZED (' + files.length + ' FILES)';
+            }
+
+            if (files.length === 0) {
+                container.innerHTML = '<div class="text-[11px] text-slate-500 italic bg-white p-2.5 rounded-lg border border-dashed border-slate-300 flex items-center justify-between">' +
+                    '<span>No external drawing PDFs uploaded yet. Standard EPC drawings will be synthesized.</span>' +
+                    '<button type="button" onclick="document.getElementById(\'boqPdfFileInput\').click()" class="text-blue-600 font-bold hover:underline cursor-pointer">Upload PDF now</button>' +
+                    '</div>';
+                return;
+            }
+
+            container.innerHTML = files.map(function(f, idx) {
+                var name = (typeof f === 'string') ? f : (f.name || 'Drawing_Doc_' + (idx+1) + '.pdf');
+                var size = (typeof f === 'object' && f.size) ? f.size : 'PDF';
+                var sheets = (typeof f === 'object' && f.drawingSheets) ? f.drawingSheets : [];
+                var sheetsBadge = sheets.length > 0 ? '<span class="px-1.5 py-0.5 rounded text-[10px] bg-blue-100 text-blue-800 font-semibold">' + sheets.length + ' Drawing Sheets</span>' : '';
+                var pypdfBadge = '<span class="px-1.5 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-800 font-semibold">✓ pypdf Engine Parsed</span>';
+                
+                var details = '';
+                if (sheets.length > 0) {
+                    details = '<div class="text-[10px] text-slate-500 pl-6 space-y-0.5 mt-1 border-l-2 border-blue-200 ml-2">' +
+                        sheets.slice(0, 3).map(function(s) { return '<div>• ' + s + '</div>'; }).join('') +
+                        (sheets.length > 3 ? '<div class="text-blue-600 font-semibold">+ ' + (sheets.length - 3) + ' more sheets indexed...</div>' : '') +
+                        '</div>';
+                }
+
+                return '<div class="p-2 rounded-lg bg-white border border-slate-200 shadow-2xs text-xs space-y-1">' +
+                    '<div class="flex items-center justify-between gap-2">' +
+                        '<div class="flex items-center gap-2 truncate">' +
+                            '<i data-lucide="file-check-2" class="h-4 w-4 text-emerald-600 shrink-0"></i>' +
+                            '<span class="font-bold text-slate-800 truncate">' + name + '</span>' +
+                            '<span class="text-[10px] text-slate-400 font-mono shrink-0">(' + size + ')</span>' +
+                        '</div>' +
+                        '<div class="flex items-center gap-1.5 shrink-0">' +
+                            sheetsBadge +
+                            pypdfBadge +
+                        '</div>' +
+                    '</div>' +
+                    details +
+                '</div>';
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function handleBoqPdfUpload(event) {
+            var file = event.target.files ? event.target.files[0] : null;
+            if (!file) return;
+
+            var notice = document.getElementById('boqGeneratingNotice');
+            var stepText = document.getElementById('boqGeneratingStepText');
+            if (notice) notice.classList.remove('hidden');
+            if (stepText) stepText.textContent = 'Uploading & parsing drawing PDF (' + file.name + ') with pypdf...';
+
+            var formData = new FormData();
+            formData.append('file', file);
+            if (activeBoqProject && activeBoqProject.id) {
+                formData.append('projectId', activeBoqProject.id);
+            }
+
+            fetch('/api/upload-tender-pdf/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(res) {
+                if (res.success && res.file) {
+                    if (activeBoqProject) {
+                        if (!activeBoqProject.attachedFiles) activeBoqProject.attachedFiles = [];
+                        activeBoqProject.attachedFiles.push(res.file);
+                        renderBoqAttachedDocs(activeBoqProject);
+                    }
+                    if (typeof showToast === 'function') {
+                        showToast('✓ PDF Drawing Parsed: ' + file.name + ' (' + (res.file.pageCount || 1) + ' sheets). Regenerating BOQ...');
+                    }
+                    triggerAiBoqScan();
+                } else {
+                    alert(res.message || 'Failed to parse PDF.');
+                }
+            })
+            .catch(function(err) {
+                console.error('PDF upload failed:', err);
+                alert('Error uploading PDF file. Please check server logs.');
+            })
+            .finally(function() {
+                if (notice) notice.classList.add('hidden');
+                event.target.value = '';
             });
         }
 
@@ -4873,7 +5077,7 @@
         }
 
         function openRequestSurveyModal(projectId) {
-            activeSurveyProject = projects.find(function(p) { return String(p.id) === String(projectId); });
+            activeSurveyProject = projects.find(function(p) { return String(p.id) === String(projectId) || String(p.workOrderNo) === String(projectId); });
             if (!activeSurveyProject) return;
 
             document.getElementById('surveyModalWoNo').textContent = activeSurveyProject.workOrderNo;
@@ -4901,12 +5105,23 @@
             document.getElementById('surveyDetailedNotes').value = 'Critical tie-in location requires on-ground verification before final piping & excavation BOQ rates can be locked.';
             document.getElementById('surveyAccessRestrictions').value = 'Restricted industrial area. Aramco / Royal Commission gate pass required.';
 
-            document.getElementById('modalRequestSurvey').classList.remove('hidden');
+            var m = document.getElementById('modalRequestSurvey');
+            if (m) {
+                m.style.display = 'flex';
+                m.style.zIndex = '99999';
+                m.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
             lucide.createIcons();
         }
 
         function closeRequestSurveyModal() {
-            document.getElementById('modalRequestSurvey').classList.add('hidden');
+            var m = document.getElementById('modalRequestSurvey');
+            if (m) {
+                m.style.display = 'none';
+                m.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
         }
 
         function saveSurveyRequest(e) {
@@ -5040,19 +5255,30 @@
             listHtml += '</div>';
 
             document.getElementById('trackMilestonesList').innerHTML = listHtml;
-            document.getElementById('modalTrackOperationsProgress').classList.remove('hidden');
+            var m = document.getElementById('modalTrackOperationsProgress');
+            if (m) {
+                m.style.display = 'flex';
+                m.style.zIndex = '99999';
+                m.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
             lucide.createIcons();
         }
 
         function closeTrackOpsModal() {
-            document.getElementById('modalTrackOperationsProgress').classList.add('hidden');
+            var m = document.getElementById('modalTrackOperationsProgress');
+            if (m) {
+                m.style.display = 'none';
+                m.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
         }
 
         // =====================================================================
         // VERIFIED SURVEY REPORT MODAL LOGIC (VerifiedSurveyReportModal.tsx)
         // =====================================================================
         function openVerifiedReportModal(projectId) {
-            activeVerifiedProject = projects.find(function(p) { return String(p.id) === String(projectId); });
+            activeVerifiedProject = projects.find(function(p) { return String(p.id) === String(projectId) || String(p.workOrderNo) === String(projectId); });
             if (!activeVerifiedProject) return;
 
             var req = (activeVerifiedProject.surveyRequest && Object.keys(activeVerifiedProject.surveyRequest).length > 0) ? activeVerifiedProject.surveyRequest : null;
@@ -5123,12 +5349,23 @@
             }).join('');
 
             document.getElementById('verifiedCheckpointsList').innerHTML = listHtml;
-            document.getElementById('modalVerifiedSurveyReport').classList.remove('hidden');
+            var m = document.getElementById('modalVerifiedSurveyReport');
+            if (m) {
+                m.style.display = 'flex';
+                m.style.zIndex = '99999';
+                m.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
             lucide.createIcons();
         }
 
         function closeVerifiedReportModal() {
-            document.getElementById('modalVerifiedSurveyReport').classList.add('hidden');
+            var m = document.getElementById('modalVerifiedSurveyReport');
+            if (m) {
+                m.style.display = 'none';
+                m.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
         }
 
         function proceedFromVerifiedToBoq() {
@@ -5142,7 +5379,7 @@
         // PROPOSAL MODAL LOGIC (ProposalPreviewModal.tsx)
         // =====================================================================
         function openProposalModal(projectId) {
-            activeProposalProject = projects.find(function(p) { return String(p.id) === String(projectId); });
+            activeProposalProject = projects.find(function(p) { return String(p.id) === String(projectId) || String(p.workOrderNo) === String(projectId); });
             if (!activeProposalProject) return;
 
             var p = activeProposalProject;
@@ -5203,27 +5440,52 @@
                 submitBtn.classList.remove('hidden');
             }
 
-            document.getElementById('modalProposalPreview').classList.remove('hidden');
+            var m = document.getElementById('modalProposalPreview');
+            if (m) {
+                m.style.display = 'flex';
+                m.style.zIndex = '99999';
+                m.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
             lucide.createIcons();
         }
 
         function closeProposalModal() {
-            document.getElementById('modalProposalPreview').classList.add('hidden');
+            var m = document.getElementById('modalProposalPreview');
+            if (m) {
+                m.style.display = 'none';
+                m.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
         }
 
         function confirmAndSubmitProposal() {
             if (!activeProposalProject) return;
-            markBidSubmitted(activeProposalProject.id);
+            markBidSubmitted(activeProposalProject.id, true);
             closeProposalModal();
         }
 
-        function markBidSubmitted(projectId) {
+        function markBidSubmitted(projectId, force) {
             var p = projects.find(function(p) { return String(p.id) === String(projectId); });
             if (!p) return;
+
+            if (!force) {
+                // Open proposal modal for estimator sign-off and verification
+                openProposalModal(projectId);
+                if (typeof showToast === 'function') {
+                    showToast('Please review the commercial proposal sheet before formal client submission.', 'info');
+                }
+                return;
+            }
+
             p.status = 'Bid Submitted';
 
             // Immediate UI update: remove from active pricing queue instantly (exact Next.js match)
             renderWorkspaceTenders();
+
+            if (typeof showToast === 'function') {
+                showToast('✓ Formal Bid Proposal submitted successfully for ' + p.workOrderNo, 'success');
+            }
 
             // Persist to Django backend with dual fallback
             fetch('/api/projects/' + projectId + '/status/', {
@@ -5300,23 +5562,40 @@
             }
 
             lucide.createIcons();
-            // Absolutely NO scrollIntoView! Keeps position clean and seamless at top.
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function openCompareBoq(projectId) {
             switchEstimatorTopTab('comparison', projectId);
+            var p = getActiveComparisonProject();
+            if (!hasCompared) {
+                handleLoadSampleManualDoc();
+                handleRunAiComparison();
+            }
+            if (typeof showToast === 'function' && p) {
+                showToast('Loaded AI BOQ Comparison Engine for ' + (p.workOrderNo || 'Tender'));
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function closeComparisonView() {
             switchEstimatorTopTab('workspace');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function openBidDocs(projectId) {
             switchEstimatorTopTab('upload_docs', projectId);
+            var p = projects.find(function(item) { return String(item.id) === String(projectId); });
+            var count = (p && p.attachedFiles) ? p.attachedFiles.length : 40;
+            if (typeof showToast === 'function') {
+                showToast('Viewing Tender Drawings & Bid Documents (' + count + ' files)', 'info');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function closeBidPackageView() {
             switchEstimatorTopTab('workspace');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function getActiveComparisonProject() {
@@ -6984,8 +7263,30 @@
         }
 
         function handleNavLogout() {
-            window.location.href = '/menu/';
+            try {
+                localStorage.removeItem('radwa_auth_user');
+                localStorage.removeItem('radwa_current_role');
+                localStorage.removeItem('radwa_active_role');
+                sessionStorage.clear();
+                document.cookie = 'radwa_role=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            } catch(e) {}
+            window.location.href = '/login/?logout=1';
         }
+
+        // Auto-open project dossier if project or wo parameter is passed
+        window.addEventListener('DOMContentLoaded', function() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const targetProjId = urlParams.get('project');
+                const targetWo = urlParams.get('wo');
+                if (targetProjId && typeof openDossierModal === 'function') {
+                    setTimeout(() => openDossierModal(targetProjId), 250);
+                } else if (targetWo && typeof ALL_PROJECTS !== 'undefined' && Array.isArray(ALL_PROJECTS)) {
+                    const match = ALL_PROJECTS.find(p => p.workOrderNo === targetWo || p.enquirySerialNo === targetWo);
+                    if (match && typeof openDossierModal === 'function') setTimeout(() => openDossierModal(match.id), 250);
+                }
+            } catch(e) {}
+        });
     </script>
 </body>
 </html>

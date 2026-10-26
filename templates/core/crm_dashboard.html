@@ -2067,13 +2067,13 @@
                         </div>
                     ` : ''}
 
-                    <!-- Action Bar -->
-                    <div class="pt-2 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
-                        <span class="text-slate-400">
+                    <!-- Action Bar: Horizontally Aligned from Left to Right -->
+                    <div class="pt-2 border-t border-slate-100 space-y-2 text-xs">
+                        <span class="text-slate-400 block">
                             Logged into Radwa CRM Register
                         </span>
 
-                        <div class="flex flex-wrap items-center gap-2">
+                        <div class="flex flex-wrap items-center gap-2 justify-start">
                             ${hasApprovedBidPkg ? `
                                 <button
                                     type="button"

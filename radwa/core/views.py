@@ -810,7 +810,7 @@ def operations_console(request):
         "surveyors_json": json.dumps(surveyors_list),
     }
 
-    return render(request, "core/operations_dashboard.html", context)
+    return redirect("/dashboard/?view=operations")
 
 
 # ============================================================================
@@ -1034,13 +1034,24 @@ def login_view(request):
         # Valid credentials!
         django_login(request, user)
 
-        role_key = resolved_username if resolved_username in [
-            'admin', 'crm', 'md', 'estimator', 'operations', 'surveyor', 'qaqc', 'hse', 'hr', 'inventory', 'purchase', 'mr'
-        ] else 'admin'
+        est_usernames = ['estimator', 'farhan', 'tariq', 'faisal', 'ahmed', 'rajesh', 'akshai']
+        if resolved_username in est_usernames:
+            role_key = 'estimator'
+        elif resolved_username in [
+            'admin', 'crm', 'md', 'operations', 'surveyor', 'qaqc', 'hse', 'hr', 'inventory', 'purchase', 'mr'
+        ]:
+            role_key = resolved_username
+        else:
+            role_key = 'admin' if user.is_superuser else 'crm'
 
-        target_url = f"/menu/?role={role_key}"
-        if role_key == "admin":
+        if role_key in ['crm', 'md', 'estimator']:
+            target_url = f"/dashboard/?role={role_key}&view=rfq"
+        elif role_key == "hr":
+            target_url = "/dashboard/?role=hr&view=hr"
+        elif role_key == "admin":
             target_url = "/menu/?view=admin_grid"
+        else:
+            target_url = f"/menu/?role={role_key}"
 
         if is_ajax:
             return JsonResponse({"success": True, "redirect_url": target_url, "role": role_key})
@@ -1049,20 +1060,34 @@ def login_view(request):
         response.set_cookie("radwa_role", role_key, max_age=86400)
         return response
 
+    if request.GET.get("logout"):
+        from django.contrib.auth import logout as django_logout
+        django_logout(request)
+        response = render(request, "core/login.html")
+        response.delete_cookie("radwa_role")
+        response.delete_cookie("sessionid")
+        return response
+
     return render(request, "core/login.html")
+
+
+def logout_view(request):
+    """
+    Standard logout endpoint that flushes auth session and clears role cookies.
+    """
+    from django.contrib.auth import logout as django_logout
+    django_logout(request)
+    response = redirect("core:login")
+    response.delete_cookie("radwa_role")
+    response.delete_cookie("sessionid")
+    return response
 
 
 def qaqc_portal(request):
     """
     QA/QC Quality Inspection & ITP Portal served on http://localhost:8000/qaqc/
     """
-    projects_qs = ProjectRFQ.objects.all().order_by("-id")
-    projects_list = [p.to_dict() for p in projects_qs]
-    context = {
-        "projects": projects_list,
-        "projects_json": json.dumps(projects_list),
-    }
-    return render(request, "core/qaqc_dashboard.html", context)
+    return redirect("/dashboard/?view=qaqc")
 
 
 @csrf_exempt
@@ -1085,13 +1110,7 @@ def hse_portal(request):
             return JsonResponse({"success": True, "action": action, "data": data})
         return redirect("core:hse-portal")
 
-    projects_qs = ProjectRFQ.objects.all().order_by("-id")
-    projects_list = [p.to_dict() for p in projects_qs]
-    context = {
-        "projects": projects_list,
-        "projects_json": json.dumps(projects_list),
-    }
-    return render(request, "core/hse_dashboard.html", context)
+    return redirect("/dashboard/?view=hse")
 
 
 def hr_portal(request):
@@ -1127,27 +1146,7 @@ def inventory_portal(request):
             return JsonResponse({"success": True, "action": action, "data": data})
         return redirect("core:inventory-portal")
 
-    priority_order = [
-        'WO-2026-0600', 'WO-2026-0841', 'WO-2026-0971', 'WO-2026-0003',
-        'WO-2026-0145', 'WO-2026-0148', 'WO-2026-0152', 'WO-2026-0139'
-    ]
-    def sort_p(p):
-        wo = p.get('workOrderNo') or ''
-        if wo in priority_order:
-            return (0, priority_order.index(wo))
-        try:
-            return (1, -int(p.get('id', 0)))
-        except Exception:
-            return (1, 0)
-
-    projects_qs = ProjectRFQ.objects.all().order_by("-id")
-    projects_list = [p.to_dict() for p in projects_qs]
-    projects_list.sort(key=sort_p)
-    context = {
-        "projects": projects_list,
-        "projects_json": json.dumps(projects_list),
-    }
-    return render(request, "core/inventory_dashboard.html", context)
+    return redirect("/dashboard/?view=inventory")
 
 
 @csrf_exempt
@@ -1170,27 +1169,7 @@ def purchase_portal(request):
             return JsonResponse({"success": True, "action": action, "data": data})
         return redirect("core:purchase-portal")
 
-    priority_order = [
-        'WO-2026-0600', 'WO-2026-0841', 'WO-2026-0971', 'WO-2026-0003',
-        'WO-2026-0145', 'WO-2026-0148', 'WO-2026-0152', 'WO-2026-0139'
-    ]
-    def sort_p(p):
-        wo = p.get('workOrderNo') or ''
-        if wo in priority_order:
-            return (0, priority_order.index(wo))
-        try:
-            return (1, -int(p.get('id', 0)))
-        except Exception:
-            return (1, 0)
-
-    projects_qs = ProjectRFQ.objects.all().order_by("-id")
-    projects_list = [p.to_dict() for p in projects_qs]
-    projects_list.sort(key=sort_p)
-    context = {
-        "projects": projects_list,
-        "projects_json": json.dumps(projects_list),
-    }
-    return render(request, "core/purchase_dashboard.html", context)
+    return redirect("/dashboard/?view=purchase")
 
 
 def download_credentials_pdf(request):
@@ -1335,13 +1314,96 @@ def _get_pipeline_context(projects_qs):
 @csrf_exempt
 def radwa_dashboard(request):
     """
-    Radwa Executive Operations Dashboard matching the official operations cockpit design.
+    Radwa Executive Operations Dashboard matching the official operations design.
     Served on /radwa-dashboard/ and /dashboard/
     """
-    initial_view = request.GET.get("view", "operations")
+    raw_role = request.GET.get("role") or request.COOKIES.get("radwa_role") or (request.user.username if request.user.is_authenticated else "admin")
+    role = raw_role.lower().strip() if raw_role else "admin"
+
+    # Map individual estimator usernames to role 'estimator'
+    if role in ['farhan', 'tariq', 'faisal', 'ahmed', 'rajesh', 'akshai']:
+        role = 'estimator'
+
+    initial_view = request.GET.get("view")
+    if not initial_view:
+        if role == "hr":
+            initial_view = "hr"
+        elif role == "operations":
+            initial_view = "operations"
+        elif role == "hse":
+            initial_view = "hse"
+        elif role == "qaqc":
+            initial_view = "qaqc"
+        elif role == "purchase":
+            initial_view = "purchase"
+        elif role == "inventory":
+            initial_view = "inventory"
+        else:
+            initial_view = "rfq"
+
     projects_qs = ProjectRFQ.objects.all().order_by("-id")
     context = _get_pipeline_context(projects_qs)
     context["initial_view"] = initial_view
+    context["user_role"] = role
+
+    # Resolve user display name, title and avatar initials dynamically
+    from .api_views import ROLE_MAPPINGS
+    user_name = ""
+    user_title = ""
+    user_initials = ""
+
+    if request.user.is_authenticated:
+        u_email = request.user.email.lower() if request.user.email else ""
+        if u_email in ROLE_MAPPINGS:
+            user_name = ROLE_MAPPINGS[u_email]["name"]
+            user_title = ROLE_MAPPINGS[u_email]["role"]
+        elif request.user.get_full_name():
+            user_name = request.user.get_full_name()
+            user_title = "Lead Estimator" if role == "estimator" else "Radwa Staff"
+        else:
+            user_name = request.user.username.title()
+            user_title = "Lead Estimator" if role == "estimator" else "Radwa Staff"
+    elif raw_role.lower() in ['farhan', 'tariq', 'faisal', 'ahmed', 'rajesh', 'akshai']:
+        est_map = {
+            'farhan': ('Farhan Qureshi', 'Lead Piping & EPC Estimator', 'FQ'),
+            'tariq': ('Eng. Tariq Al-Mansoor', 'Senior Estimating Engineer', 'TM'),
+            'faisal': ('Eng. Faisal Rahman', 'Lead Civil Estimator', 'FR'),
+            'ahmed': ('Ahmed Mansoor', 'Lead Mechanical Estimator', 'AM'),
+            'rajesh': ('Rajesh Kumar', 'Senior Electrical Estimator', 'RK'),
+            'akshai': ('Akshai A.T', 'Lead Project Estimator', 'AT'),
+        }
+        user_name, user_title, user_initials = est_map[raw_role.lower()]
+    else:
+        role_defaults = {
+            "crm": ("Sarah Al-Ghamdi", "CRM Client Intake", "SG"),
+            "md": ("Eng. Tarek Al-Falih", "Managing Director", "TF"),
+            "estimator": ("Farhan Qureshi", "Lead Estimator", "FQ"),
+            "admin": ("Eng. Abdulrahman Al-Mutawa", "Super Administrator", "AM"),
+            "operations": ("Eng. Khaled Al-Dosari", "Operations & Dispatch", "KD"),
+            "surveyor": ("Majed Al-Harbi", "Field Surveyor", "MH"),
+            "qaqc": ("Eng. Youssef Nabil", "QA/QC Quality", "YN"),
+            "hse": ("Sultan Al-Otaibi", "HSE Safety", "SO"),
+            "hr": ("Nouf Al-Shehri", "HR & Nitaqat", "NS"),
+            "purchase": ("Fahad Al-Qahtani", "Procurement & PO", "FQ"),
+            "inventory": ("Hassan Al-Bishi", "Inventory & Yard", "HB"),
+        }
+        if role in role_defaults:
+            user_name, user_title, user_initials = role_defaults[role]
+
+    if not user_name:
+        user_name = "Akshai A.T"
+        user_title = "Project Manager"
+        user_initials = "AT"
+
+    if not user_initials:
+        clean = user_name.replace("Eng. ", "").replace("Dr. ", "").strip()
+        parts = clean.split()
+        user_initials = (parts[0][0] + parts[1][0]).upper() if len(parts) >= 2 else parts[0][:2].upper()
+
+    context["user_full_name"] = user_name
+    context["user_role_title"] = user_title
+    context["user_initials"] = user_initials
+
     return render(request, "core/radwa_dashboard.html", context)
 
 
@@ -1351,10 +1413,7 @@ def rfq_to_work_order(request):
     Direct route for RFQ to Work Order Dashboard.
     Served on /rfq-to-work-order/
     """
-    projects_qs = ProjectRFQ.objects.all().order_by("-id")
-    context = _get_pipeline_context(projects_qs)
-    context["initial_view"] = "rfq"
-    return render(request, "core/radwa_dashboard.html", context)
+    return redirect("/dashboard/?view=rfq")
 
 
 

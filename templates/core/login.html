@@ -520,7 +520,7 @@
                 defaultPassword: 'radwa123',
                 avatarInitials: 'SG',
                 title: 'CRM Client Intake',
-                launchUrl: '/crm/'
+                launchUrl: '/dashboard/?role=crm&view=rfq'
             },
             md: {
                 id: 'u-md',
@@ -531,18 +531,84 @@
                 defaultPassword: 'radwa123',
                 avatarInitials: 'TF',
                 title: 'Managing Director',
-                launchUrl: '/md/'
+                launchUrl: '/dashboard/?role=md&view=rfq'
             },
             estimator: {
                 id: 'u-est',
-                name: 'Tariq Mansoor',
+                name: 'Farhan Qureshi',
                 email: 'estimator@radwa.sa',
                 role: 'estimator',
                 department: 'Quantity Surveying & Estimation',
                 defaultPassword: 'radwa123',
-                avatarInitials: 'TM',
+                avatarInitials: 'FQ',
                 title: 'Lead Estimator',
-                launchUrl: '/estimator/'
+                launchUrl: '/dashboard/?role=estimator&view=rfq'
+            },
+            farhan: {
+                id: 'u-farhan',
+                name: 'Farhan Qureshi',
+                email: 'farhan@radwa.sa',
+                role: 'estimator',
+                department: 'Piping & EPC Estimation',
+                defaultPassword: 'radwa123',
+                avatarInitials: 'FQ',
+                title: 'Lead Piping & EPC Estimator',
+                launchUrl: '/dashboard/?role=estimator&view=rfq'
+            },
+            tariq: {
+                id: 'u-tariq',
+                name: 'Eng. Tariq Al-Mansoor',
+                email: 'tariq@radwa.sa',
+                role: 'estimator',
+                department: 'Senior Estimation Engineering',
+                defaultPassword: 'radwa123',
+                avatarInitials: 'TM',
+                title: 'Senior Estimating Engineer',
+                launchUrl: '/dashboard/?role=estimator&view=rfq'
+            },
+            faisal: {
+                id: 'u-faisal',
+                name: 'Eng. Faisal Rahman',
+                email: 'faisal@radwa.sa',
+                role: 'estimator',
+                department: 'Civil Estimation Directorate',
+                defaultPassword: 'radwa123',
+                avatarInitials: 'FR',
+                title: 'Lead Civil Estimator',
+                launchUrl: '/dashboard/?role=estimator&view=rfq'
+            },
+            ahmed: {
+                id: 'u-ahmed',
+                name: 'Ahmed Mansoor',
+                email: 'ahmed@radwa.sa',
+                role: 'estimator',
+                department: 'Mechanical Estimation',
+                defaultPassword: 'radwa123',
+                avatarInitials: 'AM',
+                title: 'Lead Mechanical Estimator',
+                launchUrl: '/dashboard/?role=estimator&view=rfq'
+            },
+            rajesh: {
+                id: 'u-rajesh',
+                name: 'Rajesh Kumar',
+                email: 'rajesh@radwa.sa',
+                role: 'estimator',
+                department: 'Electrical Systems Estimation',
+                defaultPassword: 'radwa123',
+                avatarInitials: 'RK',
+                title: 'Senior Electrical Estimator',
+                launchUrl: '/dashboard/?role=estimator&view=rfq'
+            },
+            akshai: {
+                id: 'u-akshai',
+                name: 'Akshai A.T',
+                email: 'akshai@radwa.sa',
+                role: 'estimator',
+                department: 'Project Management & Estimation',
+                defaultPassword: 'radwa123',
+                avatarInitials: 'AT',
+                title: 'Project Manager / Estimator',
+                launchUrl: '/dashboard/?role=estimator&view=rfq'
             },
             operations: {
                 id: 'u-ops',
@@ -597,7 +663,7 @@
                 defaultPassword: 'radwa123',
                 avatarInitials: 'NS',
                 title: 'HR & Nitaqat',
-                launchUrl: '/hr/'
+                launchUrl: '/dashboard/?role=hr&view=hr'
             },
             inventory: {
                 id: 'u-inv',
@@ -1120,9 +1186,15 @@
                 inBtn.disabled = true;
             }
 
-            // Zero-delay instant redirect: Show designated workspace cards + Radwa Dashboard
+            // Direct role routing: CRM, MD, Estimator to RFQ, HR to HR view in Radwa Dashboard
             if (user.role === 'admin') {
                 window.location.href = '/menu/?view=admin_grid';
+            } else if (user.launchUrl) {
+                window.location.href = user.launchUrl;
+            } else if (user.role === 'hr') {
+                window.location.href = '/dashboard/?role=hr&view=hr';
+            } else if (['crm', 'md', 'estimator'].includes(user.role)) {
+                window.location.href = `/dashboard/?role=${encodeURIComponent(user.role)}&view=rfq`;
             } else {
                 window.location.href = `/menu/?role=${encodeURIComponent(user.role)}`;
             }

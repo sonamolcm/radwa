@@ -964,35 +964,30 @@
                             </div>
                         ` : ''}
 
-                        <!-- Main Action Bar -->
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2.5 border-t border-slate-100">
+                        <!-- Main Action Bar: All Buttons Properly Aligned Horizontally from Left to Right -->
+                        <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-start gap-2.5 text-xs">
                             
-                            <!-- Left: Checklist Preview & Tender Details -->
-                            <div class="flex items-center gap-3 text-xs text-slate-500">
-                                <button
-                                    type="button"
-                                    onclick="openPrintModal('${project.id}')"
-                                    class="text-slate-700 hover:text-teal-700 font-semibold underline cursor-pointer flex items-center gap-1.5"
-                                    title="Preview interactive checklist or print dialog"
-                                >
-                                    <i data-lucide="printer" class="w-3.5 h-3.5 text-slate-500"></i>
-                                    <span>${checklistCount} Checkpoints (View / Print)</span>
-                                </button>
+                            <!-- Checklist Preview & Tender Details -->
+                            <button
+                                type="button"
+                                onclick="openPrintModal('${project.id}')"
+                                class="px-3 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs flex items-center gap-1.5 transition cursor-pointer shadow-2xs"
+                                title="Preview interactive checklist or print dialog"
+                            >
+                                <i data-lucide="printer" class="w-3.5 h-3.5 text-slate-500"></i>
+                                <span>Checkpoints (${checklistCount})</span>
+                            </button>
 
-                                <span>•</span>
+                            <button
+                                type="button"
+                                onclick="openDetailModal('${project.id}')"
+                                class="px-3 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs flex items-center gap-1.5 transition cursor-pointer shadow-2xs"
+                            >
+                                <i data-lucide="eye" class="w-3.5 h-3.5 text-slate-400"></i>
+                                <span>Tender Docs</span>
+                            </button>
 
-                                <button
-                                    type="button"
-                                    onclick="openDetailModal('${project.id}')"
-                                    class="text-slate-600 hover:text-slate-900 font-semibold underline cursor-pointer flex items-center gap-1"
-                                >
-                                    <i data-lucide="eye" class="w-3.5 h-3.5 text-slate-400"></i>
-                                    <span>View Tender Docs</span>
-                                </button>
-                            </div>
-
-                            <!-- Right: Core Workflow Actions in Strict Order (1st: Download, 2nd: Depart, 3rd: Survey Done) -->
-                            <div class="flex items-center gap-2.5 shrink-0 flex-wrap sm:flex-nowrap">
+                            <!-- Core Workflow Actions in Strict Order (1st: Download, 2nd: Depart, 3rd: Survey Done) -->
                                 
                                 <!-- 1st: Download Checklist (PDF) -->
                                 <div class="flex items-center gap-1.5">
@@ -1065,8 +1060,6 @@
                                         <span>Survey Submitted (Edit)</span>
                                     </button>
                                 `}
-
-                            </div>
 
                         </div>
 

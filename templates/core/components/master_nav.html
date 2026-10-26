@@ -863,10 +863,13 @@
 
     function handleNavLogout() {
         try {
+            localStorage.removeItem('radwa_auth_user');
             localStorage.removeItem('radwa_current_role');
             localStorage.removeItem('radwa_active_role');
+            sessionStorage.clear();
+            document.cookie = 'radwa_role=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         } catch(e) {}
-        window.location.href = '/menu/?logout=1';
+        window.location.href = '/login/?logout=1';
     }
 
     // AI Engine Config Handlers

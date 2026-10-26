@@ -1420,8 +1420,8 @@
 
                         </div>
 
-                        <!-- Bottom MD Actions Toolbar -->
-                        <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+                        <!-- Bottom MD Actions Toolbar: Horizontally Aligned from Left to Right -->
+                        <div class="pt-3 border-t border-slate-100 space-y-2 text-xs">
                             <div class="text-xs text-slate-500">
                                 ${project.mdApprovedAt ? `
                                     <span class="text-emerald-700 font-medium flex items-center gap-1">
@@ -1433,7 +1433,7 @@
                                 `}
                             </div>
 
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 flex-wrap justify-start">
                                 <button
                                     type="button"
                                     onclick="viewClientTenders('${escapeJs(project.clientName)}')"
@@ -2265,6 +2265,19 @@
         updateMetrics();
         renderProjects();
         lucide.createIcons();
+
+        // Auto-open review modal if project or wo parameter is passed
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetProjId = urlParams.get('project');
+            const targetWo = urlParams.get('wo');
+            if (targetProjId) {
+                setTimeout(() => openReviewModal(targetProjId), 200);
+            } else if (targetWo && typeof ALL_PROJECTS !== 'undefined' && Array.isArray(ALL_PROJECTS)) {
+                const match = ALL_PROJECTS.find(p => p.workOrderNo === targetWo || p.enquirySerialNo === targetWo);
+                if (match) setTimeout(() => openReviewModal(match.id), 200);
+            }
+        } catch(e) {}
     </script>
 </body>
 </html>
