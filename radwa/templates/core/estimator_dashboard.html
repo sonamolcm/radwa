@@ -1803,6 +1803,45 @@
                         </button>
                     </div>
 
+                    <!-- INVALID DOCUMENT REJECTION BANNER -->
+                    <div 
+                        id="boqInvalidDocBanner"
+                        class="hidden rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center space-y-4 border-2 border-rose-300 bg-rose-50/80 shadow-xs"
+                    >
+                        <div class="h-14 w-14 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center shadow-inner">
+                            <i data-lucide="alert-triangle" class="h-7 w-7 text-rose-600"></i>
+                        </div>
+                        <div class="space-y-1.5 max-w-lg">
+                            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-rose-200 text-rose-900 border border-rose-300">
+                                ⚠️ NOT A PROPER TENDER DOCUMENT
+                            </div>
+                            <h3 id="boqInvalidDocTitle" class="text-base font-extrabold text-rose-900">
+                                Document Rejected for BOQ Generation
+                            </h3>
+                            <p id="boqInvalidDocReason" class="text-xs text-rose-800 leading-relaxed bg-white/95 p-3 rounded-xl border border-rose-200 text-left font-sans">
+                                The attached document contains non-tender data (e.g. login credentials, corporate policies, or administrative files) rather than engineering drawings, technical specifications, or bill of quantities line items.
+                            </p>
+                        </div>
+
+                        <div class="flex items-center gap-3 pt-1">
+                            <button
+                                type="button"
+                                onclick="document.getElementById('boqPdfFileInput').click()"
+                                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs bg-rose-600 hover:bg-rose-700 text-white shadow-md transition cursor-pointer"
+                            >
+                                <i data-lucide="upload-cloud" class="h-4 w-4"></i>
+                                <span>Upload Engineering Drawing PDF</span>
+                            </button>
+                            <button
+                                type="button"
+                                onclick="resetBoqToDisciplineSynthesis()"
+                                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 shadow-2xs transition cursor-pointer"
+                            >
+                                <span>Synthesize Discipline BOQ</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- AI GENERATED BOQ TABLE (DISPLAYED AFTER GENERATION) -->
                     <div id="boqTableWrapper" class="hidden space-y-3">
                         <div class="flex items-center justify-between text-xs font-bold text-slate-700">
@@ -2217,7 +2256,52 @@
 
     <!-- ========================================================================= -->
     <!-- MODAL 4: REQUEST PRE-BID SURVEY MODAL (EXACT NEXT.JS FRONTEND MATCH)       -->
+    
     <!-- ========================================================================= -->
+    <!-- MODAL: DOCUMENT REJECTION ALERT                                          -->
+    <!-- ========================================================================= -->
+    <div id="modalDocRejection" class="hidden fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs font-sans">
+        <div class="relative w-full max-w-lg rounded-2xl bg-white border border-rose-200 shadow-2xl overflow-hidden animate-in fade-in duration-150">
+            <div class="p-6 text-center space-y-4">
+                <div class="mx-auto h-16 w-16 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 shadow-inner">
+                    <i data-lucide="alert-octagon" class="h-8 w-8 text-rose-600"></i>
+                </div>
+                <div class="space-y-1">
+                    <span id="docRejectionCategoryBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200">
+                        User Credentials &amp; Passwords
+                    </span>
+                    <h3 class="text-lg font-extrabold text-slate-900 pt-1">
+                        ⚠️ Not a Proper Tender Document
+                    </h3>
+                    <p class="text-xs text-slate-500 font-mono" id="docRejectionFileName">
+                        Radwa_ERP_User_Credentials.pdf
+                    </p>
+                </div>
+                <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-left text-xs text-rose-800 leading-relaxed" id="docRejectionReasonText">
+                    This document was analyzed and detected as non-tender information. It contains user passwords and login credentials, not engineering layout drawings, technical specifications, or bill of quantities schedules. A BOQ cannot be generated from this document.
+                </div>
+                <div class="flex items-center justify-center gap-3 pt-2">
+                    <button
+                        type="button"
+                        onclick="closeDocRejectionModal(); document.getElementById('boqPdfFileInput').click();"
+                        class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition cursor-pointer flex items-center gap-2"
+                    >
+                        <i data-lucide="upload-cloud" class="h-4 w-4"></i>
+                        <span>Upload Authentic Drawing</span>
+                    </button>
+                    <button
+                        type="button"
+                        onclick="closeDocRejectionModal()"
+                        class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer"
+                    >
+                        Dismiss
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- ========================================================================= -->
     <div id="modalRequestSurvey" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/40 backdrop-blur-xs font-sans animate-in fade-in duration-150">
         <div class="relative w-full max-w-2xl max-h-[92vh] flex flex-col rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
             
@@ -4575,8 +4659,24 @@
             var emptyState = document.getElementById('boqEmptyState');
             var tableWrapper = document.getElementById('boqTableWrapper');
 
-            // Load existing calculation if available
-            if (p.aiBoqCalculation && p.aiBoqCalculation.boqLineItems && p.aiBoqCalculation.boqLineItems.length > 0) {
+            // Check if all attached documents were rejected as non-tender files
+            var allDocsRejected = (p.attachedFiles && p.attachedFiles.length > 0 && p.attachedFiles.every(function(f) { 
+                return typeof f === "object" && f.isValidTenderDoc === false; 
+            }));
+
+            if (allDocsRejected) {
+                var firstInv = p.attachedFiles[0];
+                showBoqInvalidDocState(firstInv.name, firstInv.docCategory, firstInv.validationMessage);
+                boqLineItems = [];
+                currentManpower = [];
+                currentHse = [];
+                currentQaqc = [];
+                currentEquipment = [];
+                currentTotals = null;
+                renderBoqLineItems();
+                renderResourceTables();
+                updateCalculatedTotals();
+            } else if (p.aiBoqCalculation && p.aiBoqCalculation.boqLineItems && p.aiBoqCalculation.boqLineItems.length > 0) {
                 boqLineItems = p.aiBoqCalculation.boqLineItems;
                 currentManpower = p.aiBoqCalculation.manpower || [];
                 currentHse = p.aiBoqCalculation.hse || [];
@@ -4744,6 +4844,27 @@
             })
             .then(function(res) { return res.json(); })
             .then(function(json) {
+                if (json.isInvalidDoc || (json.data && json.data.isInvalidDoc)) {
+                    var invInfo = json.isInvalidDoc ? json : json.data;
+                    var fName = invInfo.fileName || 'Attached Document';
+                    var cat = invInfo.docCategory || 'Non-Tender Document';
+                    var reason = invInfo.message || invInfo.validationMessage || 'Document does not contain engineering drawings, technical specifications, or BOQ schedules.';
+                    
+                    showDocumentRejectionModal(fName, cat, reason);
+                    showBoqInvalidDocState(fName, cat, reason);
+                    
+                    boqLineItems = [];
+                    currentManpower = [];
+                    currentHse = [];
+                    currentQaqc = [];
+                    currentEquipment = [];
+                    currentTotals = null;
+                    renderBoqLineItems();
+                    renderResourceTables();
+                    updateCalculatedTotals();
+                    return;
+                }
+
                 if (json.success && json.data) {
                     var calc = json.data;
                     boqLineItems = calc.boqLineItems || [];
@@ -4758,8 +4879,10 @@
                     updateCalculatedTotals();
 
                     var emptyStateEl = document.getElementById('boqEmptyState');
+                    var invalidBannerEl = document.getElementById('boqInvalidDocBanner');
                     var tableWrapperEl = document.getElementById('boqTableWrapper');
                     if (emptyStateEl) emptyStateEl.classList.add('hidden');
+                    if (invalidBannerEl) invalidBannerEl.classList.add('hidden');
                     if (tableWrapperEl) tableWrapperEl.classList.remove('hidden');
 
                     if (typeof showToast === 'function') {
@@ -4816,7 +4939,9 @@
             var input = document.getElementById('boqPromptInput');
             var val = input ? input.value.trim() : '';
             if (!val) {
-                val = 'Lay 10 kilometer pipeline with trenching, dewatering in marshy soil, HDPE encasement, 2 valve stations, and 24/7 crew shifts';
+                var pScope = (activeBoqProject && activeBoqProject.proposedProjectName) ? activeBoqProject.proposedProjectName : 'Engineering & Construction Scope';
+                var pNature = (activeBoqProject && activeBoqProject.natureOfWork) ? activeBoqProject.natureOfWork : 'Industrial Infrastructure';
+                val = 'Synthesize comprehensive BOQ schedule and resource deployment for ' + pScope + ' (' + pNature + ') based on project engineering scope and drawing requirements.';
                 if (input) input.value = val;
             }
 
@@ -4844,6 +4969,15 @@
             })
             .then(function(res) { return res.json(); })
             .then(function(json) {
+                if (json.isInvalidDoc || (json.data && json.data.isInvalidDoc)) {
+                    var invInfo = json.isInvalidDoc ? json : json.data;
+                    var fName = invInfo.fileName || 'Attached Document';
+                    var cat = invInfo.docCategory || 'Non-Tender Document';
+                    var reason = invInfo.message || invInfo.validationMessage || 'Document does not contain engineering drawings or technical specifications.';
+                    showDocumentRejectionModal(fName, cat, reason);
+                    showBoqInvalidDocState(fName, cat, reason);
+                    return;
+                }
                 if (json.success && json.data) {
                     var calc = json.data;
                     if (calc.boqLineItems && calc.boqLineItems.length > 0) {
@@ -4883,6 +5017,66 @@
             });
         }
 
+        function showDocumentRejectionModal(fileName, category, message) {
+            var m = document.getElementById('modalDocRejection');
+            var badgeEl = document.getElementById('docRejectionCategoryBadge');
+            var fnEl = document.getElementById('docRejectionFileName');
+            var reasonEl = document.getElementById('docRejectionReasonText');
+            
+            if (badgeEl) badgeEl.textContent = category || 'Non-Tender File';
+            if (fnEl) fnEl.textContent = fileName || 'Uploaded Document';
+            if (reasonEl) reasonEl.textContent = message || 'This file does not contain engineering drawings, technical specifications, or bill of quantities schedules.';
+
+            if (m) {
+                m.style.display = 'flex';
+                m.style.zIndex = '100000';
+                m.classList.remove('hidden');
+            }
+            if (typeof showToast === 'function') {
+                showToast('⚠️ Document Rejected: ' + (fileName || 'File') + ' is not a valid tender document.', 'error');
+            }
+            lucide.createIcons();
+        }
+
+        function closeDocRejectionModal() {
+            var m = document.getElementById('modalDocRejection');
+            if (m) {
+                m.style.display = 'none';
+                m.classList.add('hidden');
+            }
+        }
+
+        function showBoqInvalidDocState(fileName, category, message) {
+            var emptyState = document.getElementById('boqEmptyState');
+            var tableWrapper = document.getElementById('boqTableWrapper');
+            var invalidBanner = document.getElementById('boqInvalidDocBanner');
+            var titleEl = document.getElementById('boqInvalidDocTitle');
+            var reasonEl = document.getElementById('boqInvalidDocReason');
+
+            if (emptyState) emptyState.classList.add('hidden');
+            if (tableWrapper) tableWrapper.classList.add('hidden');
+            if (invalidBanner) invalidBanner.classList.remove('hidden');
+
+            if (titleEl) {
+                titleEl.textContent = 'Document Rejected: ' + (fileName || 'Attached File');
+            }
+            if (reasonEl) {
+                reasonEl.innerHTML = '<strong>Classification:</strong> ' + (category || 'Non-Tender File') + '<br><br>' +
+                    (message || 'The attached file does not contain engineering drawings, layouts, or BOQ schedules. Radwa ERP requires authentic tender documents to calculate line items.');
+            }
+            lucide.createIcons();
+        }
+
+        function resetBoqToDisciplineSynthesis() {
+            if (activeBoqProject) {
+                activeBoqProject.attachedFiles = [];
+                renderBoqAttachedDocs(activeBoqProject);
+            }
+            var invalidBanner = document.getElementById('boqInvalidDocBanner');
+            if (invalidBanner) invalidBanner.classList.add('hidden');
+            triggerAiBoqScan();
+        }
+
         function renderBoqAttachedDocs(project) {
             var container = document.getElementById('boqAttachedDocsList');
             if (!container) return;
@@ -4901,7 +5095,7 @@
 
             if (files.length === 0) {
                 container.innerHTML = '<div class="text-[11px] text-slate-500 italic bg-white p-2.5 rounded-lg border border-dashed border-slate-300 flex items-center justify-between">' +
-                    '<span>No external drawing PDFs uploaded yet. Standard EPC drawings will be synthesized.</span>' +
+                    '<span>No external drawing PDFs uploaded yet. Standard discipline drawings will be synthesized.</span>' +
                     '<button type="button" onclick="document.getElementById(\'boqPdfFileInput\').click()" class="text-blue-600 font-bold hover:underline cursor-pointer">Upload PDF now</button>' +
                     '</div>';
                 return;
@@ -4910,9 +5104,32 @@
             container.innerHTML = files.map(function(f, idx) {
                 var name = (typeof f === 'string') ? f : (f.name || 'Drawing_Doc_' + (idx+1) + '.pdf');
                 var size = (typeof f === 'object' && f.size) ? f.size : 'PDF';
+                var isValid = (typeof f === 'object') ? (f.isValidTenderDoc !== false) : true;
+                var cat = (typeof f === 'object' && f.docCategory) ? f.docCategory : '';
+                var valMsg = (typeof f === 'object' && f.validationMessage) ? f.validationMessage : '';
                 var sheets = (typeof f === 'object' && f.drawingSheets) ? f.drawingSheets : [];
+
+                if (!isValid) {
+                    return '<div class="p-2.5 rounded-lg bg-rose-50 border border-rose-200 shadow-2xs text-xs space-y-1.5">' +
+                        '<div class="flex items-center justify-between gap-2">' +
+                            '<div class="flex items-center gap-2 truncate">' +
+                                '<i data-lucide="alert-octagon" class="h-4 w-4 text-rose-600 shrink-0"></i>' +
+                                '<span class="font-bold text-rose-900 truncate">' + name + '</span>' +
+                                '<span class="text-[10px] text-rose-500 font-mono shrink-0">(' + size + ')</span>' +
+                            '</div>' +
+                            '<div class="flex items-center gap-1.5 shrink-0">' +
+                                '<span class="px-2 py-0.5 rounded text-[10px] bg-rose-200 text-rose-900 font-extrabold flex items-center gap-1">⚠️ Not a Proper Tender Document</span>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="text-[11px] text-rose-700 bg-white/80 p-2 rounded border border-rose-200">' +
+                            '<strong>Detected Type:</strong> ' + (cat || 'Non-Tender Document') + '<br>' +
+                            '<span class="text-rose-600">' + (valMsg || 'Document contains no engineering drawings, layouts, or BOQ schedules. Rejected for BOQ takeoff.') + '</span>' +
+                        '</div>' +
+                    '</div>';
+                }
+
                 var sheetsBadge = sheets.length > 0 ? '<span class="px-1.5 py-0.5 rounded text-[10px] bg-blue-100 text-blue-800 font-semibold">' + sheets.length + ' Drawing Sheets</span>' : '';
-                var pypdfBadge = '<span class="px-1.5 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-800 font-semibold">✓ pypdf Engine Parsed</span>';
+                var pypdfBadge = '<span class="px-1.5 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-800 font-semibold">✓ Verified Tender Drawing</span>';
                 
                 var details = '';
                 if (sheets.length > 0) {
@@ -4947,7 +5164,7 @@
             var notice = document.getElementById('boqGeneratingNotice');
             var stepText = document.getElementById('boqGeneratingStepText');
             if (notice) notice.classList.remove('hidden');
-            if (stepText) stepText.textContent = 'Uploading & parsing drawing PDF (' + file.name + ') with pypdf...';
+            if (stepText) stepText.textContent = 'Uploading & validating drawing PDF (' + file.name + ') with pypdf...';
 
             var formData = new FormData();
             formData.append('file', file);
@@ -4967,6 +5184,14 @@
                         activeBoqProject.attachedFiles.push(res.file);
                         renderBoqAttachedDocs(activeBoqProject);
                     }
+
+                    // STRICT VALIDATION CHECK: Check if uploaded file is rejected as non-tender
+                    if (res.file.isValidTenderDoc === false) {
+                        showDocumentRejectionModal(res.file.name, res.file.docCategory, res.file.validationMessage);
+                        showBoqInvalidDocState(res.file.name, res.file.docCategory, res.file.validationMessage);
+                        return;
+                    }
+
                     if (typeof showToast === 'function') {
                         showToast('✓ PDF Drawing Parsed: ' + file.name + ' (' + (res.file.pageCount || 1) + ' sheets). Regenerating BOQ...');
                     }

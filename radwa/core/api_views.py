@@ -1018,23 +1018,160 @@ def item_detail_update_delete(request, item_id):
 # ============================================================================
 # AI BOQ & Resources Takeoff Engine
 # ============================================================================
-# PDF Drawing & Engineering Specifications Extraction Engine
+# PDF Drawing & Engineering Specifications Extraction Engine & Document Validator
 # ============================================================================
+
+def verify_tender_document(file_name, full_text, page_count=1):
+    """
+    Validates whether an uploaded PDF is an authentic engineering tender document / drawing / BOQ schedule,
+    or an irrelevant file (e.g. login credentials, corporate profile, generic safety manual).
+    """
+    import re
+    text_lower = (full_text or "").lower()
+    fn_lower = (file_name or "").lower()
+
+    # 1. User Credentials / Login Lists / Passwords
+    cred_keywords = [
+        "password", "user credentials", "login credentials", "email / username", 
+        "erp user", "radwa erp", "department email password", "access logins"
+    ]
+    if "password" in text_lower or ("credentials" in fn_lower and "drawing" not in fn_lower) or any(k in text_lower for k in ["super admin", "admin@radwa.sa", "estimator@radwa.sa"]):
+        return {
+            "isValidTenderDoc": False,
+            "docCategory": "User Credentials & Login List",
+            "reason": f"Uploaded file '{file_name}' contains system login credentials and passwords, not engineering drawings, technical specifications, or bill of quantities schedules.",
+            "drawingSheets": [],
+            "extractedParameters": {},
+            "detectedDisciplines": []
+        }
+
+    # 2. Corporate Profile / Commercial Registrations / Bank / Tax Certificates
+    corp_keywords = [
+        "company profile", "commercial registration", "certificate of registration",
+        "vat registration certificate", "tax certificate", "chamber of commerce certificate",
+        "saudization certificate", "gosi certificate", "our vision", "our mission",
+        "board of directors", "curriculum vitae", "resume", "corporate brochure"
+    ]
+    corp_matches = [k for k in corp_keywords if k in text_lower or k in fn_lower]
+    if len(corp_matches) >= 2 or ("profile" in fn_lower and "drawing" not in fn_lower):
+        return {
+            "isValidTenderDoc": False,
+            "docCategory": "Corporate Profile & Company Credentials",
+            "reason": f"Uploaded file '{file_name}' is a corporate profile or company credential certificate, not a project tender drawing or engineering specification.",
+            "drawingSheets": [],
+            "extractedParameters": {},
+            "detectedDisciplines": []
+        }
+
+    # 3. Corporate EHSS / Safety Procedure Manuals without drawings or BOQ
+    ehss_keywords = [
+        "risk assessment techniques", "corporate environment, health, safety",
+        "corporate ehss", "sub-element number mshem", "procedure manual", "general safety rules"
+    ]
+    is_ehss_manual = any(k in text_lower for k in ehss_keywords)
+    has_boq_or_drawings = any(w in text_lower for w in [
+        "bill of quantities", "schedule of rates", "drawing sheet", "dwg no", "drg no",
+        "pipeline alignment", "single line diagram", "layout plan", "trench detail", "material takeoff"
+    ])
+    if is_ehss_manual and not has_boq_or_drawings:
+        return {
+            "isValidTenderDoc": False,
+            "docCategory": "Corporate Safety Policy / Manual",
+            "reason": f"Uploaded file '{file_name}' is a general safety policy / procedural manual and does not contain project-specific construction drawings, layout sheets, or BOQ line items.",
+            "drawingSheets": [],
+            "extractedParameters": {},
+            "detectedDisciplines": []
+        }
+
+    # 4. Check for Real Engineering Drawing & Technical Tender Indicators
+    drawing_sheets = []
+    dwg_matches = re.findall(r'(?:DWG|DRAWING|SHEET|DRG)[\s\-.:#]+([A-Z0-9\-_/]{2,30})', full_text, re.IGNORECASE)
+    title_matches = re.findall(r'(?:TITLE|DESCRIPTION)[\s\-.:#]+([^\n\r]{4,50})', full_text, re.IGNORECASE)
+    for i in range(min(len(dwg_matches), 12)):
+        d_no = dwg_matches[i].strip()
+        t_str = title_matches[i].strip() if i < len(title_matches) else f"Engineering Layout Sheet {i+1}"
+        drawing_sheets.append(f"DWG {d_no}: {t_str}")
+
+    engineering_indicators = [
+        "pipeline", "pipe", "diameter", "flange", "valve", "trench", "excavation", "backfill",
+        "concrete", "rebar", "substation", "transformer", "switchgear", "circuit breaker",
+        "cable", "conduit", "grounding", "asphalt", "grading", "foundation", "structural",
+        "mto", "bill of quantities", "boq", "schedule of prices", "scope of work",
+        "aramco standard", "saes", "astm", "asme", "api 5l", "elevation",
+        "section", "detail", "plan & profile", "isometric", "p&id", "pfd", "tie-in"
+    ]
+    found_indicators = [w for w in engineering_indicators if w in text_lower]
+
+    if len(found_indicators) < 2 and not drawing_sheets and page_count > 0:
+        return {
+            "isValidTenderDoc": False,
+            "docCategory": "Unrecognized Non-Technical Document",
+            "reason": f"Uploaded file '{file_name}' does not contain recognized engineering drawings, technical specifications, or bill of quantities data.",
+            "drawingSheets": [],
+            "extractedParameters": {},
+            "detectedDisciplines": []
+        }
+
+    # Disciplines:
+    disciplines = []
+    if any(k in text_lower for k in ["pipe", "pipeline", "valve", "flange", "api 5l", "tie-in"]):
+        disciplines.append("Piping & Mechanical")
+    if any(k in text_lower for k in ["substation", "transformer", "switchgear", "cable", "grounding", "voltage", "kv"]):
+        disciplines.append("Electrical & Instrumentation")
+    if any(k in text_lower for k in ["concrete", "excavation", "trench", "backfill", "foundation", "asphalt", "grading", "rebar"]):
+        disciplines.append("Civil & Earthworks")
+    if any(k in text_lower for k in ["tank", "vessel", "blasting", "coating", "structural steel"]):
+        disciplines.append("Storage Tanks & Structural")
+
+    # Parameters
+    extracted_km = None
+    m_km = re.search(r'(\d+(?:,\d+)*(?:\.\d+)?)\s*(?:kilometer|kilometres|kilometre|km)\b', text_lower)
+    if m_km:
+        extracted_km = float(m_km.group(1).replace(',', ''))
+
+    m_pipe = re.search(r'(\d{1,2}(?:\.\d+)?)\s*(?:inch|"|in)\b.*?(?:pipe|pipeline|cs|carbon steel)', text_lower)
+    pipe_size = f'{m_pipe.group(1)}-inch CS API 5L' if m_pipe else None
+
+    m_v = re.search(r'(\d+)\s*(?:valve\s*stations?|block\s*valves?)', text_lower)
+    valves = int(m_v.group(1)) if m_v else None
+
+    has_dewatering = "dewatering" in text_lower or "marshy" in text_lower or "water table" in text_lower or "sabkha" in text_lower
+    has_rock = "rock" in text_lower or "breaker" in text_lower or "blasting" in text_lower
+    is_24_7 = "24/7" in text_lower or "double shift" in text_lower
+
+    if not drawing_sheets and page_count > 0:
+        drawing_sheets = [f"Technical Specification Sheet (Page 1-{page_count})"]
+
+    return {
+        "isValidTenderDoc": True,
+        "docCategory": "Engineering Drawings & Specifications",
+        "reason": f"Validated authentic engineering tender document ({len(found_indicators)} technical indicators found).",
+        "drawingSheets": drawing_sheets,
+        "extractedParameters": {
+            "distanceKm": extracted_km,
+            "pipeSize": pipe_size,
+            "valveCount": valves,
+            "hasDewatering": has_dewatering,
+            "hasRock": has_rock,
+            "shifts": "24/7 Multi-Shift" if is_24_7 else "Standard Single Shift",
+            "pageCount": page_count,
+        },
+        "detectedDisciplines": disciplines or ["Civil & Infrastructure"]
+    }
+
 
 def extract_pdf_drawing_specs(file_source, filename="Tender_Document.pdf"):
     """
-    Parses an uploaded engineering drawing or tender specifications PDF.
-    Extracts text from all pages, drawing titles/numbers/revisions, and detects key project parameters.
+    Parses an uploaded PDF file, validates authenticity via verify_tender_document,
+    and extracts engineering drawing sheets, technical parameters, and disciplines.
     """
-    import re
     import io
+    import pypdf
 
     text_pages = []
-    drawing_sheets = []
     page_count = 0
 
     try:
-        import pypdf
         if isinstance(file_source, (bytes, str, io.BytesIO)):
             if isinstance(file_source, bytes):
                 file_obj = io.BytesIO(file_source)
@@ -1051,80 +1188,32 @@ def extract_pdf_drawing_specs(file_source, filename="Tender_Document.pdf"):
             page_text = page.extract_text() or ""
             if page_text:
                 text_pages.append(f"--- Sheet / Page {i+1} ---\n{page_text}")
-                dwg_match = re.search(r'(?:DWG|DRAWING|SHEET|DRG)[\s\-.:#]+([A-Z0-9\-_/]+)', page_text, re.IGNORECASE)
-                rev_match = re.search(r'REV(?:ISION)?[\s\-.:#]+([A-Z0-9]+)', page_text, re.IGNORECASE)
-                title_match = re.search(r'(?:TITLE|DESCRIPTION)[\s\-.:#]+([^\n\r]+)', page_text, re.IGNORECASE)
-                if dwg_match:
-                    dwg_no = dwg_match.group(1).strip()
-                    rev_no = rev_match.group(1).strip() if rev_match else "A"
-                    title = title_match.group(1).strip()[:45] if title_match else f"Engineering Layout {i+1}"
-                    drawing_sheets.append(f"DWG {dwg_no} (Rev {rev_no}): {title}")
-                elif "pipeline" in page_text.lower() or "drawing" in page_text.lower() or "plan" in page_text.lower():
-                    drawing_sheets.append(f"Drawing Sheet #{i+1} (Engineering Plan & Profile)")
-    except Exception:
-        pass
+    except Exception as e:
+        logger.error("pypdf extraction failed for %s: %s", filename, str(e))
 
     full_text = "\n".join(text_pages)
-    text_lower = full_text.lower()
-
-    # Extract parameters from drawing / specifications text
-    extracted_km = None
-    m_km = re.search(r'(\d+(?:,\d+)*(?:\.\d+)?)\s*(?:kilometer|kilometres|kilometre|km)\b', text_lower)
-    if m_km:
-        extracted_km = float(m_km.group(1).replace(',', ''))
-    else:
-        m_lm = re.search(r'(\d+(?:,\d+)*(?:\.\d+)?)\s*(?:linear\s*meter|linear\s*metre|lm|meter|metre)\b', text_lower)
-        if m_lm:
-            val = float(m_lm.group(1).replace(',', ''))
-            if val >= 500:
-                extracted_km = val / 1000.0
-
-    # Detect pipe size and spec
-    pipe_size = "12-inch CS API 5L"
-    m_pipe = re.search(r'(\d{1,2}(?:\.\d+)?)\s*(?:inch|"|in)\b.*?(?:pipe|pipeline|cs|carbon steel)', text_lower)
-    if m_pipe:
-        pipe_size = f'{m_pipe.group(1)}-inch CS API 5L Gr. B'
-    elif "16-inch" in text_lower or '16"' in text_lower:
-        pipe_size = "16-inch CS API 5L Gr. B"
-    elif "24-inch" in text_lower or '24"' in text_lower:
-        pipe_size = "24-inch CS API 5L Gr. B"
-
-    # Detect valve stations
-    valves = 2
-    m_v = re.search(r'(\d+)\s*(?:valve\s*stations?|valves?|block\s*valves?)', text_lower)
-    if m_v:
-        valves = int(m_v.group(1))
-
-    # Detect soil / trench conditions
-    has_dewatering = "dewatering" in text_lower or "marshy" in text_lower or "water table" in text_lower or "sabkha" in text_lower
-    has_rock = "rock" in text_lower or "breaker" in text_lower or "blasting" in text_lower
-    is_24_7 = "24/7" in text_lower or "shift" in text_lower or "double shift" in text_lower
-
-    if not drawing_sheets and page_count > 0:
-        drawing_sheets = [f"Drawing Sheet #{i+1} (Tender Spec & Layout)" for i in range(min(page_count, 6))]
-
+    
+    # Run strict document validation & classification
+    verification = verify_tender_document(filename, full_text, page_count=page_count)
+    
     return {
         "fileName": filename,
         "pageCount": page_count,
-        "drawingSheets": drawing_sheets[:12],
-        "fullText": full_text[:25000],
-        "extractedParameters": {
-            "distanceKm": extracted_km,
-            "pipeSize": pipe_size,
-            "valveCount": valves,
-            "hasDewatering": has_dewatering,
-            "hasRock": has_rock,
-            "shifts": "24/7 Multi-Shift" if is_24_7 else "Single Shift",
-            "pageCount": page_count,
-        },
-        "summary": f"Analyzed {page_count} PDF drawing & specification sheets for '{filename}'." + (f" Identified {extracted_km} km alignment, {pipe_size}, and {valves} valve stations." if extracted_km else "")
+        "isValidTenderDoc": verification["isValidTenderDoc"],
+        "docCategory": verification["docCategory"],
+        "validationMessage": verification["reason"],
+        "drawingSheets": verification["drawingSheets"][:12],
+        "fullText": full_text[:60000],
+        "extractedParameters": verification["extractedParameters"],
+        "detectedDisciplines": verification.get("detectedDisciplines", []),
+        "summary": verification["reason"]
     }
 
 
 def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from drawings and tender specifications", step=1, api_key=None, api_endpoint=None, model=None):
     """
     Synthesizes AI BOQ schedule and Project Resources takeoff based on uploaded PDF drawings & operational prompt.
-    Supports optional live OpenAI calls with fallback to domain-specific Saudi contractor heuristics.
+    Includes strict document authenticity validation and discipline-aware engineering synthesis.
     """
     import os
     import re
@@ -1134,28 +1223,77 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
     if not api_key or not str(api_key).strip():
         api_key = getattr(settings, "OPENAI_API_KEY", None) or os.getenv("OPENAI_API_KEY")
 
-    # Extract attached documents and drawings
-    attached_docs = project_data.get("attachedFiles") or []
+    if hasattr(project_data, "to_dict"):
+        project_data = project_data.to_dict()
+    elif not isinstance(project_data, dict):
+        project_data = {}
+
+    # 1. Strict Document Validation on attached tender documents
+    attached_docs = project_data.get("attachedFiles") or project_data.get("attached_files") or []
+    valid_docs = []
+    invalid_docs = []
     docs_summary = []
     primary_doc_name = None
     pdf_text_corpus = []
 
     for doc in attached_docs:
         if isinstance(doc, dict):
-            d_name = doc.get("name", "Tender_Drawing_Specs.pdf")
+            d_name = doc.get("name", "Tender_Document.pdf")
             if not primary_doc_name:
                 primary_doc_name = d_name
-            p_sheets = doc.get("drawingSheets") or []
-            sheet_str = f" ({len(p_sheets)} Drawing Sheets)" if p_sheets else ""
-            docs_summary.append(f"- Drawing / Document: {d_name} ({doc.get('size', 'PDF')}){sheet_str}")
-            if doc.get("extractedText"):
-                pdf_text_corpus.append(doc["extractedText"])
-            elif doc.get("summary"):
-                pdf_text_corpus.append(doc["summary"])
+            text = doc.get("extractedText") or doc.get("summary") or ""
+            
+            # If text empty, attempt to read from disk if file URL is available
+            if not text and doc.get("url"):
+                try:
+                    rel_p = str(doc.get("url")).lstrip("/")
+                    full_p = os.path.join(settings.BASE_DIR, rel_p)
+                    if os.path.exists(full_p):
+                        import pypdf
+                        rdr = pypdf.PdfReader(full_p)
+                        text = " ".join([p.extract_text() or "" for p in rdr.pages[:10]])
+                except Exception:
+                    pass
+
+            # Check validation status
+            is_valid = doc.get("isValidTenderDoc")
+            if is_valid is None:
+                v = verify_tender_document(d_name, text)
+                doc["isValidTenderDoc"] = v["isValidTenderDoc"]
+                doc["docCategory"] = v["docCategory"]
+                doc["validationMessage"] = v["reason"]
+                is_valid = v["isValidTenderDoc"]
+            
+            if is_valid:
+                valid_docs.append(doc)
+                p_sheets = doc.get("drawingSheets") or []
+                sheet_str = f" ({len(p_sheets)} Drawing Sheets)" if p_sheets else ""
+                docs_summary.append(f"- Drawing / Document: {d_name} ({doc.get('size', 'PDF')}){sheet_str}")
+                if text:
+                    pdf_text_corpus.append(text)
+            else:
+                invalid_docs.append(doc)
         elif isinstance(doc, str):
-            if not primary_doc_name:
-                primary_doc_name = doc
-            docs_summary.append(f"- Document: {doc}")
+            v = verify_tender_document(doc, "")
+            if v["isValidTenderDoc"]:
+                valid_docs.append({"name": doc, "isValidTenderDoc": True})
+                docs_summary.append(f"- Document: {doc}")
+            else:
+                invalid_docs.append({"name": doc, "isValidTenderDoc": False, "docCategory": v["docCategory"], "validationMessage": v["reason"]})
+
+    # CRITICAL RULE: If external documents were uploaded and NONE are valid engineering drawings/tender specs:
+    if attached_docs and not valid_docs and invalid_docs:
+        first_inv = invalid_docs[0]
+        fn = first_inv.get("name", "Attached File")
+        cat = first_inv.get("docCategory", "Non-Tender Document")
+        reason = first_inv.get("validationMessage") or "Document does not contain engineering drawings, technical specifications, or BOQ schedules."
+        return {
+            "isInvalidDoc": True,
+            "fileName": fn,
+            "docCategory": cat,
+            "validationMessage": f"Not a proper tender document: '{fn}' was analyzed and identified as '{cat}'. {reason} Please upload an authentic engineering drawing, technical specification, or BOQ schedule to generate the project BOQ.",
+            "message": f"Not a proper tender document: '{fn}' was analyzed and identified as '{cat}'."
+        }
 
     docs_text = "\n".join(docs_summary) if docs_summary else "No external PDF files uploaded; synthesize from standard EPC drawings & technical specifications."
     combined_pdf_context = "\n".join(pdf_text_corpus) if pdf_text_corpus else ""
@@ -1232,357 +1370,202 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
             logger.error("OpenAI API call failed: %s", str(e))
             openai_error = f"OpenAI error: {str(e)}"
 
-    # Intelligent procedural fallback tailored to project specifications, drawings, and operational prompt
+    # 2. Intelligent procedural fallback tailored to project specifications, drawings, and operational prompt
     p_name = project_data.get("proposedProjectName") or "Industrial Construction Project"
+    p_name_lower = p_name.lower()
     client = project_data.get("clientName") or "Industrial Client"
     site = project_data.get("siteName") or "Jubail / Yanbu Industrial City"
+    nature = project_data.get("natureOfWork") or "Civil & Infra"
     scopes = [s.strip() for s in (project_data.get("sowScopes") or []) if isinstance(s, str)]
     desc = (project_data.get("projectWorkDescription") or "").lower()
     prompt_lower = (prompt or "").lower()
     corpus_lower = combined_pdf_context.lower()
-    combined_scope_text = f"{prompt_lower} {corpus_lower} {desc}"
+    combined_scope_text = f"{p_name_lower} {prompt_lower} {corpus_lower} {desc}"
 
-    if not scopes:
-        scopes = ["Civil", "Mechanical", "Piping", "Electrical"]
+    # Determine discipline from project name, nature, and drawing context
+    is_substation_elec = nature == "Electrical" or any(w in combined_scope_text for w in ["substation", "transformer", "switchgear", "gis", "380kv", "115kv", "13.8kv", "busbar", "breaker bay", "firefighting piping interconnection"])
+    is_tank_refurb = any(w in combined_scope_text for w in ["tank", "tank farm", "shell refurbishment", "storage tank", "degassing", "floating roof"])
+    is_marine_canal = any(w in combined_scope_text for w in ["canal", "seawater intake", "scour protection", "marine", "berthing", "dredging", "intake ducting"])
+    is_pipeline = (nature == "Pipelines" or any(w in combined_scope_text for w in ["pipeline", "carbon steel pipe", "trunkline", "flowline", "pipe laying"])) and not is_substation_elec
+    is_civil_infra = not (is_substation_elec or is_tank_refurb or is_marine_canal or is_pipeline)
 
-    # Extract distance in km or meters from prompt or PDF drawings
-    km = None
-    m_km = re.search(r'(\d+(?:,\d+)*(?:\.\d+)?)\s*(?:kilometer|kilometres|kilometre|km)\b', prompt_lower)
-    if m_km:
-        km = float(m_km.group(1).replace(',', ''))
-    else:
-        m_m = re.search(r'(\d+(?:,\d+)*(?:\.\d+)?)\s*(?:linear\s*meter|linear\s*metre|lm|meter|metre)\b', prompt_lower)
-        if m_m:
-            val_m = float(m_m.group(1).replace(',', ''))
-            if val_m >= 500:
-                km = val_m / 1000.0
-
-    # If prompt didn't specify km, check uploaded PDF drawing text
-    if km is None:
-        m_km_pdf = re.search(r'(\d+(?:,\d+)*(?:\.\d+)?)\s*(?:kilometer|kilometres|kilometre|km)\b', corpus_lower)
-        if m_km_pdf:
-            km = float(m_km_pdf.group(1).replace(',', ''))
-        else:
-            m_m_pdf = re.search(r'(\d+(?:,\d+)*(?:\.\d+)?)\s*(?:linear\s*meter|linear\s*metre|lm)\b', corpus_lower)
-            if m_m_pdf:
-                km = float(m_m_pdf.group(1).replace(',', '')) / 1000.0
-
-    if km is None:
-        m_desc = re.search(r'(\d+(?:,\d+)*(?:\.\d+)?)\s*(?:kilometer|kilometres|kilometre|km)\b', desc)
-        if m_desc:
-            km = float(m_desc.group(1).replace(',', ''))
-
-    if km is None and ("pipeline" in combined_scope_text or "pipe" in combined_scope_text):
-        km = 10.0
-
-    # Dynamic duration in months
     duration_months = 12
     m_dur = re.search(r'(\d+)\s*month', combined_scope_text)
     if m_dur:
         duration_months = max(3, min(60, int(m_dur.group(1))))
-    elif km is not None:
-        if km <= 15:
-            duration_months = 12
-        elif km <= 50:
-            duration_months = 16
-        elif km <= 200:
-            duration_months = 24
-        else:
-            duration_months = 36
 
-    # Spreads multiplier for large-scale / cross-country operations
-    if km is not None:
-        if km <= 15:
-            spreads = 1.0
-        elif km <= 50:
-            spreads = 2.0
-        elif km <= 150:
-            spreads = 4.0
-        elif km <= 500:
-            spreads = 7.0
-        else:
-            spreads = min(15.0, round(km / 75.0, 1))
-    else:
-        spreads = 1.0
-
-    shift_multiplier = 1.6 if ("24/7" in combined_scope_text or "shift" in combined_scope_text) else 1.0
-    has_dewatering = "dewatering" in combined_scope_text or "marshy" in combined_scope_text or "water table" in combined_scope_text or "sabkha" in combined_scope_text
-    has_rock = "rock" in combined_scope_text or "breaker" in combined_scope_text or "blasting" in combined_scope_text
-
-    # 1. BOQ Line Items (Step 1)
     line_items = []
-    item_counter = 1
+    manpower = []
+    equipment = []
 
-    has_civil = any(s in ["Civil", "Site Preparation", "Structural"] for s in scopes) or "civil" in desc or "concrete" in desc or "foundation" in desc or "trench" in combined_scope_text
-    has_piping = any(s in ["Piping", "Mechanical"] for s in scopes) or "pipe" in desc or "piping" in desc or "pipeline" in combined_scope_text or "valve" in combined_scope_text or km is not None
-    has_elec = any(s in ["Electrical", "Instrumentation"] for s in scopes) or "cable" in desc or "substation" in desc or "electrical" in desc or "power" in combined_scope_text
-    has_struct = any(s in ["Structural", "Civil"] for s in scopes) or "steel" in desc or "structure" in desc or "crane pad" in combined_scope_text
+    if is_substation_elec:
+        duration_months = duration_months or 14
+        line_items = [
+            {"id": "boq-1", "itemNo": "01.01", "package": "Civil & Transformer Foundations", "description": "Cast-in-place reinforced concrete Class C40 blast firewalls & oil containment pits for 380/115kV transformer bays per SEC/Aramco standards", "unit": "M3", "quantity": 1850, "unitRate": 1650, "totalAmount": 1850 * 1650},
+            {"id": "boq-2", "itemNo": "01.02", "package": "High Voltage Equipment", "description": "Rigging, erection, vacuum oil filling, and degasification of 380kV/115kV Power Transformers & GIS bay enclosures", "unit": "EA", "quantity": 4, "unitRate": 420000, "totalAmount": 4 * 420000},
+            {"id": "boq-3", "itemNo": "01.03", "package": "HV & MV Power Cabling", "description": "Supply, pulling, cleating and termination of 13.8kV/115kV single core Cu/XLPE/SWA armored power cables in concrete cable trenches", "unit": "LM", "quantity": 6500, "unitRate": 340, "totalAmount": 6500 * 340},
+            {"id": "boq-4", "itemNo": "01.04", "package": "Grounding & Lightning Protection", "description": "Substation grounding grid installation with 50x6mm bare tinned copper tape, deep bore earth electrodes (<1.0 Ohm) & exothermic cadwelds", "unit": "LOT", "quantity": 1, "unitRate": 285000, "totalAmount": 285000},
+            {"id": "boq-5", "itemNo": "01.05", "package": "Fire Protection & Deluge Piping", "description": "Transformer bay automatic high-velocity water deluge spray system with carbon steel Sch 40 piping, deluge valves & flame detectors", "unit": "LM", "quantity": 3200, "unitRate": 420, "totalAmount": 3200 * 420},
+            {"id": "boq-6", "itemNo": "01.06", "package": "Protection, Control & SCADA", "description": "Numerical protection relay panels, SAS/RTU marshalling cabinets, fiber-optic communication & DC 125V battery charger system", "unit": "LOT", "quantity": 1, "unitRate": 750000, "totalAmount": 750000},
+            {"id": "boq-7", "itemNo": "01.07", "package": "Testing, Commissioning & Energization", "description": "Secondary injection relay testing, CT/VT polarity checks, transformer ratio/tan delta testing & SEC grid synchronized energization", "unit": "LOT", "quantity": 1, "unitRate": 380000, "totalAmount": 380000}
+        ]
+        manpower = [
+            {"id": "mp-1", "role": "Substation Project Manager (SEC Approved)", "trade": "Project Management", "count": 1, "durationMonths": duration_months, "monthlyRate": 29000, "totalCost": 1 * duration_months * 29000},
+            {"id": "mp-2", "role": "Senior Electrical & Protection Commissioning Engineer", "trade": "Electrical Engineering", "count": 2, "durationMonths": duration_months, "monthlyRate": 21000, "totalCost": 2 * duration_months * 21000},
+            {"id": "mp-3", "role": "Certified HV Cable Jointers (Raychem/3M)", "trade": "Electrical", "count": 4, "durationMonths": min(duration_months, 8), "monthlyRate": 11500, "totalCost": 4 * min(duration_months, 8) * 11500},
+            {"id": "mp-4", "role": "Industrial Electricians & Instrument Fitters", "trade": "Electrical", "count": 12, "durationMonths": duration_months, "monthlyRate": 6800, "totalCost": 12 * duration_months * 6800},
+            {"id": "mp-5", "role": "Firefighting Pipe Fitters & 6G Welders", "trade": "Mechanical", "count": 8, "durationMonths": min(duration_months, 8), "monthlyRate": 7800, "totalCost": 8 * min(duration_months, 8) * 7800},
+            {"id": "mp-6", "role": "Civil Concrete & Formwork Crew", "trade": "Civil", "count": 14, "durationMonths": min(duration_months, 6), "monthlyRate": 4200, "totalCost": 14 * min(duration_months, 6) * 4200}
+        ]
+        equipment = [
+            {"id": "eq-1", "equipmentName": "160-Ton Heavy All-Terrain Mobile Crane", "category": "Heavy Lifting", "quantity": 1, "monthlyRental": 65000, "totalCost": 1 * min(duration_months, 4) * 65000},
+            {"id": "eq-2", "equipmentName": "High-Voltage Transformer Oil Filtration & Degassing Rig", "category": "Substation Plant", "quantity": 1, "monthlyRental": 38000, "totalCost": 1 * min(duration_months, 5) * 38000},
+            {"id": "eq-3", "equipmentName": "70kV VLF Hi-Pot & Relay Test Injection Kit", "category": "Testing Equipment", "quantity": 1, "monthlyRental": 24000, "totalCost": 1 * min(duration_months, 6) * 24000},
+            {"id": "eq-4", "equipmentName": "Articulated Boom Manlift (20m Working Height)", "category": "Access Equipment", "quantity": 2, "monthlyRental": 16000, "totalCost": 2 * duration_months * 16000},
+            {"id": "eq-5", "equipmentName": "150kVA Low-Noise Diesel Generator & Power Board", "category": "Temporary Power", "quantity": 2, "monthlyRental": 12500, "totalCost": 2 * duration_months * 12500}
+        ]
 
-    if has_civil or "trench" in combined_scope_text:
-        survey_area = int(km * 2500) if km else 25000
-        line_items.append({
-            "id": f"boq-{item_counter}",
-            "itemNo": f"0{item_counter}.01",
-            "package": "Site Preparation & Earthworks",
-            "description": "Site surveying, grubbing, clearing and mechanical bulk grading per SAES-A-114 specifications",
-            "unit": "M2",
-            "quantity": survey_area,
-            "unitRate": 36,
-            "totalAmount": survey_area * 36
-        })
-        item_counter += 1
+    elif is_tank_refurb:
+        duration_months = duration_months or 10
+        line_items = [
+            {"id": "boq-1", "itemNo": "01.01", "package": "Tank Isolation & Hazardous Degassing", "description": "Positive mechanical blinding, nitrogen purging, hazardous hydrocarbon sludge evacuation & explosive gas-free certification", "unit": "LOT", "quantity": 1, "unitRate": 195000, "totalAmount": 195000},
+            {"id": "boq-2", "itemNo": "01.02", "package": "Surface Preparation & Sa 2.5 Blasting", "description": "Abrasive copper slag blast cleaning of tank internal shell, bottom plates & roof rafters to ISO 8501-1 Sa 2.5 (75um profile)", "unit": "M2", "quantity": 14500, "unitRate": 72, "totalAmount": 14500 * 72},
+            {"id": "boq-3", "itemNo": "01.03", "package": "Annular & Bottom Plate Replacement", "description": "Cutout, fit-up, and welding of corroded tank bottom annular plates (ASTM A516 Gr 70) with 100% vacuum box weld testing", "unit": "TON", "quantity": 75, "unitRate": 14200, "totalAmount": 75 * 14200},
+            {"id": "boq-4", "itemNo": "01.04", "package": "Internal Epoxy Phenolic Lining", "description": "Application of 3-coat high-build chemical-resistant epoxy phenolic lining (DFT 450 microns) with 100% pinhole spark testing", "unit": "M2", "quantity": 14500, "unitRate": 118, "totalAmount": 14500 * 118},
+            {"id": "boq-5", "itemNo": "01.05", "package": "Floating Roof Primary/Secondary Seal", "description": "Supply & replacement of API 650 mechanical stainless steel shoe primary seal and secondary wiper seal with foam fire dam", "unit": "LM", "quantity": 310, "unitRate": 1950, "totalAmount": 310 * 1950},
+            {"id": "boq-6", "itemNo": "01.06", "package": "Hydrostatic Testing & Settlement Survey", "description": "Full hydrostatic filling test with filtered water, 48-hr full load foundation settlement monitoring & shell verticality survey", "unit": "LOT", "quantity": 1, "unitRate": 310000, "totalAmount": 310000}
+        ]
+        manpower = [
+            {"id": "mp-1", "role": "Tank Refurbishment Project Manager (API 653)", "trade": "Project Management", "count": 1, "durationMonths": duration_months, "monthlyRate": 28000, "totalCost": 1 * duration_months * 28000},
+            {"id": "mp-2", "role": "Certified 6G Tank Shell & Plate Welders", "trade": "Mechanical", "count": 8, "durationMonths": min(duration_months, 7), "monthlyRate": 8500, "totalCost": 8 * min(duration_months, 7) * 8500},
+            {"id": "mp-3", "role": "Abrasive Blasting & Airless Spray Painters", "trade": "Coating", "count": 14, "durationMonths": min(duration_months, 6), "monthlyRate": 5500, "totalCost": 14 * min(duration_months, 6) * 5500},
+            {"id": "mp-4", "role": "Confined Space Safety Watch & Riggers", "trade": "Safety", "count": 6, "durationMonths": duration_months, "monthlyRate": 4800, "totalCost": 6 * duration_months * 4800},
+            {"id": "mp-5", "role": "Mechanical Fitters & Scaffolders", "trade": "Mechanical", "count": 10, "durationMonths": duration_months, "monthlyRate": 4200, "totalCost": 10 * duration_months * 4200}
+        ]
+        equipment = [
+            {"id": "eq-1", "equipmentName": "Portable Air Compressor 900 CFM (4-Tool Outlet)", "category": "Blasting Plant", "quantity": 2, "monthlyRental": 28000, "totalCost": 2 * min(duration_months, 6) * 28000},
+            {"id": "eq-2", "equipmentName": "Grit Blasting Hopper & Vacuum Recovery Unit", "category": "Coating Equipment", "quantity": 2, "monthlyRental": 18500, "totalCost": 2 * min(duration_months, 6) * 18500},
+            {"id": "eq-3", "equipmentName": "High-Pressure Hydrotest Centrifugal Water Pump", "category": "Hydrotesting", "quantity": 1, "monthlyRental": 22000, "totalCost": 1 * min(duration_months, 3) * 22000},
+            {"id": "eq-4", "equipmentName": "Vacuum Box Weld Tester & Ultrasonic Flaw Detector", "category": "NDT Equipment", "quantity": 1, "monthlyRental": 14000, "totalCost": 1 * min(duration_months, 6) * 14000},
+            {"id": "eq-5", "equipmentName": "Heavy Sludge Vacuum Tanker Truck", "category": "Transport", "quantity": 1, "monthlyRental": 32000, "totalCost": 1 * min(duration_months, 2) * 32000}
+        ]
 
-        if has_dewatering:
-            trench_lm = int(km * 1000) if km else 10000
-            line_items.append({
-                "id": f"boq-{item_counter}",
-                "itemNo": f"0{item_counter}.01",
-                "package": "Civil & Dewatering",
-                "description": "Deep trench excavation in saturated/marshy soil with continuous wellpoint dewatering & shoring system",
-                "unit": "LM",
-                "quantity": trench_lm,
-                "unitRate": 340,
-                "totalAmount": trench_lm * 340
-            })
-            item_counter += 1
-        elif has_rock:
-            trench_vol = int(km * 2100) if km else 21000
-            line_items.append({
-                "id": f"boq-{item_counter}",
-                "itemNo": f"0{item_counter}.01",
-                "package": "Civil & Rock Breaking",
-                "description": "Heavy rock breaking, hydraulic pneumatic ripping, trench excavation and subgrade compaction to 95% MDD",
-                "unit": "M3",
-                "quantity": trench_vol,
-                "unitRate": 145,
-                "totalAmount": trench_vol * 145
-            })
-            item_counter += 1
+    elif is_marine_canal:
+        duration_months = duration_months or 12
+        line_items = [
+            {"id": "boq-1", "itemNo": "01.01", "package": "Canal Dredging & Silt Clearing", "description": "Marine hydraulic suction dredging & mechanical clamshell excavation of canal sediment to design invert level per Royal Commission specs", "unit": "M3", "quantity": 42000, "unitRate": 68, "totalAmount": 42000 * 68},
+            {"id": "boq-2", "itemNo": "01.02", "package": "Underwater Geotextile Membrane", "description": "Supply & diver deployment of heavy-duty non-woven geotextile filter fabric (450 g/m2) with sand ballast anchoring", "unit": "M2", "quantity": 22000, "unitRate": 34, "totalAmount": 22000 * 34},
+            {"id": "boq-3", "itemNo": "01.03", "package": "Heavy Armor Rock Riprap", "description": "Graded heavy basalt/granite riprap armor stone (500kg - 1500kg Class) placed on geotextile bed for canal bank scour protection", "unit": "TON", "quantity": 28000, "unitRate": 148, "totalAmount": 28000 * 148},
+            {"id": "boq-4", "itemNo": "01.04", "package": "Precast Concrete Armor Units", "description": "Fabrication, curing, marine transport & crane placement of Class C45 microsilica interlocking concrete Accropode / Tetrapod units", "unit": "EA", "quantity": 1200, "unitRate": 2850, "totalAmount": 1200 * 2850},
+            {"id": "boq-5", "itemNo": "01.05", "package": "Seawater Intake Trash Racks", "description": "Fabrication & installation of Marine Grade 316L Stainless Steel bar screens, stoplog gates & automated mechanical trash rakes", "unit": "SET", "quantity": 4, "unitRate": 185000, "totalAmount": 4 * 185000},
+            {"id": "boq-6", "itemNo": "01.06", "package": "Multi-beam Bathymetric Sonar Survey", "description": "Pre-dredge, post-dredge, and final verification hydrographic sonar bathymetric surveying with certified marine depth charts", "unit": "LOT", "quantity": 1, "unitRate": 150000, "totalAmount": 150000}
+        ]
+        manpower = [
+            {"id": "mp-1", "role": "Marine Civil Superintendent", "trade": "Marine Operations", "count": 1, "durationMonths": duration_months, "monthlyRate": 27000, "totalCost": 1 * duration_months * 27000},
+            {"id": "mp-2", "role": "Commercial Dive Team (IMCA / Aramco Certified)", "trade": "Diving Crew", "count": 4, "durationMonths": min(duration_months, 8), "monthlyRate": 16000, "totalCost": 4 * min(duration_months, 8) * 16000},
+            {"id": "mp-3", "role": "Hydrographic Marine Surveyor", "trade": "Survey", "count": 2, "durationMonths": duration_months, "monthlyRate": 14500, "totalCost": 2 * duration_months * 14500},
+            {"id": "mp-4", "role": "Heavy Crawler Crane & Long-Reach Excavator Operators", "trade": "Plant Ops", "count": 6, "durationMonths": duration_months, "monthlyRate": 7800, "totalCost": 6 * duration_months * 7800},
+            {"id": "mp-5", "role": "Civil Marine Riggers & Helpers", "trade": "Civil", "count": 12, "durationMonths": duration_months, "monthlyRate": 4100, "totalCost": 12 * duration_months * 4100}
+        ]
+        equipment = [
+            {"id": "eq-1", "equipmentName": "150-Ton Crawler Crane on Marine Spud Barge", "category": "Marine Heavy Plant", "quantity": 1, "monthlyRental": 95000, "totalCost": 1 * min(duration_months, 8) * 95000},
+            {"id": "eq-2", "equipmentName": "CAT 349 Long-Reach Hydraulic Excavator (20m Boom)", "category": "Earthmoving", "quantity": 2, "monthlyRental": 38000, "totalCost": 2 * duration_months * 38000},
+            {"id": "eq-3", "equipmentName": "Hydrographic Multi-Beam Sonar Survey Vessel", "category": "Marine Survey", "quantity": 1, "monthlyRental": 26000, "totalCost": 1 * min(duration_months, 4) * 26000},
+            {"id": "eq-4", "equipmentName": "Commercial Diver Nitrox Dive Support Container", "category": "Diving Equipment", "quantity": 1, "monthlyRental": 22000, "totalCost": 1 * min(duration_months, 8) * 22000},
+            {"id": "eq-5", "equipmentName": "Heavy Rock Dump Trucks (32m3 Off-Road)", "category": "Transport", "quantity": 4, "monthlyRental": 18000, "totalCost": 4 * duration_months * 18000}
+        ]
+
+    elif is_civil_infra:
+        duration_months = duration_months or 12
+        line_items = [
+            {"id": "boq-1", "itemNo": "01.01", "package": "Site Preparation & Bulk Grading", "description": "Topsoil stripping, grubbing, mechanical leveling and bulk cut-and-fill grading per SAES-A-114", "unit": "M2", "quantity": 38000, "unitRate": 32, "totalAmount": 38000 * 32},
+            {"id": "boq-2", "itemNo": "01.02", "package": "Bulk Earthwork & Compaction", "description": "Subgrade earthwork excavation, proof-rolling, and aggregate base course compaction to 98% MDD", "unit": "M3", "quantity": 24000, "unitRate": 68, "totalAmount": 24000 * 68},
+            {"id": "boq-3", "itemNo": "01.03", "package": "Structural Concrete Foundations", "description": "Cast-in-place reinforced concrete Class C40/50 for heavy equipment pads, retaining walls & box culverts with epoxy rebar", "unit": "M3", "quantity": 3200, "unitRate": 1650, "totalAmount": 3200 * 1650},
+            {"id": "boq-4", "itemNo": "01.04", "package": "Stormwater Drainage & Precast Manholes", "description": "Reinforced concrete drainage pipes (RC Class IV DN600), catch basins, heavy-duty ductile iron gully grates & manholes", "unit": "LM", "quantity": 2800, "unitRate": 480, "totalAmount": 2800 * 480},
+            {"id": "boq-5", "itemNo": "01.05", "package": "Heavy Asphalt Paving & Roads", "description": "Heavy industrial asphalt concrete paving: 75mm asphalt base course + 50mm wearing course with thermo-plastic road markings", "unit": "M2", "quantity": 16000, "unitRate": 125, "totalAmount": 16000 * 125},
+            {"id": "boq-6", "itemNo": "01.06", "package": "Perimeter Security Fencing", "description": "High-security anti-climb weld-mesh perimeter fence (2.4m height) with crash-rated motorized cantilever sliding gates", "unit": "LM", "quantity": 1800, "unitRate": 390, "totalAmount": 1800 * 390}
+        ]
+        manpower = [
+            {"id": "mp-1", "role": "Senior Civil Project Manager", "trade": "Project Management", "count": 1, "durationMonths": duration_months, "monthlyRate": 26000, "totalCost": 1 * duration_months * 26000},
+            {"id": "mp-2", "role": "Civil Site Engineers & Land Surveyors", "trade": "Civil Engineering", "count": 3, "durationMonths": duration_months, "monthlyRate": 16500, "totalCost": 3 * duration_months * 16500},
+            {"id": "mp-3", "role": "Carpenters & Steel Fixers (Formwork Lead)", "trade": "Civil", "count": 16, "durationMonths": min(duration_months, 9), "monthlyRate": 4800, "totalCost": 16 * min(duration_months, 9) * 4800},
+            {"id": "mp-4", "role": "Heavy Equipment & Excavator Operators", "trade": "Plant Ops", "count": 8, "durationMonths": duration_months, "monthlyRate": 7200, "totalCost": 8 * duration_months * 7200},
+            {"id": "mp-5", "role": "Civil General Laborers", "trade": "Civil", "count": 22, "durationMonths": duration_months, "monthlyRate": 3800, "totalCost": 22 * duration_months * 3800}
+        ]
+        equipment = [
+            {"id": "eq-1", "equipmentName": "CAT 336 Hydraulic Excavator (1.8m3 Bucket)", "category": "Earthmoving", "quantity": 2, "monthlyRental": 32000, "totalCost": 2 * duration_months * 32000},
+            {"id": "eq-2", "equipmentName": "CAT 14M Motor Grader & 15-Ton Vibratory Roller", "category": "Compaction", "quantity": 2, "monthlyRental": 28000, "totalCost": 2 * duration_months * 28000},
+            {"id": "eq-3", "equipmentName": "Concrete Boom Pump Truck (42m Reach)", "category": "Concreting", "quantity": 1, "monthlyRental": 35000, "totalCost": 1 * min(duration_months, 6) * 35000},
+            {"id": "eq-4", "equipmentName": "Asphalt Paver & Steel Drum Tandem Roller", "category": "Roadwork", "quantity": 1, "monthlyRental": 38000, "totalCost": 1 * min(duration_months, 4) * 38000},
+            {"id": "eq-5", "equipmentName": "Mercedes-Benz 24m3 Heavy Tipper Trucks", "category": "Transport", "quantity": 4, "monthlyRental": 16000, "totalCost": 4 * duration_months * 16000}
+        ]
+
+    else:
+        # Default Pipeline Spread (Scaled to distance in prompt or drawing)
+        km = None
+        m_km = re.search(r'(\d+(?:,\d+)*(?:\.\d+)?)\s*(?:kilometer|kilometres|kilometre|km)\b', prompt_lower)
+        if m_km:
+            km = float(m_km.group(1).replace(',', ''))
+        elif "distanceKm" in project_data and project_data["distanceKm"]:
+            km = float(project_data["distanceKm"])
         else:
-            trench_vol = int(km * 1850) if km else 18500
-            line_items.append({
-                "id": f"boq-{item_counter}",
-                "itemNo": f"0{item_counter}.01",
-                "package": "Civil Works",
-                "description": "Bulk trench excavation, rock breaking, leveling and subgrade compaction to 95% MDD",
-                "unit": "M3",
-                "quantity": trench_vol,
-                "unitRate": 85,
-                "totalAmount": trench_vol * 85
-            })
-            item_counter += 1
+            km = 10.0
 
-        conc_qty = max(1200, int(km * 240)) if km else 2400
-        line_items.append({
-            "id": f"boq-{item_counter}",
-            "itemNo": f"0{item_counter}.01",
-            "package": "Civil Foundations",
-            "description": "Cast-in-place reinforced concrete Class C40/50 for equipment foundations & valve pits, including rebar ASTM A615 and formwork",
-            "unit": "M3",
-            "quantity": conc_qty,
-            "unitRate": 1650,
-            "totalAmount": conc_qty * 1650
-        })
-        item_counter += 1
+        pipe_qty = int(km * 1000)
+        trench_qty = int(km * 1850)
+        line_items = [
+            {"id": "boq-1", "itemNo": "01.01", "package": "Site Preparation & ROW", "description": "Right-of-Way (ROW) clearing, grubbing, and grading (30m corridor) per SAES-L-450", "unit": "M2", "quantity": int(km * 30000), "unitRate": 18, "totalAmount": int(km * 30000) * 18},
+            {"id": "boq-2", "itemNo": "01.02", "package": "Pipeline Trenching", "description": "Trench excavation in mixed soil/rock, rock ripping, and bed preparation to 1.8m cover depth", "unit": "M3", "quantity": trench_qty, "unitRate": 85, "totalAmount": trench_qty * 85},
+            {"id": "boq-3", "itemNo": "01.03", "package": "Piping Supply & Field Welding", "description": "Supply, beveling, stringing, automated welding of Carbon Steel Linepipe API 5L Gr. B with 100% PAUT/RT inspection", "unit": "LM", "quantity": pipe_qty, "unitRate": 720, "totalAmount": pipe_qty * 720},
+            {"id": "boq-4", "itemNo": "01.04", "package": "Field Joint Coating & Testing", "description": "3-Layer Polyethylene (3LPE) heat shrinkable sleeve application & 15kV holiday spark detection", "unit": "JOINT", "quantity": max(100, int(pipe_qty / 12)), "unitRate": 480, "totalAmount": max(100, int(pipe_qty / 12)) * 480},
+            {"id": "boq-5", "itemNo": "01.05", "package": "Sectional Block Valve Stations", "description": "Sectional Motor Operated Gate Valve station installation with solar actuator & bypass piping", "unit": "EA", "quantity": max(2, int(km / 10) * 2), "unitRate": 85000, "totalAmount": max(2, int(km / 10) * 2) * 85000},
+            {"id": "boq-6", "itemNo": "01.06", "package": "Backfilling & Padding", "description": "Sieved soft padding sand layer (150mm), selected backfilling, compaction & warning tape installation", "unit": "LM", "quantity": pipe_qty, "unitRate": 65, "totalAmount": pipe_qty * 65},
+            {"id": "boq-7", "itemNo": "01.07", "package": "Hydrotesting & Preservation", "description": "Strength & leak hydrostatic pressure test (1.5x design), caliper pigging & dry nitrogen preservation", "unit": "LOT", "quantity": 1, "unitRate": 280000, "totalAmount": 280000}
+        ]
+        manpower = [
+            {"id": "mp-1", "role": "Lead Pipeline Construction Manager", "trade": "Project Management", "count": 1, "durationMonths": duration_months, "monthlyRate": 29000, "totalCost": 1 * duration_months * 29000},
+            {"id": "mp-2", "role": "Lead Pipeline / Welding Engineer (CSWIP / AWS)", "trade": "Engineering", "count": 2, "durationMonths": duration_months, "monthlyRate": 19500, "totalCost": 2 * duration_months * 19500},
+            {"id": "mp-3", "role": "Certified 6G Pipeline Welders (SMAW/GTAW)", "trade": "Mechanical", "count": 12, "durationMonths": min(duration_months, 9), "monthlyRate": 8800, "totalCost": 12 * min(duration_months, 9) * 8800},
+            {"id": "mp-4", "role": "Heavy Trenching & Rigging Operators", "trade": "Plant Ops", "count": 8, "durationMonths": duration_months, "monthlyRate": 7400, "totalCost": 8 * duration_months * 7400},
+            {"id": "mp-5", "role": "Pipeline Helpers & Coating Applicators", "trade": "Mechanical", "count": 24, "durationMonths": duration_months, "monthlyRate": 3900, "totalCost": 24 * duration_months * 3900}
+        ]
+        equipment = [
+            {"id": "eq-1", "equipmentName": "CAT 583T Pipelayer Sideboom (45-Ton Capacity)", "category": "Pipeline Plant", "quantity": 2, "monthlyRental": 55000, "totalCost": 2 * min(duration_months, 8) * 55000},
+            {"id": "eq-2", "equipmentName": "CAT 349D Excavators with Heavy Ripper Tooth", "category": "Earthmoving", "quantity": 3, "monthlyRental": 36000, "totalCost": 3 * duration_months * 36000},
+            {"id": "eq-3", "equipmentName": "Miller Big Blue 500A Multi-Operator Welding Rigs", "category": "Welding Plant", "quantity": 4, "monthlyRental": 14000, "totalCost": 4 * min(duration_months, 9) * 14000},
+            {"id": "eq-4", "equipmentName": "High-Pressure Hydrotest Pump & Caliper Pigging Unit", "category": "Testing Equipment", "quantity": 1, "monthlyRental": 32000, "totalCost": 1 * min(duration_months, 3) * 32000},
+            {"id": "eq-5", "equipmentName": "Padding Sand Sieve Screening Machine", "category": "Plant", "quantity": 1, "monthlyRental": 24000, "totalCost": 1 * min(duration_months, 8) * 24000}
+        ]
 
-    if has_piping:
-        pipe_size = "16-inch" if (km and km >= 100) else ("12-inch" if (km and km >= 10) else "8-inch")
-        pipe_qty = int(km * 1000) if km else 10000
-        pipe_rate = 740 if (km and km >= 100) else 680
-        line_items.append({
-            "id": f"boq-{item_counter}",
-            "itemNo": f"0{item_counter}.01",
-            "package": "Piping & Mechanical",
-            "description": f"Supply, beveling, fit-up, and field welding of {pipe_size} CS Seamless Pipe API 5L Gr. B / ASTM A106 Class 300 with 100% RT NDT",
-            "unit": "LM",
-            "quantity": pipe_qty,
-            "unitRate": pipe_rate,
-            "totalAmount": pipe_qty * pipe_rate
-        })
-        item_counter += 1
-
-        # Valve stations
-        m_valves = re.search(r'(\d+)\s*(?:valve\s*stations?|valves?)', combined_scope_text)
-        if m_valves:
-            v_qty = int(m_valves.group(1)) * 2
-        elif km and km >= 50:
-            v_qty = max(4, int(km / 25) * 2)
-        else:
-            v_qty = 4
-
-        line_items.append({
-            "id": f"boq-{item_counter}",
-            "itemNo": f"0{item_counter}.01",
-            "package": "Mechanical Piping",
-            "description": "Supply, installation & testing of Class 300 Motor Operated Gate Valves (A216 WCB) with bypass & pneumatic actuators",
-            "unit": "EA",
-            "quantity": v_qty,
-            "unitRate": 65000,
-            "totalAmount": v_qty * 65000
-        })
-        item_counter += 1
-
-        if "hdpe" in combined_scope_text or km:
-            hdpe_qty = int(km * 600) if km else 6000
-            line_items.append({
-                "id": f"boq-{item_counter}",
-                "itemNo": f"0{item_counter}.01",
-                "package": "Piping Protection",
-                "description": "Supply and electrofusion installation of high-density polyethylene (HDPE PE100) encasement and corrosion protection sleeve",
-                "unit": "LM",
-                "quantity": hdpe_qty,
-                "unitRate": 185,
-                "totalAmount": hdpe_qty * 185
-            })
-            item_counter += 1
-
-    if has_elec:
-        elec_qty = int(km * 350) if km else 3500
-        line_items.append({
-            "id": f"boq-{item_counter}",
-            "itemNo": f"0{item_counter}.01",
-            "package": "Electrical & Power",
-            "description": "Supply and trench laying of 13.8kV Medium Voltage Armored Power Cable 3x240mm² Cu/XLPE/SWA/PVC with terminations",
-            "unit": "LM",
-            "quantity": elec_qty,
-            "unitRate": 480,
-            "totalAmount": elec_qty * 480
-        })
-        item_counter += 1
-
-        scada_lot = max(1, int(spreads / 2))
-        line_items.append({
-            "id": f"boq-{item_counter}",
-            "itemNo": f"0{item_counter}.01",
-            "package": "Instrumentation & Control",
-            "description": "SCADA / RTU instrumentation cabinet, fiber optic communication link, solar panel backup, and field transmitters",
-            "unit": "LOT",
-            "quantity": scada_lot,
-            "unitRate": 850000,
-            "totalAmount": scada_lot * 850000
-        })
-        item_counter += 1
-
-    if has_struct:
-        steel_qty = int(km * 28) if km else 280
-        line_items.append({
-            "id": f"boq-{item_counter}",
-            "itemNo": f"0{item_counter}.01",
-            "package": "Structural Steel",
-            "description": "Fabrication, hot-dip galvanizing, and site erection of structural steel framing, pipe racks, and platforms per AISC/SAES-M-001",
-            "unit": "TON",
-            "quantity": steel_qty,
-            "unitRate": 11500,
-            "totalAmount": steel_qty * 11500
-        })
-        item_counter += 1
-
-    coat_qty = int(km * 850) if km else 8500
-    line_items.append({
-        "id": f"boq-{item_counter}",
-        "itemNo": f"0{item_counter}.01",
-        "package": "Protective Coating & Blasting",
-        "description": "Abrasive blast cleaning to ISO 8501-1 Sa 2.5 and multi-coat high build epoxy / polyurethane coating system per APCS-1B",
-        "unit": "M2",
-        "quantity": coat_qty,
-        "unitRate": 125,
-        "totalAmount": coat_qty * 125
-    })
-
-    direct_material_cost = sum(item["totalAmount"] for item in line_items)
-
-    # 2. Step 2 Resources (Scales accurately with km, spreads, and shifts)
-    welders_count = int(12 * shift_multiplier * spreads) if has_piping else int(4 * spreads)
-    riggers_count = int(6 * shift_multiplier * spreads)
-    fitters_count = int(16 * shift_multiplier * spreads)
-    technicians_count = int(6 * shift_multiplier * spreads)
-    plant_ops_count = int(6 * spreads)
-    helpers_count = int(24 * shift_multiplier * spreads)
-    piping_eng_count = int(max(2, 2 * spreads))
-    civil_eng_count = int(max(2, 2 * spreads))
-    pm_count = max(1, int(spreads / 3))
-
-    manpower = [
-        {"id": "mp-1", "role": "Site Construction Project Manager", "trade": "Project Management", "count": pm_count, "durationMonths": duration_months, "monthlyRate": 28000, "totalCost": pm_count * duration_months * 28000},
-        {"id": "mp-2", "role": "Lead Pipeline / Piping Engineer (Saudi Aramco Approved)", "trade": "Engineering", "count": piping_eng_count, "durationMonths": duration_months, "monthlyRate": 19000, "totalCost": piping_eng_count * duration_months * 19000},
-        {"id": "mp-3", "role": "Senior Civil & Structural Site Engineer", "trade": "Engineering", "count": civil_eng_count, "durationMonths": duration_months, "monthlyRate": 17500, "totalCost": civil_eng_count * duration_months * 17500},
-        {"id": "mp-4", "role": "Certified 6G Pipe Welders (SMAW/GTAW)", "trade": "Mechanical", "count": welders_count, "durationMonths": min(duration_months, 10), "monthlyRate": 8500, "totalCost": welders_count * min(duration_months, 10) * 8500},
-        {"id": "mp-5", "role": "Certified Riggers (Aramco Level II / TUV)", "trade": "Rigging", "count": riggers_count, "durationMonths": min(duration_months, 8), "monthlyRate": 7200, "totalCost": riggers_count * min(duration_months, 8) * 7200},
-        {"id": "mp-6", "role": "Skilled Pipe Fitters & Fabricators", "trade": "Mechanical", "count": fitters_count, "durationMonths": min(duration_months, 10), "monthlyRate": 5800, "totalCost": fitters_count * min(duration_months, 10) * 5800},
-        {"id": "mp-7", "role": "Electrical & Instrument Technicians", "trade": "Electrical", "count": technicians_count, "durationMonths": min(duration_months, 8), "monthlyRate": 8000, "totalCost": technicians_count * min(duration_months, 8) * 8000},
-        {"id": "mp-8", "role": "Heavy Plant & Crane Operators", "trade": "Plant Ops", "count": plant_ops_count, "durationMonths": duration_months, "monthlyRate": 7500, "totalCost": plant_ops_count * duration_months * 7500},
-        {"id": "mp-9", "role": "Scaffolders & Civil General Helpers", "trade": "Civil", "count": helpers_count, "durationMonths": duration_months, "monthlyRate": 3900, "totalCost": helpers_count * duration_months * 3900}
-    ]
-
-    # HSE Team (Scales dynamically with spreads, shifts, and hazardous operations)
-    hse_mgr_count = max(1, int(spreads / 3))
-    safety_officers_count = int(max(2, 2 * shift_multiplier * spreads))
-    ambulance_count = max(1, int(spreads / 2))
-    gas_kits_count = max(1, int(spreads))
-
+    # Shared HSE & QA/QC for the project scale
     hse = [
-        {"id": "hse-1", "role": "Lead HSE Manager (NEBOSH Diploma / Aramco Approved)", "count": hse_mgr_count, "requirements": "Project Safety Plan, JSA matrix, and client audit management", "monthlyCost": 22000, "totalCost": hse_mgr_count * duration_months * 22000},
-        {"id": "hse-2", "role": "Site Safety Officers (Shift Rotation Coverage)", "count": safety_officers_count, "requirements": "Continuous hot work permits, confined space entry & trench collapse prevention", "monthlyCost": 12000, "totalCost": safety_officers_count * duration_months * 12000},
-        {"id": "hse-3", "role": "Paramedic & On-Site Emergency Trauma Ambulance", "count": ambulance_count, "requirements": "Full medical trauma station, heat stress mitigation & desert electrolyte fleet", "monthlyCost": 9500, "totalCost": ambulance_count * duration_months * 9500},
-        {"id": "hse-4", "role": "Calibrated Gas Detectors, Signage & Fall Arrest Kit", "count": gas_kits_count, "requirements": "Multi-gas 4-way wireless monitors, rescue winches, barricading & PPE", "monthlyCost": 16000, "totalCost": gas_kits_count * duration_months * 16000}
+        {"id": "hse-1", "role": "Lead HSE Manager (NEBOSH Diploma / Aramco Approved)", "count": 1, "requirements": "Project Safety Plan, JSA matrix, and client audit management", "monthlyCost": 22000, "totalCost": 1 * duration_months * 22000},
+        {"id": "hse-2", "role": "Site Safety Officers (Shift Rotation Coverage)", "count": 3, "requirements": "Continuous work permits, hot work inspection & hazard mitigation", "monthlyCost": 12000, "totalCost": 3 * duration_months * 12000},
+        {"id": "hse-3", "role": "Paramedic & On-Site Emergency Trauma Ambulance", "count": 1, "requirements": "Full medical trauma station, heat stress mitigation & desert electrolyte fleet", "monthlyCost": 9500, "totalCost": 1 * duration_months * 9500},
+        {"id": "hse-4", "role": "Calibrated Gas Detectors, Signage & Fall Arrest Kit", "count": 1, "requirements": "Multi-gas wireless monitors, rescue winches, barricading & PPE", "monthlyCost": 16000, "totalCost": 1 * duration_months * 16000}
     ]
-
-    # QA/QC Team (Scales dynamically with weld volume & NDT spreads)
-    qaqc_mgr_count = max(1, int(spreads / 3))
-    inspectors_count = int(max(2, 2 * spreads))
-    ndt_teams_count = int(max(1, round(spreads * 0.8)))
-    hydro_crews_count = int(max(1, round(spreads * 0.5)))
 
     qaqc = [
-        {"id": "qa-1", "role": "QA/QC Manager (ISO 9001 Lead Auditor, Aramco Approved)", "count": qaqc_mgr_count, "testingScope": "Project Quality Plan (PQP), ITP approvals, non-conformance management", "monthlyCost": 24000, "totalCost": qaqc_mgr_count * duration_months * 24000},
-        {"id": "qa-2", "role": "Senior Welding & Coating Inspector (CSWIP 3.1 / NACE Level 2)", "count": inspectors_count, "testingScope": "100% visual inspection of root & cap passes, WQT logs, DFT profiling", "monthlyCost": 16500, "totalCost": inspectors_count * min(duration_months, 10) * 16500},
-        {"id": "qa-3", "role": "Third-Party NDT Radiography (RT) & Ultrasonic (UT) Team", "count": ndt_teams_count, "testingScope": "Radiographic examination of pipeline girth welds per ASME B31.3 & SAES-W-011", "monthlyCost": 28000, "totalCost": ndt_teams_count * min(duration_months, 10) * 28000},
-        {"id": "qa-4", "role": "Hydrostatic Testing & Field Calibration Crew", "count": hydro_crews_count, "testingScope": "Strength & leak test to 1.5x design pressure, deadweight tester, chart recorders", "monthlyCost": 22000, "totalCost": hydro_crews_count * min(duration_months, 6) * 22000}
+        {"id": "qa-1", "role": "QA/QC Manager (ISO 9001 Lead Auditor, Aramco Approved)", "count": 1, "testingScope": "Project Quality Plan (PQP), ITP approvals, non-conformance management", "monthlyCost": 24000, "totalCost": 1 * duration_months * 24000},
+        {"id": "qa-2", "role": "Senior Quality Inspector (CSWIP / NACE / ACI)", "count": 2, "testingScope": "100% inspections of welding, concrete testing, coating DFT profiling", "monthlyCost": 16500, "totalCost": 2 * duration_months * 16500},
+        {"id": "qa-3", "role": "Third-Party NDT & Material Testing Agency", "count": 1, "testingScope": "Radiographic/Ultrasonic weld examination, concrete cube compressive testing", "monthlyCost": 26000, "totalCost": 1 * min(duration_months, 10) * 26000}
     ]
 
-    # Equipment Rentals (Scales dynamically with trenching volume & spreads)
-    cranes_qty = int(max(2, 2 * spreads))
-    excavators_qty = int(max(4, 4 * spreads))
-    loaders_qty = int(max(2, 2 * spreads))
-    generators_qty = int(max(4, 4 * spreads))
-    welding_rigs_qty = int(max(8, 8 * spreads))
-    hydro_skids_qty = int(max(1, round(spreads * 0.5)))
-
-    equipment = [
-        {"id": "eq-1", "equipmentName": "100-Ton All-Terrain Hydraulic Mobile Crane (Liebherr)", "type": "Lifting Plant", "quantity": cranes_qty, "durationMonths": min(duration_months, 8), "monthlyRental": 45000, "totalCost": cranes_qty * min(duration_months, 8) * 45000},
-        {"id": "eq-2", "equipmentName": "CAT 336D Heavy Hydraulic Excavators with Rock Breaker", "type": "Earthmoving", "quantity": excavators_qty, "durationMonths": min(duration_months, 10), "monthlyRental": 22000, "totalCost": excavators_qty * min(duration_months, 10) * 22000},
-        {"id": "eq-3", "equipmentName": "CAT 966 Wheel Loader (3.5 m³ Rehandling Bucket)", "type": "Earthmoving", "quantity": loaders_qty, "durationMonths": min(duration_months, 10), "monthlyRental": 18000, "totalCost": loaders_qty * min(duration_months, 10) * 18000},
-        {"id": "eq-4", "equipmentName": "500 kVA Soundproof Diesel Generators & Distribution Panel", "type": "Power Supply", "quantity": generators_qty, "durationMonths": duration_months, "monthlyRental": 11000, "totalCost": generators_qty * duration_months * 11000},
-        {"id": "eq-5", "equipmentName": "Mobile Diesel Welding Generator Rigs (Miller Big Blue)", "type": "Welding Plant", "quantity": welding_rigs_qty, "durationMonths": min(duration_months, 10), "monthlyRental": 6500, "totalCost": welding_rigs_qty * min(duration_months, 10) * 6500},
-        {"id": "eq-6", "equipmentName": "High-Pressure Hydrotest Pump Skid (Up to 5000 PSI)", "type": "Testing Rig", "quantity": hydro_skids_qty, "durationMonths": min(duration_months, 6), "monthlyRental": 24000, "totalCost": hydro_skids_qty * min(duration_months, 6) * 24000}
-    ]
-
-    if has_dewatering:
-        dewater_qty = int(max(6, 6 * spreads))
-        equipment.append({
-            "id": "eq-7",
-            "equipmentName": "High-Volume 6-inch Diesel Dewatering Pumps with Header Pipes",
-            "type": "Dewatering System",
-            "quantity": dewater_qty,
-            "durationMonths": min(duration_months, 8),
-            "monthlyRental": 8500,
-            "totalCost": dewater_qty * min(duration_months, 8) * 8500
-        })
-
+    direct_material_cost = sum(item["totalAmount"] for item in line_items)
     manpower_cost = sum(m["totalCost"] for m in manpower)
+    equipment_cost = sum(e["totalCost"] for e in equipment)
     hse_cost = sum(h["totalCost"] for h in hse)
     qaqc_cost = sum(q["totalCost"] for q in qaqc)
-    equipment_cost = sum(e["totalCost"] for e in equipment)
 
     direct_total = direct_material_cost + manpower_cost + equipment_cost + hse_cost + qaqc_cost
-    preliminaries_pct = 8.0
+    preliminaries_pct = 9.5
     overheads_and_preliminaries = round(direct_total * (preliminaries_pct / 100.0))
     subtotal = direct_total + overheads_and_preliminaries
     margin_pct = 16.5
     margin_amount = round(subtotal * (margin_pct / 100.0))
     total_commercial_bid_price = subtotal + margin_amount
 
-    doc_info = f" Synthesized from uploaded tender package ({primary_doc_name}) & specifications." if primary_doc_name else " Synthesized BOQ schedule and full project resource deployment."
+    doc_info = f" Synthesized from verified tender package ({primary_doc_name})." if primary_doc_name else " Synthesized discipline-specific engineering BOQ and resource deployment."
 
     return {
         "promptUsed": prompt,
@@ -1634,10 +1617,14 @@ def generate_boq_api(request, project_id=None):
 
     project_data = payload.get("project") or {}
     p_id = project_id or (project_data.get("id") if isinstance(project_data, dict) else None)
-    if p_id and not project_data:
+    if p_id:
         try:
             p = ProjectRFQ.objects.get(pk=p_id)
-            project_data = p.to_dict()
+            if not project_data:
+                project_data = p.to_dict()
+            else:
+                if not project_data.get("attachedFiles") and p.attached_files:
+                    project_data["attachedFiles"] = p.attached_files
         except ProjectRFQ.DoesNotExist:
             pass
 
@@ -1655,6 +1642,16 @@ def generate_boq_api(request, project_id=None):
         api_endpoint=api_endpoint,
         model=model
     )
+
+    if calc_data.get("isInvalidDoc"):
+        return JsonResponse({
+            "success": False,
+            "isInvalidDoc": True,
+            "fileName": calc_data.get("fileName"),
+            "docCategory": calc_data.get("docCategory"),
+            "message": calc_data.get("validationMessage") or calc_data.get("message"),
+            "details": calc_data
+        }, status=400)
 
     # Persist calculation back to ProjectRFQ model in database
     if p_id:
@@ -1682,6 +1679,7 @@ def upload_tender_pdf_api(request, project_id=None):
     POST /api/upload-tender-pdf/
     Accepts multipart file or JSON with base64 data.
     Extracts drawings, specifications, text using pypdf.
+    Validates document authenticity (rejects credentials/profiles).
     Attaches to ProjectRFQ in database if project_id or projectId provided.
     """
     import os
@@ -1725,7 +1723,7 @@ def upload_tender_pdf_api(request, project_id=None):
     with open(save_path, "wb") as dest:
         dest.write(file_obj)
 
-    # Extract drawing metadata & specifications with pypdf
+    # Extract drawing metadata & specifications with pypdf and validate authenticity
     analysis = extract_pdf_drawing_specs(file_obj, filename=file_name)
 
     size_mb = f"{round(file_size / (1024 * 1024), 2)} MB" if file_size > 1024 * 1024 else f"{round(file_size / 1024, 1)} KB"
@@ -1737,6 +1735,9 @@ def upload_tender_pdf_api(request, project_id=None):
         "type": "application/pdf",
         "uploadedAt": timezone.now().strftime("%Y-%m-%d"),
         "pageCount": analysis.get("pageCount", 1),
+        "isValidTenderDoc": analysis.get("isValidTenderDoc", True),
+        "docCategory": analysis.get("docCategory", "Engineering Document"),
+        "validationMessage": analysis.get("validationMessage", ""),
         "drawingSheets": analysis.get("drawingSheets", []),
         "extractedText": analysis.get("fullText", "")[:60000],
         "extractedParameters": analysis.get("extractedParameters", {}),
@@ -1755,9 +1756,14 @@ def upload_tender_pdf_api(request, project_id=None):
         except Exception:
             pass
 
+    is_valid = analysis.get("isValidTenderDoc", True)
+    msg = f"Successfully parsed {analysis.get('pageCount', 1)} pages and drawings from {file_name}" if is_valid else f"⚠️ Notice: '{file_name}' identified as {analysis.get('docCategory')}. {analysis.get('validationMessage')}"
+
     return JsonResponse({
         "success": True,
-        "message": f"Successfully parsed {analysis.get('pageCount', 1)} pages and drawings from {file_name}",
+        "isValidTenderDoc": is_valid,
+        "docCategory": analysis.get("docCategory"),
+        "message": msg,
         "file": file_record,
         "analysis": analysis
     }, status=200)
