@@ -97,6 +97,12 @@ urlpatterns = [
     path("api/v1/compare-boq", api_views.compare_boq_api, name="api-v1-compare-boq-noslash"),
     path("api/v1/estimator/tenders/<int:project_id>/compare-boq/", api_views.compare_boq_api, name="api-v1-estimator-tender-compare-boq"),
 
+    # Manual BOQ Document Verification & Line Item Parsing Engine
+    path("api/verify-manual-boq/", api_views.verify_manual_boq_api, name="api-verify-manual-boq"),
+    path("api/verify-manual-boq", api_views.verify_manual_boq_api, name="api-verify-manual-boq-noslash"),
+    path("api/v1/verify-manual-boq/", api_views.verify_manual_boq_api, name="api-v1-verify-manual-boq"),
+    path("api/v1/estimator/tenders/<int:project_id>/verify-manual-boq/", api_views.verify_manual_boq_api, name="api-v1-estimator-tender-verify-manual-boq"),
+
     # AI Configuration Test Endpoint
     path("api/test-ai-connection/", views.test_ai_connection, name="test-ai-connection"),
 
