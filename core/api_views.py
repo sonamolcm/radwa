@@ -7,8 +7,15 @@ import io
 import re
 import csv
 import difflib
-import openpyxl
-from pypdf import PdfReader
+try:
+    import openpyxl
+except ImportError:
+    openpyxl = None
+
+try:
+    from pypdf import PdfReader
+except ImportError:
+    PdfReader = None
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseNotFound
 from django.views.decorators.csrf import csrf_exempt
@@ -2133,6 +2140,14 @@ def verify_manual_boq_document(file_bytes, filename):
 
     # 1. EXCEL WORKBOOK PARSING & VALIDATION
     if ext in [".xlsx", ".xls"]:
+        if not openpyxl:
+            return {
+                "success": False,
+                "isValidBoq": False,
+                "fileName": filename,
+                "error": "openpyxl not installed",
+                "reason": "Server environment is missing 'openpyxl'. Please upload a CSV file or install openpyxl."
+            }
         try:
             wb = openpyxl.load_workbook(io.BytesIO(file_bytes), data_only=True)
             sheet = wb.active
@@ -2323,6 +2338,14 @@ def verify_manual_boq_document(file_bytes, filename):
 
     # 3. PDF BOQ SCHEDULE PARSING & VALIDATION
     elif ext == ".pdf":
+        if not PdfReader:
+            return {
+                "success": False,
+                "isValidBoq": False,
+                "fileName": filename,
+                "error": "pypdf not installed",
+                "reason": "Server environment is missing 'pypdf'. Please upload a CSV file or install pypdf."
+            }
         try:
             reader = PdfReader(io.BytesIO(file_bytes))
             full_text = ""
