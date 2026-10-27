@@ -810,7 +810,11 @@ def operations_console(request):
         "surveyors_json": json.dumps(surveyors_list),
     }
 
-    return redirect("/dashboard/?view=operations")
+    response = render(request, "core/operations_dashboard.html", context)
+    response["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+    response["Pragma"] = "no-cache"
+    response["Expires"] = "0"
+    return response
 
 
 # ============================================================================
@@ -1044,14 +1048,21 @@ def login_view(request):
         else:
             role_key = 'admin' if user.is_superuser else 'crm'
 
-        if role_key in ['crm', 'md', 'estimator']:
-            target_url = f"/dashboard/?role={role_key}&view=rfq"
-        elif role_key == "hr":
-            target_url = "/dashboard/?role=hr&view=hr"
-        elif role_key == "admin":
-            target_url = "/menu/?view=admin_grid"
-        else:
-            target_url = f"/menu/?role={role_key}"
+        role_dashboards = {
+            "crm": "/crm/",
+            "md": "/md/",
+            "estimator": "/estimator/",
+            "operations": "/operations/",
+            "inventory": "/inventory/",
+            "purchase": "/purchase/",
+            "qaqc": "/qaqc/",
+            "hse": "/hse/",
+            "surveyor": "/surveyor/",
+            "hr": "/hr/",
+            "mr": "/material-requests/",
+            "admin": "/menu/?view=admin_grid",
+        }
+        target_url = role_dashboards.get(role_key, "/menu/")
 
         if is_ajax:
             return JsonResponse({"success": True, "redirect_url": target_url, "role": role_key})

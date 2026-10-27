@@ -810,7 +810,11 @@ def operations_console(request):
         "surveyors_json": json.dumps(surveyors_list),
     }
 
-    return redirect("/dashboard/?view=operations")
+    response = render(request, "core/operations_dashboard.html", context)
+    response["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+    response["Pragma"] = "no-cache"
+    response["Expires"] = "0"
+    return response
 
 
 # ============================================================================
@@ -1044,14 +1048,21 @@ def login_view(request):
         else:
             role_key = 'admin' if user.is_superuser else 'crm'
 
-        if role_key in ['crm', 'md', 'estimator']:
-            target_url = f"/dashboard/?role={role_key}&view=rfq"
-        elif role_key == "hr":
-            target_url = "/dashboard/?role=hr&view=hr"
-        elif role_key == "admin":
-            target_url = "/menu/?view=admin_grid"
-        else:
-            target_url = f"/menu/?role={role_key}"
+        role_dashboards = {
+            "crm": "/crm/",
+            "md": "/md/",
+            "estimator": "/estimator/",
+            "operations": "/operations/",
+            "inventory": "/inventory/",
+            "purchase": "/purchase/",
+            "qaqc": "/qaqc/",
+            "hse": "/hse/",
+            "surveyor": "/surveyor/",
+            "hr": "/hr/",
+            "mr": "/material-requests/",
+            "admin": "/menu/?view=admin_grid",
+        }
+        target_url = role_dashboards.get(role_key, "/menu/")
 
         if is_ajax:
             return JsonResponse({"success": True, "redirect_url": target_url, "role": role_key})
@@ -1083,11 +1094,22 @@ def logout_view(request):
     return response
 
 
+@csrf_exempt
 def qaqc_portal(request):
     """
     QA/QC Quality Inspection & ITP Portal served on http://localhost:8000/qaqc/
     """
-    return redirect("/dashboard/?view=qaqc")
+    projects_qs = ProjectRFQ.objects.all().order_by("-id")
+    projects_list = [p.to_dict() for p in projects_qs]
+    context = {
+        "projects": projects_list,
+        "projects_json": json.dumps(projects_list),
+    }
+    response = render(request, "core/qaqc_dashboard.html", context)
+    response["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+    response["Pragma"] = "no-cache"
+    response["Expires"] = "0"
+    return response
 
 
 @csrf_exempt
@@ -1110,7 +1132,17 @@ def hse_portal(request):
             return JsonResponse({"success": True, "action": action, "data": data})
         return redirect("core:hse-portal")
 
-    return redirect("/dashboard/?view=hse")
+    projects_qs = ProjectRFQ.objects.all().order_by("-id")
+    projects_list = [p.to_dict() for p in projects_qs]
+    context = {
+        "projects": projects_list,
+        "projects_json": json.dumps(projects_list),
+    }
+    response = render(request, "core/hse_dashboard.html", context)
+    response["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+    response["Pragma"] = "no-cache"
+    response["Expires"] = "0"
+    return response
 
 
 def hr_portal(request):
@@ -1146,7 +1178,17 @@ def inventory_portal(request):
             return JsonResponse({"success": True, "action": action, "data": data})
         return redirect("core:inventory-portal")
 
-    return redirect("/dashboard/?view=inventory")
+    projects_qs = ProjectRFQ.objects.all().order_by("-id")
+    projects_list = [p.to_dict() for p in projects_qs]
+    context = {
+        "projects": projects_list,
+        "projects_json": json.dumps(projects_list),
+    }
+    response = render(request, "core/inventory_dashboard.html", context)
+    response["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+    response["Pragma"] = "no-cache"
+    response["Expires"] = "0"
+    return response
 
 
 @csrf_exempt
@@ -1169,7 +1211,17 @@ def purchase_portal(request):
             return JsonResponse({"success": True, "action": action, "data": data})
         return redirect("core:purchase-portal")
 
-    return redirect("/dashboard/?view=purchase")
+    projects_qs = ProjectRFQ.objects.all().order_by("-id")
+    projects_list = [p.to_dict() for p in projects_qs]
+    context = {
+        "projects": projects_list,
+        "projects_json": json.dumps(projects_list),
+    }
+    response = render(request, "core/purchase_dashboard.html", context)
+    response["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+    response["Pragma"] = "no-cache"
+    response["Expires"] = "0"
+    return response
 
 
 def download_credentials_pdf(request):

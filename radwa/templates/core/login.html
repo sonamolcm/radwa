@@ -520,7 +520,7 @@
                 defaultPassword: 'radwa123',
                 avatarInitials: 'SG',
                 title: 'CRM Client Intake',
-                launchUrl: '/dashboard/?role=crm&view=rfq'
+                launchUrl: '/crm/'
             },
             md: {
                 id: 'u-md',
@@ -531,7 +531,7 @@
                 defaultPassword: 'radwa123',
                 avatarInitials: 'TF',
                 title: 'Managing Director',
-                launchUrl: '/dashboard/?role=md&view=rfq'
+                launchUrl: '/md/'
             },
             estimator: {
                 id: 'u-est',
@@ -542,7 +542,7 @@
                 defaultPassword: 'radwa123',
                 avatarInitials: 'FQ',
                 title: 'Lead Estimator',
-                launchUrl: '/dashboard/?role=estimator&view=rfq'
+                launchUrl: '/estimator/'
             },
             farhan: {
                 id: 'u-farhan',
@@ -553,7 +553,7 @@
                 defaultPassword: 'radwa123',
                 avatarInitials: 'FQ',
                 title: 'Lead Piping & EPC Estimator',
-                launchUrl: '/dashboard/?role=estimator&view=rfq'
+                launchUrl: '/estimator/'
             },
             tariq: {
                 id: 'u-tariq',
@@ -564,7 +564,7 @@
                 defaultPassword: 'radwa123',
                 avatarInitials: 'TM',
                 title: 'Senior Estimating Engineer',
-                launchUrl: '/dashboard/?role=estimator&view=rfq'
+                launchUrl: '/estimator/'
             },
             faisal: {
                 id: 'u-faisal',
@@ -575,7 +575,7 @@
                 defaultPassword: 'radwa123',
                 avatarInitials: 'FR',
                 title: 'Lead Civil Estimator',
-                launchUrl: '/dashboard/?role=estimator&view=rfq'
+                launchUrl: '/estimator/'
             },
             ahmed: {
                 id: 'u-ahmed',
@@ -586,7 +586,7 @@
                 defaultPassword: 'radwa123',
                 avatarInitials: 'AM',
                 title: 'Lead Mechanical Estimator',
-                launchUrl: '/dashboard/?role=estimator&view=rfq'
+                launchUrl: '/estimator/'
             },
             rajesh: {
                 id: 'u-rajesh',
@@ -597,7 +597,7 @@
                 defaultPassword: 'radwa123',
                 avatarInitials: 'RK',
                 title: 'Senior Electrical Estimator',
-                launchUrl: '/dashboard/?role=estimator&view=rfq'
+                launchUrl: '/estimator/'
             },
             akshai: {
                 id: 'u-akshai',
@@ -608,7 +608,7 @@
                 defaultPassword: 'radwa123',
                 avatarInitials: 'AT',
                 title: 'Project Manager / Estimator',
-                launchUrl: '/dashboard/?role=estimator&view=rfq'
+                launchUrl: '/estimator/'
             },
             operations: {
                 id: 'u-ops',
@@ -1186,13 +1186,27 @@
                 inBtn.disabled = true;
             }
 
-            // Direct role routing: CRM, MD, and Estimator go directly to RFQ Dashboard
+            // Direct role routing to each department's dedicated dashboard
+            const roleDashboards = {
+                admin: '/menu/?view=admin_grid',
+                crm: '/crm/',
+                md: '/md/',
+                estimator: '/estimator/',
+                operations: '/operations/',
+                inventory: '/inventory/',
+                purchase: '/purchase/',
+                qaqc: '/qaqc/',
+                hse: '/hse/',
+                surveyor: '/surveyor/',
+                hr: '/hr/',
+                mr: '/material-requests/'
+            };
             if (user.role === 'admin') {
                 window.location.href = '/menu/?view=admin_grid';
+            } else if (roleDashboards[user.role]) {
+                window.location.href = roleDashboards[user.role];
             } else if (user.launchUrl) {
                 window.location.href = user.launchUrl;
-            } else if (['crm', 'md', 'estimator'].includes(user.role)) {
-                window.location.href = `/dashboard/?role=${encodeURIComponent(user.role)}&view=rfq`;
             } else {
                 window.location.href = `/menu/?role=${encodeURIComponent(user.role)}`;
             }

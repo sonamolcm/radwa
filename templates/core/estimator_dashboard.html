@@ -1745,7 +1745,7 @@
                                     id="btnRescanBoq"
                                     class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 text-xs font-semibold shadow-2xs transition cursor-pointer"
                                 >
-                                    <i data-lucide="refresh-cw" class="h-3.5 w-3.5 text-blue-600" id="boqScanIcon"></i>
+                                    <i data-lucide="refresh-cw" class="h-3.5 w-3.5 text-blue-600" id="boqRescanIcon"></i>
                                     <span>Re-Scan &amp; Regenerate</span>
                                 </button>
                             </div>
@@ -1966,7 +1966,7 @@
 
                             <button
                                 type="button"
-                                onclick="recalculateResources()"
+                                onclick="recalculateResources(event)"
                                 class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-xs transition cursor-pointer"
                             >
                                 <i data-lucide="sparkles" class="h-4 w-4 text-amber-300"></i>
@@ -4690,16 +4690,31 @@
             lucide.createIcons();
         }
 
+        // Shared AI config helper — must be outer-scoped so all BOQ functions can access it
+        function getAiConfig() {
+            try {
+                var raw = localStorage.getItem('radwa_ai_config');
+                if (raw) return JSON.parse(raw);
+            } catch(e) {}
+            return (typeof navAiConfig !== 'undefined') ? navAiConfig : {
+                apiKey: '',
+                apiEndpoint: 'https://api.openai.com/v1',
+                model: 'gpt-4o-mini'
+            };
+        }
+
         function triggerAiBoqScan() {
             var notice = document.getElementById('boqGeneratingNotice');
             var stepText = document.getElementById('boqGeneratingStepText');
             var icon = document.getElementById('boqScanIcon');
+            var rescanIcon = document.getElementById('boqRescanIcon');
             var btnText = document.getElementById('btnGenerateBoqText');
 
             var promptVal = 'Generate standard BOQ schedule from drawings and tender specifications';
 
             if (notice) notice.classList.remove('hidden');
             if (icon) icon.classList.add('animate-spin');
+            if (rescanIcon) rescanIcon.classList.add('animate-spin');
             if (btnText) btnText.textContent = 'Reading Drawings & Docs...';
 
             if (stepText) stepText.textContent = 'Scanning attached tender drawings & engineering specifications...';
@@ -4711,18 +4726,6 @@
             setTimeout(function() {
                 if (stepText) stepText.textContent = 'Synthesizing civil, piping, mechanical & electrical BOQ schedule...';
             }, 600);
-
-            function getAiConfig() {
-                try {
-                    var raw = localStorage.getItem('radwa_ai_config');
-                    if (raw) return JSON.parse(raw);
-                } catch(e) {}
-                return (typeof navAiConfig !== 'undefined') ? navAiConfig : {
-                    apiKey: '',
-                    apiEndpoint: 'https://api.openai.com/v1',
-                    model: 'gpt-4o-mini'
-                };
-            }
 
             var aiConfig = getAiConfig();
 
@@ -4753,16 +4756,26 @@
                     renderResourceTables();
                     updateCalculatedTotals();
 
-                    document.getElementById('boqEmptyState').classList.add('hidden');
-                    document.getElementById('boqTableWrapper').classList.remove('hidden');
+                    var emptyStateEl = document.getElementById('boqEmptyState');
+                    var tableWrapperEl = document.getElementById('boqTableWrapper');
+                    if (emptyStateEl) emptyStateEl.classList.add('hidden');
+                    if (tableWrapperEl) tableWrapperEl.classList.remove('hidden');
+
+                    if (typeof showToast === 'function') {
+                        showToast('✓ AI BOQ generated: ' + boqLineItems.length + ' line items synthesized from drawings & specs.');
+                    }
                 }
             })
             .catch(function(err) {
                 console.error('Failed to generate BOQ:', err);
+                if (typeof showToast === 'function') {
+                    showToast('⚠ BOQ generation failed. Check console for details.', 'error');
+                }
             })
             .finally(function() {
                 if (notice) notice.classList.add('hidden');
                 if (icon) icon.classList.remove('animate-spin');
+                if (rescanIcon) rescanIcon.classList.remove('animate-spin');
                 if (btnText) btnText.textContent = 'Generate AI BOQ';
                 lucide.createIcons();
             });
@@ -4792,22 +4805,23 @@
             }
         }
 
-        function recalculateResources() {
+        function recalculateResources(evt) {
             var input = document.getElementById('boqPromptInput');
             var val = input ? input.value.trim() : '';
             if (!val) {
                 val = 'Lay 10 kilometer pipeline with trenching, dewatering in marshy soil, HDPE encasement, 2 valve stations, and 24/7 crew shifts';
                 if (input) input.value = val;
             }
-            
-            var btn = event ? (event.currentTarget || event.target) : null;
+
+            var e = evt || (typeof event !== 'undefined' ? event : null);
+            var btn = e ? (e.currentTarget || e.target) : null;
             var origText = btn ? btn.innerHTML : '';
             if (btn) {
                 btn.innerHTML = '<i data-lucide="refresh-cw" class="h-4 w-4 text-amber-300 animate-spin"></i><span>Synthesizing Headcount...</span>';
                 lucide.createIcons();
             }
 
-            var aiConfig = (typeof getAiConfig === 'function') ? getAiConfig() : {};
+            var aiConfig = getAiConfig();
 
             fetch('/api/generate-boq/', {
                 method: 'POST',
