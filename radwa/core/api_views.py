@@ -1139,13 +1139,36 @@ def verify_tender_document(file_name, full_text, page_count=1):
     has_rock = "rock" in text_lower or "breaker" in text_lower or "blasting" in text_lower
     is_24_7 = "24/7" in text_lower or "double shift" in text_lower
 
+    has_drawings = len(dwg_matches) > 0
+    has_rfq_sow = any(k in text_lower for k in ["scope of work", "sow", "request for quotation", "rfq", "employer requirements", "project description", "contractor scope"])
+    has_boq_schedule = any(k in text_lower for k in ["bill of quantities", "boq", "schedule of rates", "schedule of prices", "mto"])
+
+    if has_drawings and has_rfq_sow:
+        doc_category = "Combined RFQ Scope & Engineering Drawings"
+        val_reason = f"Validated authentic tender package with {len(drawing_sheets)} engineering drawing sheets and RFQ scope specifications."
+    elif has_drawings:
+        doc_category = "Engineering Drawings & Layout Sheets"
+        val_reason = f"Validated authentic engineering drawing package with {len(drawing_sheets)} drawing sheets."
+    elif has_rfq_sow:
+        doc_category = "Project RFQ Scope & Technical Specifications"
+        val_reason = f"Validated authentic Project RFQ technical scope of work & specifications ({len(found_indicators)} technical indicators found)."
+    elif has_boq_schedule:
+        doc_category = "Bill of Quantities / Pricing Schedule"
+        val_reason = f"Validated authentic BOQ schedule & pricing takeoffs ({len(found_indicators)} technical indicators found)."
+    else:
+        doc_category = "Engineering Tender Specifications"
+        val_reason = f"Validated authentic engineering tender document ({len(found_indicators)} technical indicators found)."
+
     if not drawing_sheets and page_count > 0:
-        drawing_sheets = [f"Technical Specification Sheet (Page 1-{page_count})"]
+        if has_rfq_sow:
+            drawing_sheets = [f"Project RFQ Scope Specifications (Pages 1-{min(page_count, 10)})"]
+        else:
+            drawing_sheets = [f"Technical Specification Sheet (Pages 1-{page_count})"]
 
     return {
         "isValidTenderDoc": True,
-        "docCategory": "Engineering Drawings & Specifications",
-        "reason": f"Validated authentic engineering tender document ({len(found_indicators)} technical indicators found).",
+        "docCategory": doc_category,
+        "reason": val_reason,
         "drawingSheets": drawing_sheets,
         "extractedParameters": {
             "distanceKm": extracted_km,
@@ -1549,11 +1572,11 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
     corpus_lower = combined_pdf_context.lower()
     combined_scope_text = f"{p_name_lower} {prompt_lower} {corpus_lower} {desc}"
 
-    # Determine discipline from project name, nature, and drawing context
-    is_substation_elec = nature == "Electrical" or any(w in combined_scope_text for w in ["substation", "transformer", "switchgear", "gis", "380kv", "115kv", "13.8kv", "busbar", "breaker bay", "firefighting piping interconnection"])
-    is_tank_refurb = any(w in combined_scope_text for w in ["tank", "tank farm", "shell refurbishment", "storage tank", "degassing", "floating roof"])
-    is_marine_canal = any(w in combined_scope_text for w in ["canal", "seawater intake", "scour protection", "marine", "berthing", "dredging", "intake ducting"])
-    is_pipeline = (nature == "Pipelines" or any(w in combined_scope_text for w in ["pipeline", "carbon steel pipe", "trunkline", "flowline", "pipe laying"])) and not is_substation_elec
+    # Determine discipline from project name, nature, and drawing context (high precision matching)
+    is_marine_canal = any(w in p_name_lower or w in prompt_lower or w in nature.lower() for w in ["canal", "seawater intake", "scour protection", "marine", "berthing", "dredging", "intake ducting"]) or any(w in combined_scope_text for w in ["seawater cooling intake", "intake canal", "marine armor"])
+    is_tank_refurb = (any(w in p_name_lower or w in prompt_lower for w in ["tank", "tank farm", "shell refurbishment", "storage tank", "degassing", "floating roof"]) or any(w in combined_scope_text for w in ["tank refurbishment", "api 650 tank", "crude storage tank"])) and not is_marine_canal
+    is_substation_elec = ((nature == "Electrical" or any(w in p_name_lower for w in ["substation", "transformer", "gis", "380kv", "115kv"])) or (any(w in combined_scope_text for w in ["substation", "transformer", "gis bay", "switchgear"]) and not any(w in combined_scope_text for w in ["intake", "pump house", "canal"]))) and not (is_marine_canal or is_tank_refurb)
+    is_pipeline = (nature == "Pipelines" or any(w in p_name_lower for w in ["pipeline", "flowline", "trunkline"]) or any(w in combined_scope_text for w in ["cross country pipeline", "carbon steel pipe api 5l", "pipe laying trenching"])) and not (is_substation_elec or is_marine_canal or is_tank_refurb)
     is_civil_infra = not (is_substation_elec or is_tank_refurb or is_marine_canal or is_pipeline)
 
     duration_months = 12
