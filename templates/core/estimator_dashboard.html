@@ -100,17 +100,18 @@
                 <!-- AI Engine Status Pill -->
                 <button
                     type="button"
+                    id="topNavAiPill"
                     onclick="openAiConfigModal()"
                     class="px-2 sm:px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer flex items-center gap-1 sm:gap-1.5 shadow-2xs bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100 shrink-0"
                     title="Live AI Engine Verified: Click to configure OpenAI API Key &amp; Model"
                 >
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                    <span id="topNavAiDot" class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
                     <div class="flex items-center gap-1">
                         <i data-lucide="sparkles" class="w-3.5 h-3.5 text-purple-600 shrink-0"></i>
-                        <span class="font-extrabold tracking-tight hidden sm:inline">AI Engine: Active</span>
+                        <span id="topNavAiText" class="font-extrabold tracking-tight hidden sm:inline">AI Engine: Active</span>
                         <span class="sm:hidden font-extrabold text-[10px] tracking-tight">AI</span>
                     </div>
-                    <span class="text-[10px] font-semibold text-slate-500 hidden lg:inline-block border-l border-slate-300/60 pl-1.5 font-mono">
+                    <span id="topNavAiHost" class="text-[10px] font-semibold text-slate-500 hidden lg:inline-block border-l border-slate-300/60 pl-1.5 font-mono">
                         api.openai.com
                     </span>
                 </button>
@@ -4762,7 +4763,13 @@
                     if (tableWrapperEl) tableWrapperEl.classList.remove('hidden');
 
                     if (typeof showToast === 'function') {
-                        showToast('✓ AI BOQ generated: ' + boqLineItems.length + ' line items synthesized from drawings & specs.');
+                        if (json.aiSource === 'openai') {
+                            showToast('✓ AI BOQ generated via OpenAI (' + (calc.modelUsed || 'gpt-4o-mini') + ') from uploaded drawings & specs (' + boqLineItems.length + ' items).', 'success');
+                        } else if (json.openaiError) {
+                            showToast('⚠️ OpenAI Notice: ' + json.openaiError + '. Using intelligent EPC engineering fallback.', 'warning');
+                        } else {
+                            showToast('✓ AI BOQ generated: ' + boqLineItems.length + ' line items synthesized from drawings & specs.');
+                        }
                     }
                 }
             })
@@ -4855,7 +4862,13 @@
                     var totMp = currentManpower.reduce(function(a, b) { return a + (b.count || 1); }, 0);
                     var totHse = currentHse.reduce(function(a, b) { return a + (b.count || 1); }, 0);
                     if (typeof showToast === 'function') {
-                        showToast('✓ AI Resources Calculated: ' + totMp + ' Manpower, ' + totHse + ' HSE Safety personnel scaled to prompt!');
+                        if (json.aiSource === 'openai') {
+                            showToast('✓ AI Resources synthesized via OpenAI (' + (calc.modelUsed || 'gpt-4o-mini') + '): ' + totMp + ' Manpower, ' + totHse + ' HSE personnel.', 'success');
+                        } else if (json.openaiError) {
+                            showToast('⚠️ OpenAI Notice: ' + json.openaiError + '. Calculated via intelligent EPC rules.', 'warning');
+                        } else {
+                            showToast('✓ AI Resources Calculated: ' + totMp + ' Manpower, ' + totHse + ' HSE Safety personnel scaled to prompt!');
+                        }
                     }
                 }
             })
@@ -7272,8 +7285,153 @@
             }
         });
 
+        // AI Configuration Modal Logic
+        var navAiConfig = {
+            apiKey: '',
+            apiEndpoint: 'https://api.openai.com/v1',
+            model: 'gpt-4o-mini',
+            maxPulls: 15,
+            pullsUsed: 0
+        };
+
+        function loadNavAiConfig() {
+            try {
+                var raw = localStorage.getItem('radwa_ai_config');
+                if (raw) {
+                    var parsed = JSON.parse(raw);
+                    navAiConfig = Object.assign({}, navAiConfig, parsed);
+                }
+            } catch(e) {}
+        }
+
+        function updateNavAiPillView() {
+            loadNavAiConfig();
+            var pill = document.getElementById('topNavAiPill');
+            var dot = document.getElementById('topNavAiDot');
+            var text = document.getElementById('topNavAiText');
+            var host = document.getElementById('topNavAiHost');
+            if (!pill || !dot || !text) return;
+
+            if (navAiConfig.apiKey && navAiConfig.apiKey.trim().length > 0) {
+                pill.className = "px-2 sm:px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer flex items-center gap-1 sm:gap-1.5 shadow-2xs bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100 shrink-0";
+                dot.className = "w-2 h-2 rounded-full bg-emerald-500 shrink-0";
+                text.innerText = "AI: OpenAI Active";
+                if (host) host.innerText = navAiConfig.model || "gpt-4o-mini";
+            } else {
+                pill.className = "px-2 sm:px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer flex items-center gap-1 sm:gap-1.5 shadow-2xs bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100 shrink-0";
+                dot.className = "w-2 h-2 rounded-full bg-amber-500 shrink-0";
+                text.innerText = "AI: Standalone";
+                if (host) host.innerText = "Standalone EPC";
+            }
+        }
+
         function openAiConfigModal() {
-            alert('Live AI Engine Active (api.openai.com) • Configured with gpt-4o for BOQ drawing takeoffs.');
+            loadNavAiConfig();
+            var keyInp = document.getElementById('modalApiKeyInput');
+            var endInp = document.getElementById('modalApiEndpointInput');
+            var modSel = document.getElementById('modalAiModelSelect');
+            var maxInp = document.getElementById('modalMaxPullsInput');
+            var usedEl = document.getElementById('modalAiCallsUsed');
+
+            if (keyInp) keyInp.value = navAiConfig.apiKey || '';
+            if (endInp) endInp.value = navAiConfig.apiEndpoint || 'https://api.openai.com/v1';
+            if (modSel) modSel.value = navAiConfig.model || 'gpt-4o-mini';
+            if (maxInp) maxInp.value = navAiConfig.maxPulls || 15;
+            if (usedEl) usedEl.innerText = (navAiConfig.pullsUsed || 0) + ' / ' + (navAiConfig.maxPulls || 15) + ' Used';
+
+            var modal = document.getElementById('aiConfigModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function closeAiConfigModal() {
+            var modal = document.getElementById('aiConfigModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        var isNavApiKeyVisible = false;
+        function toggleApiKeyVisibility() {
+            isNavApiKeyVisible = !isNavApiKeyVisible;
+            var input = document.getElementById('modalApiKeyInput');
+            var btn = document.getElementById('modalToggleKeyBtn');
+            if (input) input.type = isNavApiKeyVisible ? 'text' : 'password';
+            if (btn) btn.innerText = isNavApiKeyVisible ? 'Hide' : 'Show';
+        }
+
+        async function handleTestAiConnection() {
+            var key = (document.getElementById('modalApiKeyInput').value || '').trim();
+            var endpoint = (document.getElementById('modalApiEndpointInput').value || '').trim();
+            var model = document.getElementById('modalAiModelSelect').value;
+
+            var box = document.getElementById('modalTestResultBox');
+            var txt = document.getElementById('modalTestResultText');
+            var icon = document.getElementById('modalTestResultIcon');
+
+            box.classList.remove('hidden');
+            box.className = 'p-3.5 rounded-xl border text-xs flex items-start gap-2.5 bg-blue-50 border-blue-200 text-blue-900';
+            txt.innerText = 'Testing live connection to OpenAI endpoint...';
+            icon.setAttribute('data-lucide', 'refresh-cw');
+            if (window.lucide) lucide.createIcons();
+
+            try {
+                var res = await fetch('/api/test-ai-connection/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ apiKey: key, apiEndpoint: endpoint, model: model })
+                });
+                var data = await res.json();
+                if (data.success) {
+                    box.className = 'p-3.5 rounded-xl border text-xs flex items-start gap-2.5 bg-emerald-50 border-emerald-200 text-emerald-900';
+                    txt.innerText = data.message;
+                    icon.setAttribute('data-lucide', 'check-circle-2');
+                } else {
+                    box.className = 'p-3.5 rounded-xl border text-xs flex items-start gap-2.5 bg-rose-50 border-rose-200 text-rose-900';
+                    txt.innerText = data.message;
+                    icon.setAttribute('data-lucide', 'alert-triangle');
+                }
+            } catch(e) {
+                box.className = 'p-3.5 rounded-xl border text-xs flex items-start gap-2.5 bg-rose-50 border-rose-200 text-rose-900';
+                txt.innerText = 'Network error: ' + e.message;
+                icon.setAttribute('data-lucide', 'alert-triangle');
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function handleResetAiCounter() {
+            navAiConfig.pullsUsed = 0;
+            localStorage.setItem('radwa_ai_config', JSON.stringify(navAiConfig));
+            var el = document.getElementById('modalAiCallsUsed');
+            if (el) el.innerText = '0 / ' + (navAiConfig.maxPulls || 15);
+            alert('Session quota reset to 0 calls used.');
+        }
+
+        function handleSaveAiConfig() {
+            var key = (document.getElementById('modalApiKeyInput').value || '').trim();
+            var endpoint = (document.getElementById('modalApiEndpointInput').value || '').trim() || 'https://api.openai.com/v1';
+            var model = document.getElementById('modalAiModelSelect').value;
+            var maxPulls = Number(document.getElementById('modalMaxPullsInput').value) || 15;
+
+            navAiConfig = Object.assign({}, navAiConfig, {
+                apiKey: key,
+                apiEndpoint: endpoint,
+                model: model,
+                maxPulls: maxPulls,
+                apiStatus: key ? 'active' : 'standalone',
+                apiStatusMessage: key ? 'Connected and ready for AI operations.' : 'Standalone mode (no key configured).'
+            });
+
+            localStorage.setItem('radwa_ai_config', JSON.stringify(navAiConfig));
+            updateNavAiPillView();
+            closeAiConfigModal();
+            if (typeof showToast === 'function') {
+                showToast('✓ AI Configuration saved successfully.', 'success');
+            }
         }
 
         function handleNavLogout() {
@@ -7289,6 +7447,7 @@
 
         // Auto-open project dossier if project or wo parameter is passed
         window.addEventListener('DOMContentLoaded', function() {
+            updateNavAiPillView();
             try {
                 const urlParams = new URLSearchParams(window.location.search);
                 const targetProjId = urlParams.get('project');
@@ -7302,5 +7461,140 @@
             } catch(e) {}
         });
     </script>
+
+    <!-- AI CONFIGURATION MODAL -->
+    <div id="aiConfigModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-6 overflow-y-auto">
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-xl overflow-hidden my-auto flex flex-col max-h-[92vh]">
+            <!-- Header -->
+            <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/30">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-sm font-extrabold text-white">OpenAI &amp; Model Configuration</h3>
+                            <span class="bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full">
+                                Live Engine
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-0.5">Configure your OpenAI API Key and model for real-time PDF BOQ takeoffs.</p>
+                    </div>
+                </div>
+                <button
+                    type="button"
+                    onclick="closeAiConfigModal()"
+                    class="p-1.5 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition cursor-pointer"
+                >
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6 space-y-4 overflow-y-auto text-xs text-slate-700">
+                <div>
+                    <label class="block text-xs font-bold text-slate-800 mb-1">OpenAI API Key</label>
+                    <div class="relative">
+                        <input
+                            type="password"
+                            id="modalApiKeyInput"
+                            placeholder="sk-proj-..."
+                            class="w-full pl-3 pr-20 py-2 border border-slate-300 rounded-xl font-mono text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                        />
+                        <button
+                            type="button"
+                            onclick="toggleApiKeyVisibility()"
+                            id="modalToggleKeyBtn"
+                            class="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition cursor-pointer"
+                        >
+                            Show
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-1">Saved to your browser storage and verified via server for AI drawing takeoffs.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-800 mb-1">API Endpoint URL</label>
+                    <input
+                        type="text"
+                        id="modalApiEndpointInput"
+                        placeholder="https://api.openai.com/v1"
+                        class="w-full px-3 py-2 border border-slate-300 rounded-xl font-mono text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                    />
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-800 mb-1">Primary Model</label>
+                        <select id="modalAiModelSelect" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white">
+                            <option value="gpt-4o-mini">gpt-4o-mini (Recommended)</option>
+                            <option value="gpt-4o">gpt-4o (High Reasoning)</option>
+                            <option value="gpt-3.5-turbo">gpt-3.5-turbo (Legacy)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-800 mb-1">Session Quota Limit</label>
+                        <input
+                            type="number"
+                            id="modalMaxPullsInput"
+                            value="15"
+                            min="1"
+                            max="100"
+                            class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                        />
+                    </div>
+                </div>
+
+                <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between">
+                    <div>
+                        <span class="font-bold text-slate-800 block text-xs">Session Pulls Used</span>
+                        <span class="text-[11px] text-slate-500" id="modalAiCallsUsed">0 / 15 Used</span>
+                    </div>
+                    <button
+                        type="button"
+                        onclick="handleResetAiCounter()"
+                        class="px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer"
+                    >
+                        Reset Quota
+                    </button>
+                </div>
+
+                <!-- Test Connection Response Box -->
+                <div id="modalTestResultBox" class="hidden p-3.5 rounded-xl border text-xs items-start gap-2.5">
+                    <i data-lucide="info" class="w-4 h-4 shrink-0 mt-0.5" id="modalTestResultIcon"></i>
+                    <div id="modalTestResultText" class="leading-relaxed font-medium"></div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between shrink-0">
+                <button
+                    type="button"
+                    onclick="handleTestAiConnection()"
+                    class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 font-bold text-xs hover:bg-white transition flex items-center gap-1.5 cursor-pointer"
+                >
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                    <span>Test Connection</span>
+                </button>
+
+                <div class="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onclick="closeAiConfigModal()"
+                        class="px-4 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-200 transition cursor-pointer"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        onclick="handleSaveAiConfig()"
+                        class="px-5 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-slate-800 transition shadow-xs cursor-pointer"
+                    >
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

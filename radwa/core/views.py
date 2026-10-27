@@ -1,10 +1,15 @@
 import json
+import os
+import logging
+from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.utils import timezone
 from .models import ProjectRFQ, Estimator, Client, Surveyor
+
+logger = logging.getLogger(__name__)
 
 
 @csrf_exempt
@@ -296,24 +301,74 @@ def crm_register_view(request):
 @csrf_exempt
 def test_ai_connection(request):
     """
-    Test endpoint for AI Engine Configuration (AiConfigModal)
+    Live test endpoint for OpenAI / AI Engine Configuration
     """
     if request.method == "POST":
         try:
             data = json.loads(request.body.decode("utf-8"))
         except Exception:
             data = request.POST.dict()
-        api_key = data.get("apiKey", "").strip()
-        endpoint = data.get("apiEndpoint", "https://api.openai.com/v1").strip()
-        model = data.get("model", "gpt-4o-mini").strip()
+        
+        api_key = data.get("apiKey", "").strip() or getattr(settings, "OPENAI_API_KEY", "") or os.getenv("OPENAI_API_KEY", "")
+        api_key = str(api_key).strip()
+        endpoint = data.get("apiEndpoint", "https://api.openai.com/v1").strip() or "https://api.openai.com/v1"
+        model = data.get("model", "gpt-4o-mini").strip() or "gpt-4o-mini"
 
         if not api_key:
-            return JsonResponse({"success": False, "message": "Please enter an API Key before testing."})
-        
-        return JsonResponse({
-            "success": True,
-            "message": f"Connection verified successfully! Endpoint {endpoint} responsive with model {model}. Latency: 42ms."
-        })
+            return JsonResponse({"success": False, "message": "Please enter an OpenAI API Key before testing."})
+
+        import time
+        import urllib.request
+        import urllib.error
+
+        target_url = endpoint.rstrip("/")
+        if not target_url.endswith("/chat/completions"):
+            target_url = f"{target_url}/chat/completions"
+
+        req_body = json.dumps({
+            "model": model,
+            "messages": [{"role": "user", "content": "ping"}],
+            "max_tokens": 1
+        }).encode("utf-8")
+
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}"
+        }
+
+        start_t = time.time()
+        try:
+            req = urllib.request.Request(target_url, data=req_body, headers=headers, method="POST")
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                elapsed_ms = int((time.time() - start_t) * 1000)
+                return JsonResponse({
+                    "success": True,
+                    "message": f"Connection verified successfully! OpenAI ({model}) responded in {elapsed_ms}ms with active quota."
+                })
+        except urllib.error.HTTPError as he:
+            err_body = he.read().decode("utf-8", errors="ignore")
+            logger.error("OpenAI test connection HTTPError %s: %s", he.code, err_body)
+            try:
+                err_json = json.loads(err_body)
+                err_code = err_json.get("error", {}).get("code", "")
+                err_msg = err_json.get("error", {}).get("message", err_body)
+            except Exception:
+                err_code = ""
+                err_msg = err_body
+            
+            if he.code == 429:
+                if "credit_balance_exhausted" in err_code or "insufficient_quota" in str(err_body):
+                    msg = "OpenAI Notice: Credit balance exhausted ($0 credits). Add billing credits at platform.openai.com/settings/organization/billing to enable live responses."
+                else:
+                    msg = f"OpenAI Rate Limited (HTTP 429): {err_msg}"
+            elif he.code == 401:
+                msg = "OpenAI Authentication Failed (HTTP 401): Invalid API Key."
+            else:
+                msg = f"OpenAI Error ({he.code}): {err_msg}"
+            return JsonResponse({"success": False, "message": msg, "http_status": he.code})
+        except Exception as e:
+            return JsonResponse({"success": False, "message": f"Connection test failed: {str(e)}"})
+
     return JsonResponse({"success": False, "message": "POST request required."})
 
 

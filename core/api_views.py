@@ -1160,7 +1160,9 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
     docs_text = "\n".join(docs_summary) if docs_summary else "No external PDF files uploaded; synthesize from standard EPC drawings & technical specifications."
     combined_pdf_context = "\n".join(pdf_text_corpus) if pdf_text_corpus else ""
 
+    openai_error = None
     if api_key and str(api_key).strip():
+        clean_key = str(api_key).strip()
         try:
             import urllib.request
             import urllib.error
@@ -1175,20 +1177,24 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
             user_msg = (
                 f"Project Name: {project_data.get('proposedProjectName', '')}\n"
                 f"Client: {project_data.get('clientName', '')}\n"
-                f"Location: {project_data.get('siteName', '')}\n"
+                f"Location: {project_data.get('siteName', '')} ({project_data.get('projectLocation', '')})\n"
                 f"SOW Disciplines: {project_data.get('sowScopes', [])}\n"
-                f"Scope Description: {project_data.get('projectWorkDescription', '')}\n"
-                f"Attached Tender Documents & Engineering Drawings:\n{docs_text}\n"
-                f"Extracted Drawing & Specification Notes:\n{combined_pdf_context[:8000]}\n"
-                f"Operational Directive / Prompt: {prompt}\n"
+                f"Scope Description: {project_data.get('projectWorkDescription', '')}\n\n"
+                f"ATTACHED TENDER DRAWINGS & DOCUMENTS:\n{docs_text}\n\n"
+                f"FULL EXTRACTED DRAWING TEXT & ENGINEERING SPECIFICATIONS:\n{combined_pdf_context[:60000]}\n\n"
+                f"OPERATIONAL INSTRUCTION / PROMPT:\n{prompt}\n"
                 f"Step: {step}\n\n"
-                "CRITICAL INSTRUCTIONS:\n"
-                "1. Read and analyze the attached PDF drawings, specifications, and project scope details.\n"
-                "2. Generate realistic BOQ schedule line items (in boqLineItems) with Saudi market unit rates in SAR, exact quantities, units, and descriptions.\n"
-                "3. In Step 2 (Resources), calculate Manpower, HSE, QA/QC, and Equipment strictly proportional to the project distance/scale in the prompt. "
-                "For example, if 10 km, calculate for 1-2 pipeline spreads (~35-50 personnel, appropriate excavators/rigs); "
-                "if 1000 km, calculate for multi-spread cross-country operations with hundreds of personnel, proportionally expanded HSE teams, multiple NDT/UT inspection crews, and large equipment fleets.\n"
-                "4. Return all calculations and totals in SAR."
+                "CRITICAL ESTIMATION RULES:\n"
+                "1. REAL PDF EXTRACTION: Carefully read the extracted text from the uploaded tender drawings, tables, and specifications above. "
+                "Extract actual drawing numbers, equipment sizes, linear lengths, excavation depths, pipe diameters, concrete grades, and specific scope items mentioned in the PDF.\n"
+                "2. BOQ SCHEDULE (boqLineItems): Generate detailed, itemized BOQ lines directly reflecting the uploaded PDF drawings and specifications. "
+                "Each item must have: id (e.g. 'boq-1'), itemNo (e.g. '01.01'), package (e.g. 'Site Preparation & Earthworks', 'Piping & Mechanical', 'Civil & Concrete', 'Electrical & Instrumentation'), "
+                "description (detailed specification mentioning drawing callouts, standards like Aramco SAES/ASME/ASTM), unit (e.g. 'M2', 'M3', 'LM', 'TON', 'EA', 'LOT'), "
+                "quantity (number), unitRate (realistic Saudi market unit rate in SAR), and totalAmount (quantity * unitRate).\n"
+                "3. RESOURCE DEPLOYMENT (Step 2): Calculate manpower, HSE personnel, QA/QC inspectors, and equipment rentals strictly proportional to the project scale, duration, and drawing scope.\n"
+                "4. TOTALS: Calculate directMaterialCost (sum of boqLineItems totalAmount), manpowerCost, equipmentCost, hseCost, qaqcCost, "
+                "overheadsAndPreliminaries (8-12%), marginPct (15-20%), marginAmount, and totalCommercialBidPrice in SAR.\n"
+                "5. Return strictly valid JSON."
             )
             req_data = json.dumps({
                 "model": ai_model,
@@ -1201,17 +1207,30 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
             }).encode("utf-8")
             headers = {
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {str(api_key).strip()}"
+                "Authorization": f"Bearer {clean_key}"
             }
             req = urllib.request.Request(endpoint, data=req_data, headers=headers, method="POST")
-            with urllib.request.urlopen(req, timeout=35) as resp:
+            with urllib.request.urlopen(req, timeout=45) as resp:
                 res_body = json.loads(resp.read().decode("utf-8"))
                 choice = res_body["choices"][0]["message"]["content"]
                 parsed = json.loads(choice)
                 if "boqLineItems" in parsed or "manpower" in parsed:
+                    parsed["aiSource"] = "openai"
+                    parsed["modelUsed"] = ai_model
+                    parsed["pdfAnalyzed"] = bool(combined_pdf_context)
                     return parsed
-        except Exception:
-            pass
+        except urllib.error.HTTPError as he:
+            err_body = he.read().decode("utf-8", errors="ignore")
+            logger.error("OpenAI API HTTPError %s: %s", he.code, err_body)
+            try:
+                err_json = json.loads(err_body)
+                err_msg = err_json.get("error", {}).get("message", err_body)
+            except Exception:
+                err_msg = err_body
+            openai_error = f"OpenAI ({he.code}): {err_msg}"
+        except Exception as e:
+            logger.error("OpenAI API call failed: %s", str(e))
+            openai_error = f"OpenAI error: {str(e)}"
 
     # Intelligent procedural fallback tailored to project specifications, drawings, and operational prompt
     p_name = project_data.get("proposedProjectName") or "Industrial Construction Project"
@@ -1585,6 +1604,8 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
             "marginAmount": margin_amount,
             "totalCommercialBidPrice": total_commercial_bid_price
         },
+        "aiSource": "fallback",
+        "openaiError": openai_error,
         "generatedAt": timezone.now().isoformat()
     }
 
@@ -1646,7 +1667,12 @@ def generate_boq_api(request, project_id=None):
         except Exception:
             pass
 
-    return JsonResponse({"success": True, "data": calc_data}, status=200)
+    return JsonResponse({
+        "success": True,
+        "data": calc_data,
+        "aiSource": calc_data.get("aiSource", "fallback"),
+        "openaiError": calc_data.get("openaiError")
+    }, status=200)
 
 
 @csrf_exempt
@@ -1712,7 +1738,7 @@ def upload_tender_pdf_api(request, project_id=None):
         "uploadedAt": timezone.now().strftime("%Y-%m-%d"),
         "pageCount": analysis.get("pageCount", 1),
         "drawingSheets": analysis.get("drawingSheets", []),
-        "extractedText": analysis.get("fullText", "")[:15000],
+        "extractedText": analysis.get("fullText", "")[:60000],
         "extractedParameters": analysis.get("extractedParameters", {}),
         "url": f"/media/tender_documents/{safe_name}"
     }
