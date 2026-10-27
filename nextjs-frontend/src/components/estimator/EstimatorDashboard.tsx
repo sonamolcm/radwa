@@ -107,6 +107,25 @@ export const EstimatorDashboard: React.FC<EstimatorDashboardProps> = ({
   const [verifiedReportProject, setVerifiedReportProject] = useState<ProjectRFQ | null>(null);
   const [trackOpsProject, setTrackOpsProject] = useState<ProjectRFQ | null>(null);
 
+  // Guarantee strict modal isolation (no stacking or blocking)
+  const closeAllModals = () => {
+    setBoqProject(null);
+    setDetailProject(null);
+    setPreviewProposalProject(null);
+    setSiteReviewProject(null);
+    setRequestSurveyProject(null);
+    setVerifiedReportProject(null);
+    setTrackOpsProject(null);
+  };
+
+  const openBoqModal = (p: ProjectRFQ) => { closeAllModals(); setBoqProject(p); };
+  const openDetailModal = (p: ProjectRFQ) => { closeAllModals(); setDetailProject(p); };
+  const openPreviewProposalModal = (p: ProjectRFQ) => { closeAllModals(); setPreviewProposalProject(p); };
+  const openSiteReviewModal = (p: ProjectRFQ) => { closeAllModals(); setSiteReviewProject(p); };
+  const openRequestSurveyModal = (p: ProjectRFQ) => { closeAllModals(); setRequestSurveyProject(p); };
+  const openVerifiedReportModal = (p: ProjectRFQ) => { closeAllModals(); setVerifiedReportProject(p); };
+  const openTrackOpsModal = (p: ProjectRFQ) => { closeAllModals(); setTrackOpsProject(p); };
+
   const currentEstimator = estimators.find(e => e.id === selectedEstimatorId) || estimators[0];
 
   // Tenders strictly authorized by the MD for bidding & estimation
@@ -738,7 +757,7 @@ export const EstimatorDashboard: React.FC<EstimatorDashboardProps> = ({
                     {/* View Full Dossier */}
                     <button
                       type="button"
-                      onClick={() => setDetailProject(project)}
+                      onClick={() => openDetailModal(project)}
                       className="px-3 py-1.5 rounded-md text-xs font-medium border border-slate-300 text-slate-700 hover:bg-slate-50 transition cursor-pointer flex items-center gap-1"
                     >
                       <Eye className="h-3.5 w-3.5" />
@@ -750,7 +769,7 @@ export const EstimatorDashboard: React.FC<EstimatorDashboardProps> = ({
                       <>
                         <button
                           type="button"
-                          onClick={() => setTrackOpsProject(project)}
+                          onClick={() => openTrackOpsModal(project)}
                           className="px-3 py-1.5 rounded-md text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-300 hover:bg-amber-100 transition cursor-pointer flex items-center gap-1.5 shadow-2xs"
                         >
                           <Compass className="h-3.5 w-3.5 text-amber-600" />
@@ -760,7 +779,7 @@ export const EstimatorDashboard: React.FC<EstimatorDashboardProps> = ({
                         {/* Locked BOQ Button */}
                         <button
                           type="button"
-                          onClick={() => setTrackOpsProject(project)}
+                          onClick={() => openTrackOpsModal(project)}
                           className="px-3.5 py-1.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed flex items-center gap-1.5"
                           title="Locked: Physical site measurements required before BOQ calculation"
                         >
@@ -795,7 +814,7 @@ export const EstimatorDashboard: React.FC<EstimatorDashboardProps> = ({
                         {isSurveyCompleted ? (
                           <button
                             type="button"
-                            onClick={() => setVerifiedReportProject(project)}
+                            onClick={() => openVerifiedReportModal(project)}
                             className="px-3 py-1.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 transition cursor-pointer flex items-center gap-1.5"
                           >
                             <CheckCheck className="h-3.5 w-3.5 text-emerald-600" />
@@ -806,7 +825,7 @@ export const EstimatorDashboard: React.FC<EstimatorDashboardProps> = ({
                           <>
                             <button
                               type="button"
-                              onClick={() => setSiteReviewProject(project)}
+                              onClick={() => openSiteReviewModal(project)}
                               className="px-3 py-1.5 rounded-md text-xs font-medium border border-slate-300 text-slate-700 hover:bg-slate-50 transition cursor-pointer flex items-center gap-1"
                             >
                               <Compass className="h-3.5 w-3.5 text-blue-600" />
@@ -815,7 +834,7 @@ export const EstimatorDashboard: React.FC<EstimatorDashboardProps> = ({
 
                             <button
                               type="button"
-                              onClick={() => setRequestSurveyProject(project)}
+                              onClick={() => openRequestSurveyModal(project)}
                               className="px-3 py-1.5 rounded-md text-xs font-semibold border border-amber-300 bg-amber-50/70 text-amber-800 hover:bg-amber-100 transition cursor-pointer flex items-center gap-1.5"
                             >
                               <Compass className="h-3.5 w-3.5 text-amber-700" />
@@ -827,7 +846,7 @@ export const EstimatorDashboard: React.FC<EstimatorDashboardProps> = ({
                         {/* Proposal Sheet (Unlocked) */}
                         <button
                           type="button"
-                          onClick={() => setPreviewProposalProject(project)}
+                          onClick={() => openPreviewProposalModal(project)}
                           className="px-3 py-1.5 rounded-md text-xs font-medium border border-slate-300 text-slate-700 hover:bg-slate-50 transition cursor-pointer flex items-center gap-1"
                         >
                           <FileSpreadsheet className="h-3.5 w-3.5 text-slate-500" />
@@ -837,7 +856,7 @@ export const EstimatorDashboard: React.FC<EstimatorDashboardProps> = ({
                         {/* Open BOQ Calculator Modal with AI Sparkles (Unlocked) */}
                         <button
                           type="button"
-                          onClick={() => setBoqProject(project)}
+                          onClick={() => openBoqModal(project)}
                           className={`px-3.5 py-1.5 rounded-md text-xs font-semibold text-white shadow-xs transition cursor-pointer flex items-center gap-1.5 ${
                             isSurveyCompleted 
                               ? 'bg-emerald-600 hover:bg-emerald-700 ring-2 ring-emerald-500/20' 
@@ -852,6 +871,7 @@ export const EstimatorDashboard: React.FC<EstimatorDashboardProps> = ({
                         <button
                           type="button"
                           onClick={() => {
+                            closeAllModals();
                             setSelectedProjectId(project.id);
                             setTopTab('comparison');
                           }}
@@ -866,6 +886,7 @@ export const EstimatorDashboard: React.FC<EstimatorDashboardProps> = ({
                         <button
                           type="button"
                           onClick={() => {
+                            closeAllModals();
                             setSelectedProjectId(project.id);
                             setTopTab('upload_docs');
                           }}
@@ -880,7 +901,7 @@ export const EstimatorDashboard: React.FC<EstimatorDashboardProps> = ({
                         {!isSubmitted ? (
                           <button
                             type="button"
-                            onClick={() => handleMarkBidSubmitted(project.id)}
+                            onClick={() => openPreviewProposalModal(project)}
                             className="px-4 py-1.5 rounded-md text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 shadow-xs transition flex items-center gap-1.5 cursor-pointer"
                           >
                             <Send className="h-3.5 w-3.5" />

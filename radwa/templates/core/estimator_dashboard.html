@@ -1247,7 +1247,7 @@
     <!-- ========================================================================= -->
     <!-- MODAL 1: SITE REVIEW ASSESSMENT MODAL (EXACT MATCH TO SCREENSHOT 1)       -->
     <!-- ========================================================================= -->
-    <div id="modalSiteReview" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/40 backdrop-blur-xs font-sans">
+    <div id="modalSiteReview" onclick="if(event.target === this) closeAllModals()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/40 backdrop-blur-xs font-sans">
         <div class="relative w-full max-w-2xl max-h-[92vh] flex flex-col rounded-xl bg-white border border-slate-200 shadow-xl overflow-hidden animate-in fade-in duration-150">
             
             <!-- Modal Header -->
@@ -1532,7 +1532,7 @@
     <!-- ========================================================================= -->
     <!-- MODAL 2: PROJECT DOSSIER MODAL                                            -->
     <!-- ========================================================================= -->
-    <div id="modalDossier" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
+    <div id="modalDossier" onclick="if(event.target === this) closeAllModals()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-150">
         <div class="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
             
             <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
@@ -1603,7 +1603,7 @@
     <!-- ========================================================================= -->
     <!-- MODAL 3: AI BOQ ESTIMATION & MANPOWER TAKEOFF (EXACT NEXT.JS MATCH)       -->
     <!-- ========================================================================= -->
-    <div id="modalBoqEstimation" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs font-sans">
+    <div id="modalBoqEstimation" onclick="if(event.target === this) closeAllModals()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs font-sans">
         <div class="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in duration-150">
             <!-- Modal Header -->
             <div class="px-6 py-3.5 border-b border-slate-200 bg-white space-y-3">
@@ -2289,7 +2289,7 @@
     <!-- ========================================================================= -->
     <!-- MODAL: DOCUMENT REJECTION ALERT                                          -->
     <!-- ========================================================================= -->
-    <div id="modalDocRejection" class="hidden fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs font-sans">
+    <div id="modalDocRejection" onclick="if(event.target === this) closeAllModals()" class="hidden fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs font-sans">
         <div class="relative w-full max-w-lg rounded-2xl bg-white border border-rose-200 shadow-2xl overflow-hidden animate-in fade-in duration-150">
             <div class="p-6 text-center space-y-4">
                 <div class="mx-auto h-16 w-16 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 shadow-inner">
@@ -2331,7 +2331,7 @@
     </div>
 
 <!-- ========================================================================= -->
-    <div id="modalRequestSurvey" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/40 backdrop-blur-xs font-sans animate-in fade-in duration-150">
+    <div id="modalRequestSurvey" onclick="if(event.target === this) closeAllModals()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/40 backdrop-blur-xs font-sans animate-in fade-in duration-150">
         <div class="relative w-full max-w-2xl max-h-[92vh] flex flex-col rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
             
             <!-- Header (Exact Match to User Screenshot) -->
@@ -2511,7 +2511,7 @@
     <!-- ========================================================================= -->
     <!-- MODAL 4B: TRACK OPERATIONS PROGRESS MODAL (EXACT NEXT.JS MATCH)           -->
     <!-- ========================================================================= -->
-    <div id="modalTrackOperationsProgress" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs font-sans animate-in fade-in duration-150">
+    <div id="modalTrackOperationsProgress" onclick="if(event.target === this) closeAllModals()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs font-sans animate-in fade-in duration-150">
         <div class="relative w-full max-w-2xl max-h-[92vh] flex flex-col rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
             
             <!-- Header -->
@@ -2591,7 +2591,7 @@
     <!-- ========================================================================= -->
     <!-- MODAL 4C: VERIFIED SURVEY REPORT MODAL (EXACT NEXT.JS MATCH)              -->
     <!-- ========================================================================= -->
-    <div id="modalVerifiedSurveyReport" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs font-sans animate-in fade-in duration-150">
+    <div id="modalVerifiedSurveyReport" onclick="if(event.target === this) closeAllModals()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs font-sans animate-in fade-in duration-150">
         <div class="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
             
             <!-- Header -->
@@ -2738,7 +2738,7 @@
     <!-- ========================================================================= -->
     <!-- MODAL 5: COMMERCIAL PROPOSAL PREVIEW MODAL (EXACT NEXT.JS MATCH)           -->
     <!-- ========================================================================= -->
-    <div id="modalProposalPreview" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/50 backdrop-blur-xs font-sans animate-in fade-in duration-150">
+    <div id="modalProposalPreview" onclick="if(event.target === this) closeAllModals()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/50 backdrop-blur-xs font-sans animate-in fade-in duration-150">
         <div class="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
             
             <!-- Header Bar -->
@@ -2927,11 +2927,71 @@
 
         </div>
     </div>
+    <!-- ========================================================================= -->
+    <!-- MODAL: CONFIRM FORMAL BID SUBMISSION                                      -->
+    <!-- ========================================================================= -->
+    <div id="modalSubmitBidConfirm" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/60 backdrop-blur-xs font-sans" onclick="if(event.target === this) closeAllModals()">
+        <div class="relative w-full max-w-lg rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in duration-150">
+            <div class="p-6 space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-xs">
+                            <i data-lucide="send" class="h-5 w-5 text-amber-400"></i>
+                        </div>
+                        <div>
+                            <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200" id="submitBidModalWoNo">
+                                WO-2026
+                            </span>
+                            <h3 class="text-base font-bold text-slate-900 mt-0.5">Submit Commercial Bid Proposal</h3>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeAllModals()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg cursor-pointer">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
+                    <div class="flex justify-between">
+                        <span class="text-slate-500 font-medium">Project Name:</span>
+                        <strong class="text-slate-900 font-bold" id="submitBidModalProjectName">--</strong>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500 font-medium">Client:</span>
+                        <strong class="text-slate-900 font-bold" id="submitBidModalClient">--</strong>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500 font-medium">Submission Mode:</span>
+                        <span class="text-slate-700 font-semibold" id="submitBidModalSubMode">Email Submission</span>
+                    </div>
+                    <div class="flex justify-between pt-2 border-t border-slate-200">
+                        <span class="text-slate-700 font-bold text-xs uppercase">Total Commercial Bid Value:</span>
+                        <strong class="text-emerald-700 font-mono font-black text-sm" id="submitBidModalTotal">SAR 0</strong>
+                    </div>
+                </div>
+
+                <div class="p-3 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-900 flex items-start gap-2">
+                    <i data-lucide="info" class="w-4 h-4 text-blue-600 shrink-0 mt-0.5"></i>
+                    <span>Submitting will mark this tender as <strong>Bid Submitted</strong> and transmit the commercial proposal package to CRM.</span>
+                </div>
+
+                <div class="flex items-center justify-end gap-2.5 pt-2">
+                    <button type="button" onclick="closeAllModals()" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition cursor-pointer">
+                        Cancel
+                    </button>
+                    <button type="button" onclick="executeSubmitBidProposal()" class="px-5 py-2 rounded-lg text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-md transition cursor-pointer flex items-center gap-1.5">
+                        <i data-lucide="send" class="w-3.5 h-3.5 text-amber-300"></i>
+                        <span>Confirm &amp; Submit Bid</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- ========================================================================= -->
     <!-- DISCREPANCY INQUIRY & JUSTIFICATION MODAL (BOQ COMPARISON)                 -->
     <!-- ========================================================================= -->
-    <div id="cmpInquiryModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs">
+    <div id="cmpInquiryModal" onclick="if(event.target === this) closeAllModals()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs">
         <div class="relative w-full max-w-2xl bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col font-sans">
             
             <!-- Header -->
@@ -3063,7 +3123,7 @@
     <!-- ========================================================================= -->
     <!-- ADD MANUAL TAKEOFF ITEM MODAL (BOQ COMPARISON)                             -->
     <!-- ========================================================================= -->
-    <div id="cmpAddManualModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs font-sans">
+    <div id="cmpAddManualModal" onclick="if(event.target === this) closeAllModals()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs font-sans">
         <div class="relative w-full max-w-md rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
             <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50">
                 <div class="flex items-center gap-2">
@@ -3209,7 +3269,7 @@
     <!-- ========================================================================= -->
     <!-- ROUTE BID PACKAGE FOR REVIEW & APPROVAL MODAL (STAGE 3)                  -->
     <!-- ========================================================================= -->
-    <div id="routeBidPackageModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs font-sans">
+    <div id="routeBidPackageModal" onclick="if(event.target === this) closeAllModals()" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs font-sans">
         <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl border border-slate-200 flex flex-col max-h-[92vh] overflow-hidden" onclick="closeRouteStaffDropdowns(event)">
             <!-- Header -->
             <div class="p-5 sm:p-6 border-b border-slate-100 flex items-start justify-between gap-4 bg-slate-50/50">
@@ -4207,13 +4267,13 @@
                     html += '      <button type="button" onclick="openBidDocs(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-semibold border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 transition cursor-pointer flex items-center gap-1 shadow-2xs"><i data-lucide="file-text" class="h-3.5 w-3.5 text-indigo-600"></i> Bid Docs (40)</button>';
                     html += '      <button type="button" disabled class="px-4 py-1.5 rounded-md text-xs font-semibold text-slate-400 bg-slate-200 border border-slate-200 cursor-not-allowed flex items-center gap-1.5"><i data-lucide="lock" class="h-3.5 w-3.5 text-slate-400"></i><span>Submit Bid Proposal</span></button>';
                 } else if (isSurveyCompleted) {
-                    html += '      <button type="button" onclick="openVerifiedReportModal(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 transition cursor-pointer flex items-center gap-1.5 shadow-2xs"><i data-lucide="clipboard-check" class="h-3.5 w-3.5 text-emerald-600"></i><span>Survey Report</span></button>';
+                    html += '      <button type="button" onclick="openVerifiedReportModal(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 transition cursor-pointer flex items-center gap-1.5 shadow-2xs"><i data-lucide="clipboard-check" class="h-3.5 w-3.5 text-emerald-600"></i><span>View Site Report</span></button>';
                     html += '      <button type="button" onclick="openBoqModal(\'' + p.id + '\')" class="px-3.5 py-1.5 rounded-md text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 ring-2 ring-emerald-500/20 shadow-xs transition cursor-pointer flex items-center gap-1.5"><i data-lucide="sparkles" class="h-3.5 w-3.5 text-amber-300"></i><span>⚡ AI BOQ (Using Site Data)</span></button>';
                     html += '      <button type="button" onclick="openProposalModal(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-medium border border-slate-300 text-slate-700 hover:bg-slate-50 transition cursor-pointer flex items-center gap-1"><i data-lucide="file-spreadsheet" class="h-3.5 w-3.5 text-slate-500"></i> Proposal Sheet</button>';
                     html += '      <button type="button" onclick="openCompareBoq(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-semibold border border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-900 transition cursor-pointer flex items-center gap-1 shadow-2xs"><i data-lucide="scale" class="h-3.5 w-3.5 text-purple-600"></i> Compare BOQ</button>';
                     html += '      <button type="button" onclick="openBidDocs(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-semibold border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 transition cursor-pointer flex items-center gap-1 shadow-2xs"><i data-lucide="file-text" class="h-3.5 w-3.5 text-indigo-600"></i> Bid Docs (40)</button>';
                     if (!isSubmitted) {
-                        html += '      <button type="button" onclick="markBidSubmitted(\'' + p.id + '\')" class="px-4 py-1.5 rounded-md text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 shadow-xs transition flex items-center gap-1.5 cursor-pointer"><i data-lucide="send" class="h-3.5 w-3.5"></i> Submit Bid Proposal</button>';
+                        html += '      <button type="button" onclick="openSubmitBidModal(\'' + p.id + '\')" class="px-4 py-1.5 rounded-md text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 shadow-xs transition flex items-center gap-1.5 cursor-pointer"><i data-lucide="send" class="h-3.5 w-3.5"></i> Submit Bid Proposal</button>';
                     } else {
                         html += '      <span class="px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-md border border-emerald-200 flex items-center gap-1"><i data-lucide="check-circle-2" class="h-3.5 w-3.5 text-emerald-600"></i> Proposal Submitted</span>';
                     }
@@ -4224,7 +4284,7 @@
                     html += '      <button type="button" onclick="openCompareBoq(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-semibold border border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-900 transition cursor-pointer flex items-center gap-1 shadow-2xs"><i data-lucide="scale" class="h-3.5 w-3.5 text-purple-600"></i> Compare BOQ</button>';
                     html += '      <button type="button" onclick="openBidDocs(\'' + p.id + '\')" class="px-3 py-1.5 rounded-md text-xs font-semibold border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 transition cursor-pointer flex items-center gap-1 shadow-2xs"><i data-lucide="file-text" class="h-3.5 w-3.5 text-indigo-600"></i> Bid Docs (40)</button>';
                     if (!isSubmitted) {
-                        html += '      <button type="button" onclick="markBidSubmitted(\'' + p.id + '\')" class="px-4 py-1.5 rounded-md text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 shadow-xs transition flex items-center gap-1.5 cursor-pointer"><i data-lucide="send" class="h-3.5 w-3.5"></i> Submit Bid Proposal</button>';
+                        html += '      <button type="button" onclick="openSubmitBidModal(\'' + p.id + '\')" class="px-4 py-1.5 rounded-md text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 shadow-xs transition flex items-center gap-1.5 cursor-pointer"><i data-lucide="send" class="h-3.5 w-3.5"></i> Submit Bid Proposal</button>';
                     } else {
                         html += '      <span class="px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-md border border-emerald-200 flex items-center gap-1"><i data-lucide="check-circle-2" class="h-3.5 w-3.5 text-emerald-600"></i> Proposal Submitted</span>';
                     }
@@ -4243,6 +4303,7 @@
         // SITE REVIEW MODAL LOGIC (SCREENSHOT 1)
         // =====================================================================
         function openSiteReviewModal(projectId) {
+            closeAllModals();
             activeSiteProject = projects.find(function(p) { return String(p.id) === String(projectId) || String(p.workOrderNo) === String(projectId); });
             if (!activeSiteProject) return;
 
@@ -4360,7 +4421,77 @@
         // =====================================================================
         // DOSSIER MODAL LOGIC
         // =====================================================================
+        
+        // =====================================================================
+        // CENTRALIZED MODAL & ACTION BUTTON MANAGER (ISOLATES SINGLE ACTIVE MODAL)
+        // =====================================================================
+        function closeAllModals() {
+            var modalIds = [
+                'modalDossier',
+                'modalSiteReview',
+                'modalBoqEstimation',
+                'modalDocRejection',
+                'modalRequestSurvey',
+                'modalTrackOperationsProgress',
+                'modalVerifiedSurveyReport',
+                'modalProposalPreview',
+                'modalSubmitBidConfirm',
+                'routeBidPackageModal',
+                'cmpInquiryModal',
+                'cmpAddManualModal',
+                'reassignEstimatorModal',
+                'aiConfigModal'
+            ];
+            modalIds.forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) {
+                    el.style.display = 'none';
+                    el.classList.add('hidden');
+                }
+            });
+            document.body.style.overflow = '';
+        }
+
+        var activeSubmitBidProjectId = null;
+
+        function openSubmitBidModal(projectId) {
+            closeAllModals();
+            var p = projects.find(function(p) { return String(p.id) === String(projectId) || String(p.workOrderNo) === String(projectId); });
+            if (!p) return;
+
+            activeSubmitBidProjectId = String(p.id);
+            var totalVal = (p.aiBoqCalculation && p.aiBoqCalculation.totals && p.aiBoqCalculation.totals.totalCommercialBidPrice) || p.estimatedValue || 0;
+
+            var woEl = document.getElementById('submitBidModalWoNo');
+            if (woEl) woEl.textContent = p.workOrderNo || 'WO-2026';
+            var nameEl = document.getElementById('submitBidModalProjectName');
+            if (nameEl) nameEl.textContent = p.proposedProjectName || 'Project Tender';
+            var clientEl = document.getElementById('submitBidModalClient');
+            if (clientEl) clientEl.textContent = p.clientName || 'Client';
+            var modeEl = document.getElementById('submitBidModalSubMode');
+            if (modeEl) modeEl.textContent = p.bidSubmissionType || 'Email Submission';
+            var totEl = document.getElementById('submitBidModalTotal');
+            if (totEl) totEl.textContent = formatSAR(totalVal);
+
+            var m = document.getElementById('modalSubmitBidConfirm');
+            if (m) {
+                m.style.display = 'flex';
+                m.style.zIndex = '99999';
+                m.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+            lucide.createIcons();
+        }
+
+        function executeSubmitBidProposal() {
+            if (!activeSubmitBidProjectId) return;
+            var pid = activeSubmitBidProjectId;
+            closeAllModals();
+            markBidSubmitted(pid, true);
+        }
+
         function openDossierModal(projectId) {
+            closeAllModals();
             var project = projects.find(function(p) { return String(p.id) === String(projectId) || String(p.workOrderNo) === String(projectId); });
             if (!project) return;
 
@@ -4628,6 +4759,7 @@
         }
 
         function openBoqModal(projectId) {
+            closeAllModals();
             activeBoqProject = projects.find(function(p) { return String(p.id) === String(projectId) || String(p.workOrderNo) === String(projectId); });
             if (!activeBoqProject) return;
 
@@ -5428,6 +5560,7 @@
         }
 
         function openRequestSurveyModal(projectId) {
+            closeAllModals();
             activeSurveyProject = projects.find(function(p) { return String(p.id) === String(projectId) || String(p.workOrderNo) === String(projectId); });
             if (!activeSurveyProject) return;
 
@@ -5629,6 +5762,7 @@
         // VERIFIED SURVEY REPORT MODAL LOGIC (VerifiedSurveyReportModal.tsx)
         // =====================================================================
         function openVerifiedReportModal(projectId) {
+            closeAllModals();
             activeVerifiedProject = projects.find(function(p) { return String(p.id) === String(projectId) || String(p.workOrderNo) === String(projectId); });
             if (!activeVerifiedProject) return;
 
@@ -5730,6 +5864,7 @@
         // PROPOSAL MODAL LOGIC (ProposalPreviewModal.tsx)
         // =====================================================================
         function openProposalModal(projectId) {
+            closeAllModals();
             activeProposalProject = projects.find(function(p) { return String(p.id) === String(projectId) || String(p.workOrderNo) === String(projectId); });
             if (!activeProposalProject) return;
 
@@ -5917,6 +6052,7 @@
         }
 
         function openCompareBoq(projectId) {
+            closeAllModals();
             switchEstimatorTopTab('comparison', projectId);
             var p = getActiveComparisonProject();
             if (!hasCompared) {
@@ -5935,6 +6071,7 @@
         }
 
         function openBidDocs(projectId) {
+            closeAllModals();
             switchEstimatorTopTab('upload_docs', projectId);
             var p = projects.find(function(item) { return String(item.id) === String(projectId); });
             var count = (p && p.attachedFiles) ? p.attachedFiles.length : 40;
