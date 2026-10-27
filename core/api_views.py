@@ -1160,6 +1160,163 @@ def verify_tender_document(file_name, full_text, page_count=1):
     }
 
 
+def chunk_tender_document_into_rag_topics(full_text, filename="Tender_Doc.pdf"):
+    """
+    RAG Pipeline: Splits verified tender drawings & technical specs into semantic chunks
+    categorized by engineering discipline and topic for high-precision BOQ takeoff.
+    """
+    import re
+    if not full_text or len(full_text.strip()) < 10:
+        return []
+
+    topic_definitions = [
+        {
+            "topic": "Civil & Structural Engineering",
+            "discipline": "Civil",
+            "keywords": [
+                "excavation", "trench", "backfill", "compaction", "concrete", "rebar", "reinforcement",
+                "foundation", "subgrade", "asphalt", "paving", "grading", "dewatering", "berm",
+                "containment", "blast wall", "structural steel", "pile", "retaining wall"
+            ]
+        },
+        {
+            "topic": "Mechanical, Piping & Equipment",
+            "discipline": "Mechanical & Piping",
+            "keywords": [
+                "pipeline", "carbon steel", "api 5l", "flange", "valve", "spool", "welding", "wps",
+                "hydrotest", "tank", "storage tank", "vessel", "pump", "compressor", "piping",
+                "coating", "lining", "insulation", "tie-in", "manifold"
+            ]
+        },
+        {
+            "topic": "Electrical, Substation & Instrumentation",
+            "discipline": "Electrical",
+            "keywords": [
+                "substation", "transformer", "switchgear", "gis", "380kv", "115kv", "13.8kv", "busbar",
+                "circuit breaker", "power cable", "xlpe", "cable tray", "conduit", "grounding",
+                "earthing", "lightning", "scada", "plc", "transmitter", "instrumentation"
+            ]
+        },
+        {
+            "topic": "Bill of Quantities & Drawing Schedules",
+            "discipline": "Quantities & MTO",
+            "keywords": [
+                "bill of quantities", "boq", "schedule of rates", "mto", "material takeoff", "drawing no",
+                "dwg no", "sheet", "diameter", "length", "quantity", "unit rate", "item no", "bill no"
+            ]
+        },
+        {
+            "topic": "QA/QC, Inspection & Testing",
+            "discipline": "QA/QC",
+            "keywords": [
+                "qa/qc", "inspection", "ndt", "radiographic", "ultrasonic", "magnetic particle", "hydrostatic test",
+                "pressure test", "dft", "third-party", "cswip", "nace", "testing & commissioning"
+            ]
+        },
+        {
+            "topic": "HSE, Safety & Environmental Compliance",
+            "discipline": "HSE",
+            "keywords": [
+                "hse", "safety", "fire watch", "confined space", "permit to work", "gas test",
+                "environmental", "spill", "ppe", "safety officer", "emergency response", "aramco safe"
+            ]
+        },
+        {
+            "topic": "General Scope & Tender Specifications",
+            "discipline": "General",
+            "keywords": [
+                "scope of work", "specifications", "aramco standard", "saes", "astm", "asme", "sec standard",
+                "client requirements", "duration", "warranty", "mobilization", "demobilization"
+            ]
+        }
+    ]
+
+    sections = re.split(r'(?:--- Sheet / Page \d+ ---|\n(?=[A-Z0-9\.\s]{3,30}:?\n))', full_text)
+    chunks = []
+    chunk_idx = 1
+
+    for sec in sections:
+        sec_text = sec.strip()
+        if len(sec_text) < 40:
+            continue
+
+        paragraphs = re.split(r'\n{2,}', sec_text)
+        current_block = []
+        current_len = 0
+
+        for p in paragraphs:
+            p = p.strip()
+            if not p:
+                continue
+            current_block.append(p)
+            current_len += len(p)
+
+            if current_len >= 500:
+                block_content = "\n".join(current_block)
+                block_lower = block_content.lower()
+                matched_topic = None
+                matched_discipline = "General"
+                max_matches = 0
+                matched_kws = []
+
+                for t_def in topic_definitions:
+                    matches = [kw for kw in t_def["keywords"] if kw in block_lower]
+                    if len(matches) > max_matches:
+                        max_matches = len(matches)
+                        matched_topic = t_def["topic"]
+                        matched_discipline = t_def["discipline"]
+                        matched_kws = matches
+
+                if not matched_topic:
+                    matched_topic = "General Scope & Tender Specifications"
+                    matched_discipline = "General"
+
+                chunks.append({
+                    "id": f"rag-chunk-{chunk_idx}",
+                    "topic": matched_topic,
+                    "discipline": matched_discipline,
+                    "matchedKeywords": matched_kws[:6],
+                    "text": block_content[:1200],
+                    "charCount": len(block_content),
+                    "relevanceScore": min(round(0.70 + (max_matches * 0.05), 2), 0.99)
+                })
+                chunk_idx += 1
+                current_block = []
+                current_len = 0
+
+        if current_block:
+            block_content = "\n".join(current_block)
+            block_lower = block_content.lower()
+            matched_topic = None
+            matched_discipline = "General"
+            max_matches = 0
+            matched_kws = []
+
+            for t_def in topic_definitions:
+                matches = [kw for kw in t_def["keywords"] if kw in block_lower]
+                if len(matches) > max_matches:
+                    max_matches = len(matches)
+                    matched_topic = t_def["topic"]
+                    matched_discipline = t_def["discipline"]
+                    matched_kws = matches
+
+            if not matched_topic:
+                matched_topic = "General Scope & Tender Specifications"
+                matched_discipline = "General"
+
+            chunks.append({
+                "id": f"rag-chunk-{chunk_idx}",
+                "topic": matched_topic,
+                "discipline": matched_discipline,
+                "matchedKeywords": matched_kws[:6],
+                "text": block_content[:1200],
+                "charCount": len(block_content),
+                "relevanceScore": min(round(0.70 + (max_matches * 0.05), 2), 0.99)
+            })
+            chunk_idx += 1
+
+    return chunks
+
 def extract_pdf_drawing_specs(file_source, filename="Tender_Document.pdf"):
     """
     Parses an uploaded PDF file, validates authenticity via verify_tender_document,
@@ -1196,6 +1353,10 @@ def extract_pdf_drawing_specs(file_source, filename="Tender_Document.pdf"):
     # Run strict document validation & classification
     verification = verify_tender_document(filename, full_text, page_count=page_count)
     
+    rag_chunks = []
+    if verification["isValidTenderDoc"]:
+        rag_chunks = chunk_tender_document_into_rag_topics(full_text, filename=filename)
+
     return {
         "fileName": filename,
         "pageCount": page_count,
@@ -1206,7 +1367,10 @@ def extract_pdf_drawing_specs(file_source, filename="Tender_Document.pdf"):
         "fullText": full_text[:60000],
         "extractedParameters": verification["extractedParameters"],
         "detectedDisciplines": verification.get("detectedDisciplines", []),
-        "summary": verification["reason"]
+        "summary": verification["reason"],
+        "ragChunks": rag_chunks,
+        "ragTopics": list(set([c["topic"] for c in rag_chunks])),
+        "ragChunkCount": len(rag_chunks)
     }
 
 
@@ -1228,13 +1392,14 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
     elif not isinstance(project_data, dict):
         project_data = {}
 
-    # 1. Strict Document Validation on attached tender documents
+    # 1. Strict Document Validation & RAG Chunk Pipeline on attached tender documents
     attached_docs = project_data.get("attachedFiles") or project_data.get("attached_files") or []
     valid_docs = []
     invalid_docs = []
     docs_summary = []
     primary_doc_name = None
     pdf_text_corpus = []
+    all_rag_chunks = []
 
     for doc in attached_docs:
         if isinstance(doc, dict):
@@ -1271,6 +1436,8 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
                 docs_summary.append(f"- Drawing / Document: {d_name} ({doc.get('size', 'PDF')}){sheet_str}")
                 if text:
                     pdf_text_corpus.append(text)
+                    doc_chunks = doc.get("ragChunks") or chunk_tender_document_into_rag_topics(text, filename=d_name)
+                    all_rag_chunks.extend(doc_chunks)
             else:
                 invalid_docs.append(doc)
         elif isinstance(doc, str):
@@ -1589,6 +1756,9 @@ def synthesize_ai_boq(project_data, prompt="Generate standard BOQ schedule from 
         },
         "aiSource": "fallback",
         "openaiError": openai_error,
+        "ragChunks": all_rag_chunks[:25],
+        "ragTopics": list(set([c["topic"] for c in all_rag_chunks])),
+        "ragChunkCount": len(all_rag_chunks),
         "generatedAt": timezone.now().isoformat()
     }
 
